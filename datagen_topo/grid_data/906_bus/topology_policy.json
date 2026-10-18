@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "perturb_sw": ["tie01", "tie02", "tie03", "tie04", "tie05", "tie06", "tie07", "tie08"],
+  "repair_nc": [],
+  "repair_hints": {}
+}

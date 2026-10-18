@@ -1,0 +1,46 @@
+! PV Systems for IEEE 13-Bus Feeder (test case)
+! Line continuations removed for PowerModelsDistribution OpenDSS parser compatibility.
+!
+! Placement: 3-phase at MV junctions / heavy loads; single-phase on 2.4 kV laterals.
+! Total nameplate: ~1640 kW (11 units) on ~3.0 MW feeder load (~55% penetration).
+
+! ============================================================
+! THREE-PHASE PVSystems (4.16 kV line-to-line, wye-connected)
+! ============================================================
+
+! Bus 671 — largest load 1155 kW
+New PVSystem.PV_671  bus1=671  phases=3  kV=4.16  kVA=350  pmpp=350  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 675 — wye loads 843 kW total
+New PVSystem.PV_675  bus1=675  phases=3  kV=4.16  kVA=250  pmpp=250  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 634 — LV wye loads 400 kW (via XFM1); modeled at 4.16 kV bus
+New PVSystem.PV_634  bus1=634  phases=3  kV=4.16  kVA=250  pmpp=250  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 632 — main trunk junction (RG60–632–670–671)
+New PVSystem.PV_632  bus1=632  phases=3  kV=4.16  kVA=150  pmpp=150  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 670 — distributed load point ~200 kW
+New PVSystem.PV_670  bus1=670  phases=3  kV=4.16  kVA=100  pmpp=100  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 680 — feeder end (line 671680)
+New PVSystem.PV_680  bus1=680  phases=3  kV=4.16  kVA=120  pmpp=120  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 692 — delta load 170 kW
+New PVSystem.PV_692  bus1=692  phases=3  kV=4.16  kVA=85  pmpp=85  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 646 — delta load on 646.2.3; lateral lines are Phases=2 (2 and 3 only)
+New PVSystem.PV_646  bus1=646.2.3  phases=2  kV=4.16  kVA=115  pmpp=115  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! ============================================================
+! SINGLE-PHASE PVSystems (2.4 kV phase-to-neutral, wye laterals)
+! ============================================================
+
+! Bus 652, ph1 — load 128 kW
+New PVSystem.PV_652  bus1=652.1  phases=1  kV=2.4  kVA=60  pmpp=60  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 611, ph3 — load 170 kW
+New PVSystem.PV_611  bus1=611.3  phases=1  kV=2.4  kVA=80  pmpp=80  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 645, ph2 — load 170 kW
+New PVSystem.PV_645  bus1=645.2  phases=1  kV=2.4  kVA=80  pmpp=80  pf=1.0  %cutin=0.1  %cutout=0.1

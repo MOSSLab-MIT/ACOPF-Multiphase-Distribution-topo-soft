@@ -1,0 +1,15 @@
+! Optional NO tie switches for the 906-bus European LV test system.
+! Pairs are distinct network leaves with long graph distance (different branches of the radial tree).
+! Switch=y + enabled=n => open at base case, cataloged by FeederFlow.
+! Impedance matches 240_bus circuit-breaker style (low R/X, no shunt).
+!
+! Remove or comment the Redirect in 906bus_Master.dss to drop all ties at once.
+
+New Line.Tie01  Phases=3  Bus1=906  Bus2=103  Switch=y  enabled=n  r1=0.001  r0=0.001  x1=0.001  x0=0.001  c1=0  c0=0
+New Line.Tie02  Phases=3  Bus1=900  Bus2=169  Switch=y  enabled=n  r1=0.001  r0=0.001  x1=0.001  x0=0.001  c1=0  c0=0
+New Line.Tie03  Phases=3  Bus1=899  Bus2=682  Switch=y  enabled=n  r1=0.001  r0=0.001  x1=0.001  x0=0.001  c1=0  c0=0
+New Line.Tie04  Phases=3  Bus1=898  Bus2=681  Switch=y  enabled=n  r1=0.001  r0=0.001  x1=0.001  x0=0.001  c1=0  c0=0
+New Line.Tie05  Phases=3  Bus1=896  Bus2=676  Switch=y  enabled=n  r1=0.001  r0=0.001  x1=0.001  x0=0.001  c1=0  c0=0
+New Line.Tie06  Phases=3  Bus1=886  Bus2=264  Switch=y  enabled=n  r1=0.001  r0=0.001  x1=0.001  x0=0.001  c1=0  c0=0
+New Line.Tie07  Phases=3  Bus1=882  Bus2=327  Switch=y  enabled=n  r1=0.001  r0=0.001  x1=0.001  x0=0.001  c1=0  c0=0
+New Line.Tie08  Phases=3  Bus1=881  Bus2=70   Switch=y  enabled=n  r1=0.001  r0=0.001  x1=0.001  x0=0.001  c1=0  c0=0

@@ -1,0 +1,13 @@
+[tool.ruff]
+include = ["core/**/*.py", "methods/**/*.py"]
+
+[tool.ruff.lint]
+ignore = ["E731"]  # lambda-assignment: lambdas are idiomatic in JAX (e.g. jax.tree.map)
+
+[tool.ruff.lint.per-file-ignores]
+# Entry scripts set sys.path before imports; deferred TF/JAX imports follow runtime config.
+"methods/**/train.py" = ["E402"]
+"methods/**/test.py" = ["E402"]
+# JAX config (jax_enable_x64) must be set between `import jax` and `import jax.numpy`.
+"core/grids/data.py" = ["E402"]
+"core/grids/power_flow.py" = ["E402"]

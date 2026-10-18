@@ -1,0 +1,214 @@
+# Penalty-direct rho sweep: fixed rho_eq = rho_ineq ∈ {10, 100, 500, 1000}.
+#
+# rho_rate=0 and rho_decay_rate=1 keep penalties at init values for all epochs.
+#
+# One of the method configs (see scripts/slurm_runs/README.md).
+#
+# Generate:
+#   python scripts/slurm_runs/train_jobs.py generate --config scripts/slurm_runs/train_jobs_penalty_direct.yaml
+# Submit:
+#   sbatch scripts/slurm_runs/penalty_direct/submit.sh
+
+name: penalty_direct
+
+matrix:
+  methods:
+    - penalty_direct_rho10
+    - penalty_direct_rho100
+    - penalty_direct_rho500
+    - penalty_direct_rho1000
+  grids: ["13", "123", "240", "906", "8500"]
+  seeds: [1,2,3]
+
+results_dir: results/penalty_direct
+max_parallel: 8
+group_by_resource: true
+overwrite: true
+
+env:
+  conda_env: new_opt
+
+slurm:
+  job_name: train_penalty_direct
+  log_dir: logs/training
+  default_resource_profile: medium
+
+resources:
+  small:
+    time: "12:00:00"
+    mem: 32G
+    cpus_per_task: 4
+    gpus: 1
+    gpu_type: h200
+    partition: pi_donti_gpu,mit_preemptable
+  medium:
+    time: "24:00:00"
+    mem: 64G
+    cpus_per_task: 4
+    gpus: 1
+    gpu_type: h200
+    partition: pi_donti_gpu,mit_preemptable,mit_normal_gpu
+  large:
+    time: "47:50:00"
+    mem: 200G
+    cpus_per_task: 4
+    gpus: 1
+    gpu_type: h200
+    partition: pi_donti_gpu
+
+x-penalty-direct-args: &penalty_direct_args
+  rho_rate: 0
+  violation_threshold: 1.0e-6
+  rho_decay_rate: 1
+  rho_max: 1.0e10
+  save_every: 5
+  log_every: 1
+  woodbury_ir_steps: "auto"
+  woodbury_batch_mode: "vmap"
+
+method_profiles:
+  penalty_direct_rho10:
+    entrypoint: methods/penalty_direct/train.py
+    case_suffix: penalty_direct_rho10
+    args:
+      <<: *penalty_direct_args
+      rho_eq_init: 10
+      rho_ineq_init: 10
+
+  penalty_direct_rho100:
+    entrypoint: methods/penalty_direct/train.py
+    case_suffix: penalty_direct_rho100
+    args:
+      <<: *penalty_direct_args
+      rho_eq_init: 100
+      rho_ineq_init: 100
+
+  penalty_direct_rho500:
+    entrypoint: methods/penalty_direct/train.py
+    case_suffix: penalty_direct_rho500
+    args:
+      <<: *penalty_direct_args
+      rho_eq_init: 500
+      rho_ineq_init: 500
+
+  penalty_direct_rho1000:
+    entrypoint: methods/penalty_direct/train.py
+    case_suffix: penalty_direct_rho1000
+    args:
+      <<: *penalty_direct_args
+      rho_eq_init: 1000
+      rho_ineq_init: 1000
+
+grid_profiles:
+  "13":
+    case_dir: IEEE13Nodeckt
+    resource_profile: small
+    epochs: 20
+    num_layers: 4
+    learning_rate: 5.0e-5
+    batch_size: 32
+    hidden_size: 512
+    power_flow_solver: fixed_point
+    train_samples: 200000
+    eval_samples: 2000
+    test_samples: 2000
+    val_h5: datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5
+    test_variants:
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_infeasible.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_high_load_low_der.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_low_load_high_der.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_shifted_m01_std01.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_shifted_m02_std02.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_shifted_m03_std03.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_shifted_m04_std04.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_shifted_m05_std05.h5
+      - datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_oor_load.h5
+
+  "123":
+    case_dir: IEEE123Master
+    resource_profile: small
+    epochs: 20
+    num_layers: 4
+    learning_rate: 5.0e-5
+    batch_size: 32
+    hidden_size: 1024
+    power_flow_solver: fixed_point
+    train_samples: 200000
+    eval_samples: 2000
+    test_samples: 2000
+    val_h5: datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible.h5
+    test_variants:
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_infeasible.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_low_load_high_der.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_high_load_low_der.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_shifted_m01_std01.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_shifted_m02_std02.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_shifted_m03_std03.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_shifted_m04_std04.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_shifted_m05_std05.h5
+      - datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_oor_load.h5
+
+  "240":
+    case_dir: 240bus_Master
+    resource_profile: medium
+    epochs: 20
+    num_layers: 4
+    learning_rate: 5.0e-5
+    batch_size: 64
+    hidden_size: 1024
+    power_flow_solver: newton_gmres
+    train_samples: 200000
+    eval_samples: 2000
+    test_samples: 2000
+    val_h5: datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible.h5
+    test_variants:
+      - datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible.h5
+      - datagen_topo/datasets/240bus_Master/240bus_Master_test_infeasible.h5
+      - datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible_high_load_low_der.h5
+      - datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible_low_load_high_der.h5
+
+  "906":
+    case_dir: 906bus_Master
+    resource_profile: medium
+    epochs: 20
+    num_layers: 4
+    learning_rate: 5.0e-5
+    batch_size: 32
+    hidden_size: 1024
+    power_flow_solver: fixed_point
+    train_samples: 200000
+    eval_samples: 2000
+    test_samples: 2000
+    val_h5: datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible.h5
+    test_variants:
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_infeasible.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible_high_load_low_der.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible_low_load_high_der.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible_shifted_m01_std01.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible_shifted_m02_std02.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible_shifted_m03_std03.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible_shifted_m04_std04.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible_shifted_m05_std05.h5
+      - datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible_oor_load.h5
+
+  "8500":
+    case_dir: 8500_Master
+    resource_profile: large
+    epochs: 10
+    num_layers: 4
+    learning_rate: 5.0e-6
+    batch_size: 4
+    hidden_size: 2048
+    power_flow_solver: fixed_point
+    train_samples: 200000
+    eval_samples: 2000
+    test_samples: 2000
+    val_h5: datagen_topo/datasets/8500_Master/8500_Master_test_feasible.h5
+    test_variants:
+      - datagen_topo/datasets/8500_Master/8500_Master_test_feasible.h5
+      - datagen_topo/datasets/8500_Master/8500_Master_test_infeasible.h5
+      - datagen_topo/datasets/8500_Master/8500_Master_test_feasible_low_load_high_der.h5
+      - datagen_topo/datasets/8500_Master/8500_Master_test_feasible_high_load_low_der.h5

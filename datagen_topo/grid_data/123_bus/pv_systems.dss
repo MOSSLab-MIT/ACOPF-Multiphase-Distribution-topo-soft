@@ -1,0 +1,81 @@
+! PV Systems for IEEE 123-Bus Feeder
+! 12 PV units (~9.8% of 123 buses)
+! Total PV capacity: ~920 kW on ~3.5 MW total load (~26% penetration)
+! System: 4.16 kV (3-phase wye), 2.4 kV phase-to-neutral for single-phase branches
+!
+! Placement strategy:
+!   - 4 three-phase PVSystems at high-load or end-of-feeder 3-phase buses
+!   - 8 single-phase PVSystems spread across laterals (3 ph1, 3 ph2, 2 ph3)
+!   - Sized at 30-50% of local bus load (realistic commercial/residential DER)
+
+! ============================================================
+! THREE-PHASE PVSystems (4.16 kV line-to-line, wye-connected)
+! ============================================================
+
+! Bus 47 — 3-phase wye load 105 kW, mid-feeder junction (lines L47/L48/L45)
+! PV: 50 kW 3-phase  (~48% of local load)
+New PVSystem.PV_47   bus1=47   phases=3  kV=4.16  kVA=100  pmpp=100
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 48 — 3-phase wye load 210 kW, largest 3-phase load on feeder
+! PV: 100 kW 3-phase  (~48% of local load)
+New PVSystem.PV_48   bus1=48   phases=3  kV=4.16  kVA=200  pmpp=200
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 65 — 3-phase delta loads 140 kW total (35a+35b+70c), end of cable section
+! PV: 60 kW 3-phase  (~43% of local load)
+New PVSystem.PV_65   bus1=65   phases=3  kV=4.16  kVA=120  pmpp=120
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 76 — 3-phase delta loads 245 kW total (105a+70b+70c), main feeder branching point
+! PV: 75 kW 3-phase  (~31% of local load)
+New PVSystem.PV_76   bus1=76   phases=3  kV=4.16  kVA=150  pmpp=150
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! ============================================================
+! SINGLE-PHASE PVSystems — PHASE 1 (wye, 2.4 kV phase-to-neutral)
+! ============================================================
+
+! Bus 9, ph1 — load 15 kW (lateral: 8->9->14->11/10), upper-feeder
+New PVSystem.PV_9    bus1=9.1    phases=1  kV=2.4   kVA=15   pmpp=15
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 33, ph1 — load 15 kW (lateral: 27->33), mid-feeder lateral
+New PVSystem.PV_33   bus1=33.1   phases=1  kV=2.4   kVA=15   pmpp=15
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 71, ph1 — load 15 kW (lateral: 67->68->69->70->71), lower-feeder
+New PVSystem.PV_71   bus1=71.1   phases=1  kV=2.4   kVA=15   pmpp=15
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! ============================================================
+! SINGLE-PHASE PVSystems — PHASE 2 (wye, 2.4 kV phase-to-neutral)
+! ============================================================
+
+! Bus 22, ph2 — load 20 kW (lateral: 21->22), upper-feeder
+New PVSystem.PV_22   bus1=22.2   phases=1  kV=2.4   kVA=20   pmpp=20
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 43, ph2 — load 20 kW (lateral: 42->43), mid-feeder lateral
+New PVSystem.PV_43   bus1=43.2   phases=1  kV=2.4   kVA=20   pmpp=20
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 64, ph2 — load 20 kW (lateral: 63->64->65), larger load node
+New PVSystem.PV_64   bus1=64.2   phases=1  kV=2.4   kVA=20   pmpp=20
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! ============================================================
+! SINGLE-PHASE PVSystems — PHASE 3 (wye, 2.4 kV phase-to-neutral)
+! ============================================================
+
+! Bus 24, ph3 — load 10 kW (lateral: 23->24), upper-feeder
+New PVSystem.PV_24   bus1=24.3   phases=1  kV=2.4   kVA=10   pmpp=10
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 50, ph3 — load 10 kW (lateral: 49->50->51->151), mid-feeder
+New PVSystem.PV_50   bus1=50.3   phases=1  kV=2.4   kVA=10   pmpp=10
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus 74, ph3 — load 10 kW (lateral: 73->74->75), lower-feeder lateral
+New PVSystem.PV_74   bus1=74.3   phases=1  kV=2.4   kVA=10   pmpp=10
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1

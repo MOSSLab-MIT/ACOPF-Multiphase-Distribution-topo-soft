@@ -1,0 +1,32 @@
+# Conda environment for ACOPF multiphase distribution (JAX training + Julia datagen).
+#
+# Create:
+#   conda env create -f environment.yml
+#   conda activate new_opt
+#
+# JAX GPU: if pip installs CPU-only JAX, reinstall for your CUDA version, e.g.:
+#   pip install -U "jax[cuda12]"   # see https://docs.jax.dev/en/latest/installation.html
+#
+# Julia datagen (separate): julia --project=datagen_topo/FeederFlow.jl -e 'using Pkg; Pkg.instantiate()'
+
+name: new_opt
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13
+  - pip
+  - pip:
+      - jax==0.10.0
+      - flax==0.12.7
+      - optax==0.2.8
+      - orbax-checkpoint==0.11.36
+      - tensorflow==2.21.0
+      - numpy==2.3.5
+      - scipy==1.16.3
+      - h5py==3.14.0
+      - pytest==9.0.3
+      - pyyaml==6.0.2
+      - matplotlib==3.10.9
+      - cvxpy==1.9.1
+      - clarabel==0.11.1

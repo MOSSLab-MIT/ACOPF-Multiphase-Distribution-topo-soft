@@ -1,0 +1,39 @@
+{
+  "obj": {
+    "wmin": [0, 0],
+    "wmax": [1, 10]
+  },
+  "topology": {
+    "flip_probability": 0.5,
+    "radial_ratio": 0.5
+  },
+  "randomness": {
+    "smin": 1,
+    "smax": 200000
+  },
+  "floating_point_type": "Float64",
+  "regime_load_defaults": {
+    "noise_type": "ScaledUniform",
+    "sigma": 0.1
+  },
+  "training_regimes": [
+    {
+      "name": "base",
+      "weight": 0.6,
+      "load": {"l": 0.2, "u": 1.5},
+      "der": {"frac_l": 0.0, "frac_u": 1.0}
+    },
+    {
+      "name": "high_load_low_der",
+      "weight": 0.35,
+      "load": {"l": 0.7, "u": 1.0},
+      "der": {"frac_l": 0.0, "frac_u": 0.3}
+    },
+    {
+      "name": "low_load_high_der",
+      "weight": 0.05,
+      "load": {"l": 0.2, "u": 0.5},
+      "der": {"frac_l": 0.6, "frac_u": 1.0}
+    }
+  ]
+}

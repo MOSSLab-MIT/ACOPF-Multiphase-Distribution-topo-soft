@@ -1,0 +1,500 @@
+! PV Systems for IEEE 8500-Node Test Feeder
+! 100 PV units: 10 MV + 90 LV
+! Total PV capacity: 2820 kW on 10773 kW nominal load (~26.2% penetration)
+! Placement: 10 three-phase MV (12.47 kV) + 90 single-phase LV (120 V LN)
+! Sizing: ~40% of local load (MV 230 kW; LV 5-15 kW)
+
+! ============================================================
+! THREE-PHASE MV PVSystems (12.47 kV wye)
+! ============================================================
+New PVSystem.PV_M1026808  bus1=M1026808  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus M1026807 — downstream load proxy 1425 kW; PV 230 kW
+
+New PVSystem.PV_M1026807  bus1=M1026807  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus L3254217 — downstream load proxy 1385 kW; PV 230 kW
+
+New PVSystem.PV_L3254217  bus1=L3254217  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus M1026800 — downstream load proxy 1361 kW; PV 230 kW
+
+New PVSystem.PV_M1026800  bus1=M1026800  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus L2822869 — downstream load proxy 1314 kW; PV 230 kW
+
+New PVSystem.PV_L2822869  bus1=L2822869  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus L2841635 — downstream load proxy 1296 kW; PV 230 kW
+
+New PVSystem.PV_L2841635  bus1=L2841635  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus L2991914 — downstream load proxy 1294 kW; PV 230 kW
+
+New PVSystem.PV_L2991914  bus1=L2991914  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus M1026796 — downstream load proxy 1294 kW; PV 230 kW
+
+New PVSystem.PV_M1026796  bus1=M1026796  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus M1026797 — downstream load proxy 1294 kW; PV 230 kW
+
+New PVSystem.PV_M1026797  bus1=M1026797  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus M1047503 — downstream load proxy 1290 kW; PV 230 kW
+
+New PVSystem.PV_M1047503  bus1=M1047503  phases=3  kV=12.47  kVA=276  pmpp=230
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! Bus M1108380 — downstream load proxy 1284 kW; PV 230 kW
+
+! ============================================================
+! SINGLE-PHASE LV PVSystems (120 V line-to-neutral)
+! ============================================================
+New PVSystem.PV_SX2861222A_1  bus1=SX2861222A.1  phases=1  kV=0.120  kVA=7  pmpp=5.3
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3649302A.1 (feeder ph 1) — local load 13.14 kW; PV 5.3 kW
+
+New PVSystem.PV_SX3649302A_1  bus1=SX3649302A.1  phases=1  kV=0.120  kVA=7  pmpp=5.3
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2748129A.2 (feeder ph 1) — local load 12.81 kW; PV 5.1 kW
+
+New PVSystem.PV_SX2748129A_2  bus1=SX2748129A.2  phases=1  kV=0.120  kVA=7  pmpp=5.1
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3177665A.2 (feeder ph 1) — local load 12.50 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3177665A_2  bus1=SX3177665A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3066817A.1 (feeder ph 1) — local load 12.28 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3066817A_1  bus1=SX3066817A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3104129A.2 (feeder ph 1) — local load 12.06 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3104129A_2  bus1=SX3104129A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3207907A.1 (feeder ph 1) — local load 12.00 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3207907A_1  bus1=SX3207907A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3067478A.2 (feeder ph 1) — local load 11.97 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3067478A_2  bus1=SX3067478A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3217056A.1 (feeder ph 1) — local load 11.78 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3217056A_1  bus1=SX3217056A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3086098A.2 (feeder ph 1) — local load 11.76 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3086098A_2  bus1=SX3086098A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3649298A.2 (feeder ph 1) — local load 11.71 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3649298A_2  bus1=SX3649298A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3027671A.2 (feeder ph 1) — local load 11.64 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3027671A_2  bus1=SX3027671A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2748781A.2 (feeder ph 1) — local load 11.47 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2748781A_2  bus1=SX2748781A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2803199A.2 (feeder ph 1) — local load 11.41 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2803199A_2  bus1=SX2803199A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3048962A.2 (feeder ph 1) — local load 11.40 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3048962A_2  bus1=SX3048962A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3727710A.1 (feeder ph 1) — local load 11.38 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3727710A_1  bus1=SX3727710A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3029502A.1 (feeder ph 1) — local load 11.36 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3029502A_1  bus1=SX3029502A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3215385A.2 (feeder ph 1) — local load 11.35 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3215385A_2  bus1=SX3215385A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3091052A.2 (feeder ph 1) — local load 11.25 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3091052A_2  bus1=SX3091052A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2990098A.1 (feeder ph 1) — local load 10.91 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2990098A_1  bus1=SX2990098A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2842379A.2 (feeder ph 1) — local load 10.77 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2842379A_2  bus1=SX2842379A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3198348A.1 (feeder ph 1) — local load 10.74 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3198348A_1  bus1=SX3198348A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2821770A.2 (feeder ph 1) — local load 10.58 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2821770A_2  bus1=SX2821770A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3729298A.1 (feeder ph 1) — local load 10.50 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3729298A_1  bus1=SX3729298A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3011293A.1 (feeder ph 1) — local load 10.49 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3011293A_1  bus1=SX3011293A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2955074A.1 (feeder ph 1) — local load 10.20 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2955074A_1  bus1=SX2955074A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2935557A.1 (feeder ph 1) — local load 9.95 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2935557A_1  bus1=SX2935557A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3159037B.1 (feeder ph 2) — local load 13.05 kW; PV 5.2 kW
+
+New PVSystem.PV_SX3159037B_1  bus1=SX3159037B.1  phases=1  kV=0.120  kVA=7  pmpp=5.2
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3029055B.2 (feeder ph 2) — local load 12.96 kW; PV 5.2 kW
+
+New PVSystem.PV_SX3029055B_2  bus1=SX3029055B.2  phases=1  kV=0.120  kVA=7  pmpp=5.2
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3179699B.2 (feeder ph 2) — local load 12.72 kW; PV 5.1 kW
+
+New PVSystem.PV_SX3179699B_2  bus1=SX3179699B.2  phases=1  kV=0.120  kVA=7  pmpp=5.1
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3048887B.1 (feeder ph 2) — local load 12.53 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3048887B_1  bus1=SX3048887B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2897784B.2 (feeder ph 2) — local load 12.28 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2897784B_2  bus1=SX2897784B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3198358B.2 (feeder ph 2) — local load 12.21 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3198358B_2  bus1=SX3198358B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2860491B.2 (feeder ph 2) — local load 11.69 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2860491B_2  bus1=SX2860491B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3254212B.2 (feeder ph 2) — local load 11.58 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3254212B_2  bus1=SX3254212B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2913406B.2 (feeder ph 2) — local load 11.36 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2913406B_2  bus1=SX2913406B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3047289B.1 (feeder ph 2) — local load 11.06 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3047289B_1  bus1=SX3047289B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2673308B.1 (feeder ph 2) — local load 10.77 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2673308B_1  bus1=SX2673308B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3252336B.2 (feeder ph 2) — local load 10.55 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3252336B_2  bus1=SX3252336B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2915542B.1 (feeder ph 2) — local load 10.53 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2915542B_1  bus1=SX2915542B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2936213B.2 (feeder ph 2) — local load 10.44 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2936213B_2  bus1=SX2936213B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3197634B.1 (feeder ph 2) — local load 10.44 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3197634B_1  bus1=SX3197634B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3139598B.1 (feeder ph 2) — local load 10.34 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3139598B_1  bus1=SX3139598B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2935549B.1 (feeder ph 2) — local load 10.11 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2935549B_1  bus1=SX2935549B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3179646B.1 (feeder ph 2) — local load 10.08 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3179646B_1  bus1=SX3179646B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2948732B.1 (feeder ph 2) — local load 9.90 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2948732B_1  bus1=SX2948732B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2860499B.1 (feeder ph 2) — local load 9.85 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2860499B_1  bus1=SX2860499B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3122812B.2 (feeder ph 2) — local load 9.74 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3122812B_2  bus1=SX3122812B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2710546B.2 (feeder ph 2) — local load 9.72 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2710546B_2  bus1=SX2710546B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2954346B.1 (feeder ph 2) — local load 9.71 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2954346B_1  bus1=SX2954346B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2783231B.1 (feeder ph 2) — local load 9.69 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2783231B_1  bus1=SX2783231B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2726974B.2 (feeder ph 2) — local load 9.61 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2726974B_2  bus1=SX2726974B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2916617B.1 (feeder ph 2) — local load 9.60 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2916617B_1  bus1=SX2916617B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2804258B.1 (feeder ph 2) — local load 9.59 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2804258B_1  bus1=SX2804258B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2805031C.2 (feeder ph 3) — local load 13.04 kW; PV 5.2 kW
+
+New PVSystem.PV_SX2805031C_2  bus1=SX2805031C.2  phases=1  kV=0.120  kVA=7  pmpp=5.2
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3067507C.2 (feeder ph 3) — local load 12.77 kW; PV 5.1 kW
+
+New PVSystem.PV_SX3067507C_2  bus1=SX3067507C.2  phases=1  kV=0.120  kVA=7  pmpp=5.1
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3150961C.1 (feeder ph 3) — local load 12.67 kW; PV 5.1 kW
+
+New PVSystem.PV_SX3150961C_1  bus1=SX3150961C.1  phases=1  kV=0.120  kVA=7  pmpp=5.1
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2991933C.1 (feeder ph 3) — local load 12.63 kW; PV 5.1 kW
+
+New PVSystem.PV_SX2991933C_1  bus1=SX2991933C.1  phases=1  kV=0.120  kVA=7  pmpp=5.1
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3048222C.1 (feeder ph 3) — local load 12.61 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3048222C_1  bus1=SX3048222C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2915542C.1 (feeder ph 3) — local load 12.53 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2915542C_1  bus1=SX2915542C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3645809C.1 (feeder ph 3) — local load 12.49 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3645809C_1  bus1=SX3645809C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3104118C.1 (feeder ph 3) — local load 12.39 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3104118C_1  bus1=SX3104118C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3179608C.1 (feeder ph 3) — local load 12.28 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3179608C_1  bus1=SX3179608C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3215385C.1 (feeder ph 3) — local load 12.08 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3215385C_1  bus1=SX3215385C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3118855C.2 (feeder ph 3) — local load 11.98 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3118855C_2  bus1=SX3118855C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2690868C.1 (feeder ph 3) — local load 11.75 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2690868C_1  bus1=SX2690868C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2841619C.1 (feeder ph 3) — local load 11.52 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2841619C_1  bus1=SX2841619C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2814529C.2 (feeder ph 3) — local load 11.39 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2814529C_2  bus1=SX2814529C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3141399C.1 (feeder ph 3) — local load 11.27 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3141399C_1  bus1=SX3141399C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3189188C.1 (feeder ph 3) — local load 11.12 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3189188C_1  bus1=SX3189188C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2766718C.2 (feeder ph 3) — local load 11.08 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2766718C_2  bus1=SX2766718C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3160872C.1 (feeder ph 3) — local load 10.98 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3160872C_1  bus1=SX3160872C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3048968C.2 (feeder ph 3) — local load 10.77 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3048968C_2  bus1=SX3048968C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3179637C.1 (feeder ph 3) — local load 10.69 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3179637C_1  bus1=SX3179637C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3645812C.1 (feeder ph 3) — local load 10.63 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3645812C_1  bus1=SX3645812C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2897554C.2 (feeder ph 3) — local load 10.47 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2897554C_2  bus1=SX2897554C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3122819C.2 (feeder ph 3) — local load 10.43 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3122819C_2  bus1=SX3122819C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2933120C.2 (feeder ph 3) — local load 10.24 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2933120C_2  bus1=SX2933120C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3085393C.2 (feeder ph 3) — local load 10.14 kW; PV 5.0 kW
+
+New PVSystem.PV_SX3085393C_2  bus1=SX3085393C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2786204C.2 (feeder ph 3) — local load 10.10 kW; PV 5.0 kW
+
+New PVSystem.PV_SX2786204C_2  bus1=SX2786204C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+
+! SX3234149C.1 (feeder ph 1) — replaces removed MV; phase load ~50.85 kW; PV 15.0 kW
+New PVSystem.PV_SX3234149C_1  bus1=SX3234149C.1  phases=1  kV=0.120  kVA=18  pmpp=15.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3234149C.2 (feeder ph 2) — replaces removed MV; phase load ~50.85 kW; PV 15.0 kW
+New PVSystem.PV_SX3234149C_2  bus1=SX3234149C.2  phases=1  kV=0.120  kVA=18  pmpp=15.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3234149B.1 (feeder ph 1) — replaces removed MV; phase load ~48.63 kW; PV 15.0 kW
+New PVSystem.PV_SX3234149B_1  bus1=SX3234149B.1  phases=1  kV=0.120  kVA=18  pmpp=15.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3234149B.2 (feeder ph 2) — replaces removed MV; phase load ~48.63 kW; PV 15.0 kW
+New PVSystem.PV_SX3234149B_2  bus1=SX3234149B.2  phases=1  kV=0.120  kVA=18  pmpp=15.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3234149A.1 (feeder ph 1) — replaces removed MV; phase load ~44.34 kW; PV 15.0 kW
+New PVSystem.PV_SX3234149A_1  bus1=SX3234149A.1  phases=1  kV=0.120  kVA=18  pmpp=15.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX3234149A.2 (feeder ph 2) — replaces removed MV; phase load ~44.34 kW; PV 15.0 kW
+New PVSystem.PV_SX3234149A_2  bus1=SX3234149A.2  phases=1  kV=0.120  kVA=18  pmpp=15.0
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2691959B.1 (feeder ph 1) — replaces removed MV; phase load ~19.45 kW; PV 7.8 kW
+New PVSystem.PV_SX2691959B_1  bus1=SX2691959B.1  phases=1  kV=0.120  kVA=9  pmpp=7.8
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2691959B.2 (feeder ph 2) — replaces removed MV; phase load ~19.45 kW; PV 7.8 kW
+New PVSystem.PV_SX2691959B_2  bus1=SX2691959B.2  phases=1  kV=0.120  kVA=9  pmpp=7.8
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2767340C.1 (feeder ph 1) — replaces removed MV; phase load ~15.26 kW; PV 6.1 kW
+New PVSystem.PV_SX2767340C_1  bus1=SX2767340C.1  phases=1  kV=0.120  kVA=7  pmpp=6.1
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+
+! SX2767340C.2 (feeder ph 2) — replaces removed MV; phase load ~15.26 kW; PV 6.1 kW
+New PVSystem.PV_SX2767340C_2  bus1=SX2767340C.2  phases=1  kV=0.120  kVA=7  pmpp=6.1
+~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1

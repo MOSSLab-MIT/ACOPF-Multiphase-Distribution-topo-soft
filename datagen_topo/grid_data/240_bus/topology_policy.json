@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "perturb_sw": ["cb_102", "cb_204", "cb_303"],
+  "repair_nc": ["cb_101", "cb_201", "cb_301"],
+  "repair_hints": {
+    "cb_102": "cb_101",
+    "cb_204": "cb_201",
+    "cb_303": "cb_301"
+  }
+}
