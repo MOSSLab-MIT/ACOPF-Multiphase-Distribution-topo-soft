@@ -10,6 +10,13 @@ Network physics remain a first-order approximation of Julia's nonlinear
 voltage / angle / substation / branch limits; nodal Y-bus balance is
 encoded implicitly through the frozen-Z voltage sensitivity rather than
 as bilinear ``vr, vi`` equalities (those require Ipopt in Julia).
+
+Soft limits (as in Julia): voltage-magnitude, angle and branch-current rows get nonnegative slacks
+``t`` with an L1 penalty; substation rows stay hard. Julia penalizes the squared forms
+``|u|² - vmax²`` and ``|I|² - imax²`` while the linear rows are magnitudes ``g = |u|, |I|``. For an
+excess ``t = g - b`` over a bound ``b``: ``g² - b² = 2 b t + t²``, so the row weight ``ρ · 2b`` matches
+Julia's penalty to first order in the violation (independent of the linearization point). Angle rows
+are already in Julia's units (weight ``ρ``).
 """
 
 from __future__ import annotations
@@ -25,7 +32,7 @@ import numpy as np
 
 from core.grids.data import NetworkParams
 from core.grids.linear_model import create_linear_model
-from core.grids.metrics import constraint_bounds
+from core.grids.metrics import N_ECON_WEIGHTS, N_OBJ_WEIGHTS, constraint_bounds, constraint_row_layout
 from core.grids.power_flow import (
     PowerFlowSolver,
     get_power_flow_solve_fn,
@@ -42,6 +49,8 @@ DISK_MODE_POLY_INNER = "poly_inner"
 # fixed point on networks with near-singular Y_LL rows) and Newton is used instead.
 PF_RESIDUAL_TOL = 1e-6
 COST_COEFF_TOL = 1e-12
+# Index into the penalty weights [ρ_V, ρ_I, ρ_θ] (obj_weights[N_ECON_WEIGHTS:]).
+RHO_V, RHO_I, RHO_THETA = 0, 1, 2
 
 
 class LinearizationPowerFlowError(RuntimeError):
@@ -79,11 +88,36 @@ class LinearOPFProblemCache:
     x_linear_coeff_param: cp.Parameter
     der_quad_weight_sqrt_param: cp.Parameter
     sub_quad_weight_sqrt_param: cp.Parameter
+    soft_rows: SoftRowLayout
+    penalty_up_param: cp.Parameter
+    penalty_lo_param: cp.Parameter
+    slack_up_var: cp.Variable
+    slack_lo_var: cp.Variable
     # Updated each sample solve (not part of CVXPY graph constants).
     u_hat: np.ndarray = field(default_factory=lambda: np.array([]))
     U_net: np.ndarray = field(default_factory=lambda: np.array([]))
     x0: np.ndarray = field(default_factory=lambda: np.array([]))
     _solve_kwargs: dict[str, Any] = field(default_factory=dict, repr=False)
+
+
+@dataclass(frozen=True)
+class SoftRowLayout:
+    """Row partition of the linear network constraints ``lb <= A x + c <= ub``.
+
+    ``hard_up/hard_lo``: finite-bound rows enforced exactly (substation).
+    ``soft_up/soft_lo``: finite-bound soft rows (V, angle, branch current) with slacks; ``*_rho`` picks
+    the penalty weight (RHO_V / RHO_I / RHO_THETA) and ``*_scale`` is the squared-unit factor ``2b``
+    (or 1 for angle rows) so that row weight = ``ρ[*_rho] * *_scale``.
+    """
+
+    hard_up: np.ndarray
+    hard_lo: np.ndarray
+    soft_up: np.ndarray
+    soft_lo: np.ndarray
+    soft_up_rho: np.ndarray
+    soft_lo_rho: np.ndarray
+    soft_up_scale: np.ndarray
+    soft_lo_scale: np.ndarray
 
 
 def _numpy_complex(z) -> np.ndarray:
@@ -156,6 +190,37 @@ def _der_linearization_point_from_availability(
     unit_for_phase = np.asarray(net.der_phase_to_unit, dtype=np.int32)
     pder_phase = pder_avai[unit_for_phase] / phase_counts[unit_for_phase]
     return jnp.asarray(pder_phase, dtype=jnp.float64) + 0j
+
+
+def _soft_row_layout(net: NetworkParams, lb: np.ndarray, ub: np.ndarray) -> SoftRowLayout:
+    """Partition network rows into hard (substation) and soft (V / angle / branch) with penalty scales."""
+    layout = constraint_row_layout(net)
+    n_con = lb.shape[0]
+    rho_idx = np.full(n_con, -1, dtype=np.int64)
+    rho_idx[layout["sl_v"]] = RHO_V
+    rho_idx[layout["sl_angle"]] = RHO_THETA
+    rho_idx[layout["sl_branch"]] = RHO_I
+    is_soft = rho_idx >= 0
+    # Squared-unit factor 2b for magnitude rows (|u|, |I|); angle rows are already in Julia's units.
+    squared_rows = (rho_idx == RHO_V) | (rho_idx == RHO_I)
+
+    def scale(bound):
+        return np.where(squared_rows, 2.0 * np.abs(bound), 1.0)
+
+    up_finite = np.isfinite(ub)
+    lo_finite = np.isfinite(lb)
+    soft_up = np.flatnonzero(is_soft & up_finite)
+    soft_lo = np.flatnonzero(is_soft & lo_finite)
+    return SoftRowLayout(
+        hard_up=np.flatnonzero(~is_soft & up_finite),
+        hard_lo=np.flatnonzero(~is_soft & lo_finite),
+        soft_up=soft_up,
+        soft_lo=soft_lo,
+        soft_up_rho=rho_idx[soft_up],
+        soft_lo_rho=rho_idx[soft_lo],
+        soft_up_scale=scale(ub)[soft_up],
+        soft_lo_scale=scale(lb)[soft_lo],
+    )
 
 
 def _network_bound_rhs(
@@ -260,6 +325,10 @@ def _build_cvxpy_problem(
     cp.Parameter,
     cp.Parameter,
     cp.Parameter,
+    cp.Parameter,
+    cp.Parameter,
+    cp.Variable,
+    cp.Variable,
     dict[str, Any],
 ]:
     n_der = int(cache_fields["n_der"])
@@ -292,10 +361,18 @@ def _build_cvxpy_problem(
     disk_mode = cache_fields["disk_mode"]
     disk_polygon_sides = int(cache_fields["disk_polygon_sides"])
 
+    rows: SoftRowLayout = cache_fields["soft_rows"]
+    slack_up = cp.Variable(rows.soft_up.size, nonneg=True, name="slack_up")
+    slack_lo = cp.Variable(rows.soft_lo.size, nonneg=True, name="slack_lo")
+    penalty_up_param = cp.Parameter(rows.soft_up.size, nonneg=True, name="penalty_up")
+    penalty_lo_param = cp.Parameter(rows.soft_lo.size, nonneg=True, name="penalty_lo")
+
     ax = a_param @ x
     constraints = [
-        ax <= ub_rhs_param,
-        ax >= lb_rhs_param,
+        # Hard network rows (substation) and soft rows relaxed by nonnegative slacks.
+        ax[rows.hard_up] <= ub_rhs_param[rows.hard_up],
+        ax[rows.soft_up] <= ub_rhs_param[rows.soft_up] + slack_up,
+        ax[rows.soft_lo] >= lb_rhs_param[rows.soft_lo] - slack_lo,
         # Julia: pder box, qder box, apparent-power disk, unit availability.
         pder >= lx[:n_der],
         pder <= ux[:n_der],
@@ -303,6 +380,8 @@ def _build_cvxpy_problem(
         qder <= ux[n_der:],
         unit_matrix @ pder <= pder_avai_param,
     ]
+    if rows.hard_lo.size:
+        constraints.append(ax[rows.hard_lo] >= lb_rhs_param[rows.hard_lo])
     if disk_mode == DISK_MODE_SOC:
         for k in range(n_der):
             constraints.append(
@@ -335,8 +414,9 @@ def _build_cvxpy_problem(
     cost_der_quad = cp.sum_squares(cp.multiply(der_quad_weight_sqrt_param, pder))
     cost_sub_quad = cp.square(psub_quad_scaled)
     cost_linear = x_linear_coeff_param @ x
+    soft_penalty = penalty_up_param @ slack_up + penalty_lo_param @ slack_lo
     objective = cp.Minimize(
-        cost_der_quad + cost_sub_quad + cost_linear
+        cost_der_quad + cost_sub_quad + cost_linear + soft_penalty
     )
     problem = cp.Problem(objective, constraints)
     # Problem is DPP, but we solve with ignore_dpp=True: DPP canonicalization materializes
@@ -361,6 +441,10 @@ def _build_cvxpy_problem(
         x_linear_coeff_param,
         der_quad_weight_sqrt_param,
         sub_quad_weight_sqrt_param,
+        penalty_up_param,
+        penalty_lo_param,
+        slack_up,
+        slack_lo,
         solve_kwargs,
     )
 
@@ -391,6 +475,15 @@ def _sync_objective_params(
     """Push DPP-safe objective coefficients for one sample."""
     w_cost = _checked_nonnegative_scalar(obj_weights[0], "obj_weights[0]")
     w_curtail = _checked_nonnegative_scalar(obj_weights[1], "obj_weights[1]")
+    rho = np.array(
+        [
+            _checked_nonnegative_scalar(obj_weights[N_ECON_WEIGHTS + k], f"obj_weights[{N_ECON_WEIGHTS + k}]")
+            for k in range(N_OBJ_WEIGHTS - N_ECON_WEIGHTS)
+        ]
+    )
+    rows = cache.soft_rows
+    cache.penalty_up_param.value = rho[rows.soft_up_rho] * rows.soft_up_scale
+    cache.penalty_lo_param.value = rho[rows.soft_lo_rho] * rows.soft_lo_scale
     cache.pder_avai_param.value = pder_avai
     n_der = cache.der_lin.shape[0]
     unit_phase_counts = np.sum(cache.unit_matrix, axis=0)
@@ -436,6 +529,8 @@ def release_linear_opf_cache_state(
             cache.x_linear_coeff_param,
             cache.der_quad_weight_sqrt_param,
             cache.sub_quad_weight_sqrt_param,
+            cache.penalty_up_param,
+            cache.penalty_lo_param,
         ):
             param.value = None
 
@@ -452,14 +547,18 @@ def _original_objective_value(
     pder_avai: np.ndarray,
     obj_weights: np.ndarray,
 ) -> float:
-    """Evaluate the original objective, including dropped constants."""
+    """Evaluate the linear OPF objective (economic + soft-row penalty), including dropped constants."""
     x = np.concatenate([pder, qder])
     psub = float(cache.psub_offset_param.value + cache.a_psub_param.value @ x)
     cost_der = float(np.sum(cache.der_lin * pder + cache.der_quad * pder**2))
     cost_sub = float(cache.sub_lin * psub + cache.sub_quad * psub**2)
     unit_p = cache.unit_matrix @ pder
     curtail = float(np.sum(pder_avai - unit_p))
-    return float(obj_weights[0] * (cost_der + cost_sub) + obj_weights[1] * curtail)
+    penalty = float(
+        cache.penalty_up_param.value @ np.asarray(cache.slack_up_var.value).reshape(-1)
+        + cache.penalty_lo_param.value @ np.asarray(cache.slack_lo_var.value).reshape(-1)
+    )
+    return float(obj_weights[0] * (cost_der + cost_sub) + obj_weights[1] * curtail + penalty)
 
 
 def build_linear_opf_cache(
@@ -484,6 +583,7 @@ def build_linear_opf_cache(
     lb, ub = constraint_bounds(net)
     lb = _numpy_real(lb)
     ub = _numpy_real(ub)
+    soft_rows = _soft_row_layout(net, lb, ub)
     unit_matrix = _unit_active_power_matrix(net)
     if disk_mode == DISK_MODE_POLY_INNER and disk_polygon_sides < 4:
         raise ValueError("disk_polygon_sides must be at least 4 for poly_inner mode")
@@ -510,6 +610,7 @@ def build_linear_opf_cache(
         "n_der": net.n_der_phase,
         "disk_mode": disk_mode,
         "disk_polygon_sides": disk_polygon_sides,
+        "soft_rows": soft_rows,
     }
     (
         problem,
@@ -524,6 +625,10 @@ def build_linear_opf_cache(
         x_linear_coeff_param,
         der_quad_weight_sqrt_param,
         sub_quad_weight_sqrt_param,
+        penalty_up_param,
+        penalty_lo_param,
+        slack_up_var,
+        slack_lo_var,
         solve_kwargs,
     ) = _build_cvxpy_problem(fields, solver=solver, solver_kwargs=solver_kwargs)
 
@@ -551,6 +656,11 @@ def build_linear_opf_cache(
         x_linear_coeff_param=x_linear_coeff_param,
         der_quad_weight_sqrt_param=der_quad_weight_sqrt_param,
         sub_quad_weight_sqrt_param=sub_quad_weight_sqrt_param,
+        soft_rows=soft_rows,
+        penalty_up_param=penalty_up_param,
+        penalty_lo_param=penalty_lo_param,
+        slack_up_var=slack_up_var,
+        slack_lo_var=slack_lo_var,
         _solve_kwargs=solve_kwargs,
     )
     _sync_linearization_params(cache, template)
@@ -587,8 +697,8 @@ def solve_linear_opf(
     s_load = _numpy_complex(s_load).reshape(-1)
     pder_avai = _numpy_real(pder_avai).reshape(-1)
     obj_weights = _numpy_real(obj_weights).reshape(-1)
-    if obj_weights.shape[0] != 2:
-        raise ValueError(f"obj_weights must have length 2, got {obj_weights.shape[0]}")
+    if obj_weights.shape[0] != N_OBJ_WEIGHTS:
+        raise ValueError(f"obj_weights must have length {N_OBJ_WEIGHTS}, got {obj_weights.shape[0]}")
 
     n_der = net.n_der_phase
     lin_start = time.perf_counter()

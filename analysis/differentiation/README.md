@@ -1,7 +1,7 @@
 # Power-Flow Differentiation Benchmark
 
 Compare **autodiff through AC power flow** w.r.t. net injection `s` on isolated PF
-(no SLFS / neural network). All code lives under this folder; `core/` is imported
+(no neural network). All code lives under this folder; `core/` is imported
 read-only.
 
 ## Methods

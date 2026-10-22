@@ -30,7 +30,7 @@ except RuntimeError:
     pass
 
 from core.grids.data import OPFData, map_to_node
-from core.feasibility.fs_common import unit_active_power_violation_batch
+from core.grids.der_projection import unit_active_power_violation_batch
 from core.grids.metrics import (
     calc_ineq_violation,
     calc_substation_power_per_phase,

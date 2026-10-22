@@ -1,7 +1,10 @@
 """Penalty direct: NN predicts DER setpoints and voltages jointly.
 
-No successive linearization inner loop — penalties are applied directly on AC
-violations at the predicted ``(pder, qder, vr, vi)``.
+Loss at the predicted ``(pder, qder, vr, vi)``:
+``cost + rho_eq * eq_violation_sq + rho_ineq * ineq_violation_sq`` where ``cost`` is the soft-OPF
+objective (economic + per-sample ``ρ_V, ρ_I, ρ_θ`` L1 penalties on voltage / branch-current / angle
+limits, matching the Julia labels) and ``ineq_violation_sq`` covers only the hard constraints
+(substation; DER limits are enforced by projection).
 """
 
 import time
@@ -14,10 +17,15 @@ import optax
 
 from core.grids.data import OPFData, NetworkParams
 from core.nn.input import nn_features_for_apply
-from core.feasibility.fs_common import project_der_controls_batch
+from core.grids.der_projection import project_der_controls_batch
 from core.utils.loss import normalize_cost_for_loss
 from core.utils.loss import compute_optimality_metrics
-from core.grids.metrics import calc_ac_metrics_pf, compute_ac_metrics_from_voltage
+from core.grids.metrics import (
+    accumulate_soft_penalty_sums,
+    calc_ac_metrics_pf,
+    calc_soft_penalties,
+    compute_ac_metrics_from_voltage,
+)
 from core.nn.model import update_model
 from core.topology.batch import precompute_topology
 from core.utils.workflow import prepare_batch_data
@@ -368,6 +376,7 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         "solve_time": 0.0,
     }
     batch_metrics_list = []
+    penalty_sums: dict[str, float] = {}
     num_batches = 0
     num_samples = 0
 
@@ -417,6 +426,7 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         ) = calc_batch_quantities(
             net, batch.s_load, x_pred, batch.pder_avai, batch.obj_weights, topo
         )
+        pen_pred = calc_soft_penalties(net, v_final)
         del v_final, s_der
         target_metrics = calc_ac_metrics_pf(
             net,
@@ -430,6 +440,7 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         )
         cost_target = target_metrics.cost
         violation_target = target_metrics.violation
+        accumulate_soft_penalty_sums(penalty_sums, batch.obj_weights, pen_pred, target_metrics.soft_penalty)
         cost_error, abs_cost_error, optimality_gap = compute_optimality_metrics(
             cost, cost_target
         )
@@ -525,5 +536,6 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         "qder_l_inf_norm": float(
             np.max([b["qder_l_inf_norm"] for b in batch_metrics_list])
         ),
+        **{k: v / n for k, v in penalty_sums.items()},
         "batch_metrics": batch_metrics_list,
     }

@@ -10,8 +10,8 @@ import numpy as np
 
 from core.grids.data import OPFData
 from core.grids.metrics import (
+    accumulate_soft_penalty_sums,
     calc_ac_metrics_pf,
-    calc_cost,
     compute_ac_metrics_from_voltage,
     substation_power_from_voltage,
     with_slack_voltage,
@@ -149,6 +149,7 @@ def benchmark_linear_opf(
         "qp_overhead_time": 0.0,
     }
     batch_metrics_list: list[dict] = []
+    penalty_sums: dict[str, float] = {}
     num_batches = 0
     num_samples = 0
     num_qp_failed = 0
@@ -283,7 +284,6 @@ def benchmark_linear_opf(
         psub = substation_power_from_voltage(data.net, v_fs_full, Y_0row=topo.Y_0row).real
         pder = jnp.asarray(pder_qp)
         qder = jnp.asarray(qder_qp)
-        cost = calc_cost(data.net, psub, pder, batch.pder_avai, batch.obj_weights)
 
         ac_metrics = compute_ac_metrics_from_voltage(
             data.net,
@@ -296,6 +296,7 @@ def benchmark_linear_opf(
             topo,
             branch_status=batch.branch_status,
         )
+        cost = ac_metrics.cost
         violation = ac_metrics.violation
 
         target_metrics = calc_ac_metrics_pf(
@@ -310,6 +311,9 @@ def benchmark_linear_opf(
         )
         cost_target = target_metrics.cost
         violation_target = target_metrics.violation
+        accumulate_soft_penalty_sums(
+            penalty_sums, batch.obj_weights, ac_metrics.soft_penalty, target_metrics.soft_penalty
+        )
         _rss_log("metrics", batch_idx)
         cost_error, abs_cost_error, optimality_gap = compute_optimality_metrics(
             cost, cost_target
@@ -512,5 +516,6 @@ def benchmark_linear_opf(
         "qder_l1_norm": float(np.mean([b["qder_l1_norm"] for b in evaluated])) if evaluated else 0.0,
         "qder_l2_norm": float(np.mean([b["qder_l2_norm"] for b in evaluated])) if evaluated else 0.0,
         "qder_l_inf_norm": float(np.max([b["qder_l_inf_norm"] for b in evaluated])) if evaluated else 0.0,
+        **{k: (v / num_evaluated if num_evaluated else 0.0) for k, v in penalty_sums.items()},
         "batch_metrics": batch_metrics_list,
     }

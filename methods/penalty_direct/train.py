@@ -103,14 +103,6 @@ def parse_args():
     parser.add_argument("--log_every", type=int, default=1, help="Log every N epochs")
     parser.add_argument("--save_best", action="store_true", default=False, help="Save best model")
 
-    # Compatibility (save_checkpoint)
-    parser.add_argument("--weight_dist", type=str, default=None)
-    parser.add_argument("--lin_steps", type=int, default=2)
-    parser.add_argument("--diff_steps", type=int, default=1)
-    parser.add_argument("--fs_tol", type=float, default=1e-6)
-    parser.add_argument("--fs_maxiter", type=int, default=50)
-    parser.add_argument("--fs_rho", type=float, default=1e-3)
-
     # Reproducibility
     parser.add_argument("--seed", type=int, default=1, help="Random seed")
 

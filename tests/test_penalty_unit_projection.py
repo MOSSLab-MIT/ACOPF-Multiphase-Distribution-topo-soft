@@ -1,7 +1,7 @@
 import numpy as np
 import jax.numpy as jnp
 
-from methods.penalty_fs import trainer as penalty_fs_trainer
+from methods.penalty_pf import trainer as penalty_pf_trainer
 from methods.penalty_direct import trainer as penalty_direct_trainer
 
 
@@ -25,12 +25,12 @@ def _unit_phase_sum(p_phase: np.ndarray, data: _DummyData) -> np.ndarray:
     return np.sum(gathered, axis=2)
 
 
-def test_penalty_fs_projection_applies_common_per_unit_scaling():
+def test_penalty_pf_projection_applies_common_per_unit_scaling():
     data = _DummyData()
     x_pred_raw = jnp.asarray([[1.0, 3.0, 4.0, 0.1, -0.2, 0.3]], dtype=jnp.float64)
     pder_avai = jnp.asarray([[2.0, 3.0]], dtype=jnp.float64)
 
-    x_proj = penalty_fs_trainer._project_predictions(x_pred_raw, pder_avai, data)
+    x_proj = penalty_pf_trainer._project_predictions(x_pred_raw, pder_avai, data)
     p_proj = np.asarray(x_proj[:, : data.n_der_phase])
 
     expected = np.asarray([[0.5, 1.5, 3.0]], dtype=np.float64)
@@ -68,7 +68,7 @@ def test_both_penalty_projections_enforce_unit_availability_with_even_scaling():
     q_raw = rng.uniform(-2.0, 2.0, size=(batch_size, data.n_der_phase))
     pder_avai = rng.uniform(0.2, 6.0, size=(batch_size, 2))
 
-    x_penalty_fs = jnp.asarray(np.concatenate([p_raw, q_raw], axis=1), dtype=jnp.float64)
+    x_penalty_pf = jnp.asarray(np.concatenate([p_raw, q_raw], axis=1), dtype=jnp.float64)
     x_direct = jnp.asarray(
         np.concatenate(
             [
@@ -83,15 +83,15 @@ def test_both_penalty_projections_enforce_unit_availability_with_even_scaling():
     )
     pder_avai_jnp = jnp.asarray(pder_avai, dtype=jnp.float64)
 
-    p_penalty_fs = np.asarray(
-        penalty_fs_trainer._project_predictions(x_penalty_fs, pder_avai_jnp, data)[:, : data.n_der_phase]
+    p_penalty_pf = np.asarray(
+        penalty_pf_trainer._project_predictions(x_penalty_pf, pder_avai_jnp, data)[:, : data.n_der_phase]
     )
     p_direct = np.asarray(
         penalty_direct_trainer._project_predictions(data, x_direct, pder_avai_jnp)[:, : data.n_der_phase]
     )
-    np.testing.assert_allclose(p_penalty_fs, p_direct, atol=1e-12, rtol=1e-12)
+    np.testing.assert_allclose(p_penalty_pf, p_direct, atol=1e-12, rtol=1e-12)
 
-    unit_sum = _unit_phase_sum(p_penalty_fs, data)
+    unit_sum = _unit_phase_sum(p_penalty_pf, data)
     assert np.all(unit_sum <= pder_avai + 1e-12)
 
     groups = np.asarray(data.der_unit_to_phase)
@@ -102,7 +102,7 @@ def test_both_penalty_projections_enforce_unit_availability_with_even_scaling():
             if phase_ids.size <= 1:
                 continue
             raw = p_raw[b, phase_ids]
-            out = p_penalty_fs[b, phase_ids]
+            out = p_penalty_pf[b, phase_ids]
             active = raw > 1e-10
             if np.count_nonzero(active) <= 1:
                 continue

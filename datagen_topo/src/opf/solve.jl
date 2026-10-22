@@ -3,7 +3,8 @@
 
 JuMP model built once per fixed topology (`branch_status_key` snapshot).
 
-Sample-varying loads, DER availability, and objective weights are JuMP `Parameter`s
+Sample-varying loads, DER availability, objective weights and soft-limit penalty weights
+(`rho = [ρ_V, ρ_I, ρ_θ]`) are JuMP `Parameter`s
 updated via [`sync_params!`](@ref) before each [`solve_cached_opf!`](@ref). Voltage warm start
 uses `u_start` from a linear solve or an explicit override at build time.
 """
@@ -16,6 +17,7 @@ mutable struct OPFSolveCache
     der_pavail_param::Vector{JuMP.VariableRef}
     w_cost::JuMP.VariableRef
     w_curtail::JuMP.VariableRef
+    rho::Vector{JuMP.VariableRef}
     vr::Vector{JuMP.VariableRef}
     vi::Vector{JuMP.VariableRef}
     u_start::Vector{ComplexF64}
@@ -37,7 +39,7 @@ end
     sync_params!(cache::OPFSolveCache, data::OPFData)
 
 Push sample-varying JuMP parameters: ``p_load``, ``q_load``, per-unit DER availability, and
-objective weights ``[w_cost, w_curtail]``. Topology must match the cache snapshot.
+objective weights ``[w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]``. Topology must match the cache snapshot.
 """
 function sync_params!(cache::OPFSolveCache, data::OPFData)
     assert_topology_matches!(cache, data)
@@ -45,7 +47,8 @@ function sync_params!(cache::OPFSolveCache, data::OPFData)
     length(data.p_load) == n_net || throw(DimensionMismatch("p_load length must equal n_net"))
     length(data.q_load) == n_net || throw(DimensionMismatch("q_load length must equal n_net"))
     length(data.der_pavail_ref) == data.n_der_unit || throw(DimensionMismatch("der_pavail_ref length must equal n_der_unit"))
-    length(data.obj_weights) == 2 || throw(DimensionMismatch("obj_weights must have length 2"))
+    length(data.obj_weights) == N_OBJ_WEIGHTS || throw(DimensionMismatch("obj_weights must have length $N_OBJ_WEIGHTS"))
+    all(data.obj_weights .>= 0.0) || throw(ArgumentError("obj_weights must be nonnegative; got $(data.obj_weights)"))
 
     for i in 1:n_net
         set_parameter_value(cache.p_load_param[i], data.p_load[i])
@@ -56,6 +59,9 @@ function sync_params!(cache::OPFSolveCache, data::OPFData)
     end
     set_parameter_value(cache.w_cost, data.obj_weights[1])
     set_parameter_value(cache.w_curtail, data.obj_weights[2])
+    for (k, rho_k) in enumerate(cache.rho)
+        set_parameter_value(rho_k, data.obj_weights[N_ECON_WEIGHTS + k])
+    end
     return nothing
 end
 

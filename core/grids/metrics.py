@@ -1,4 +1,10 @@
-"""AC constraint evaluation, violations, and PF-consistent metrics."""
+"""AC constraint evaluation, violations, and PF-consistent metrics.
+
+Soft-limit convention (mirrors Julia ``datagen_topo/src/opf/model.jl``): voltage magnitude, branch
+current and angle-difference limits are SOFT and enter the objective as L1 penalties
+``ρ_k · Σ relu(residual)`` in the raw pu² forms of the hard constraints. Substation and DER limits
+stay HARD and are what ``calc_ineq_violation`` measures.
+"""
 
 from functools import partial
 from typing import NamedTuple
@@ -11,6 +17,11 @@ from core.grids.power_flow import get_power_flow_batch_fn
 from core.topology.utils import y_0row_from_scaled
 from core.utils.types import TopologyData
 
+# obj_weights layout: [w_cost, w_curtail, ρ_V, ρ_I, ρ_θ] (Julia OBJ_WEIGHT_NAMES).
+N_ECON_WEIGHTS = 2
+SOFT_PENALTY_KEYS = ("penalty_v", "penalty_i", "penalty_theta")
+N_OBJ_WEIGHTS = N_ECON_WEIGHTS + len(SOFT_PENALTY_KEYS)
+
 
 class ACMetrics(NamedTuple):
     """Per-sample AC objective and constraint metrics at a given voltage."""
@@ -21,6 +32,7 @@ class ACMetrics(NamedTuple):
     eq_violation_sq: jnp.ndarray
     ineq_violation: jnp.ndarray
     ineq_violation_sq: jnp.ndarray
+    soft_penalty: jnp.ndarray | None = None  # (B, 3) unweighted [pen_v, pen_i, pen_theta]
     v_net: jnp.ndarray | None = None
 
 
@@ -101,14 +113,79 @@ def _angle_constraint_values(data: NetworkParams, v_full):
     return jnp.concatenate([upper.reshape(-1), lower.reshape(-1)])
 
 
-def _branch_current_magnitudes(data: NetworkParams, v_full):
+def _branch_currents(data: NetworkParams, v_full):
+    """Series-branch phase currents ``I[l, r] = Σ_c y_series[l, r, c] (V_f,c - V_t,c)`` in system pu."""
     v_system = data.v_scale_full * v_full
     vf = v_system[data.branch_from_idx]
     vt = v_system[data.branch_to_idx]
     dv = vf - vt
+    return jnp.sum(data.branch_y_series * dv[:, None, :], axis=2)
+
+
+def _branch_current_magnitudes(data: NetworkParams, v_full):
     mask = data.branch_valid.astype(v_full.real.dtype)
-    currents = jnp.sum(data.branch_y_series * dv[:, None, :], axis=2)
-    return (jnp.abs(currents) * mask).reshape(-1)
+    return (jnp.abs(_branch_currents(data, v_full)) * mask).reshape(-1)
+
+
+# --- Soft limits ---
+
+
+def _soft_penalties_one(data: NetworkParams, v_full):
+    """Unweighted L1 soft-limit violations ``[pen_v, pen_i, pen_theta]`` for one sample.
+
+    Exactly the slack sums Julia minimizes (raw pu², ``s = relu(residual)`` at the optimum):
+      pen_v     = Σ_i relu(vmin_i² - |u_i|²) + relu(|u_i|² - vmax_i²)      (local pu², non-slack nodes)
+      pen_i     = Σ_{l,r valid} relu(|I_lr|² - imax_l²)                    (system pu²)
+      pen_theta = Σ_{l,r valid} relu(±cross_lr - dvamax · dot_lr)          (local pu², both signs)
+    """
+    v_net = v_full[: data.n_net]
+    vmag2 = v_net.real**2 + v_net.imag**2
+    pen_v = jnp.sum(
+        jnp.maximum(data.vmin**2 - vmag2, 0.0) + jnp.maximum(vmag2 - data.vmax**2, 0.0)
+    )
+
+    mask = data.branch_valid.astype(v_full.real.dtype)
+    currents = _branch_currents(data, v_full)
+    imag2 = currents.real**2 + currents.imag**2
+    pen_i = jnp.sum(mask * jnp.maximum(imag2 - data.branch_imax[:, None] ** 2, 0.0))
+
+    # Angle residuals are already masked to zero on invalid rows.
+    pen_theta = jnp.sum(jnp.maximum(_angle_constraint_values(data, v_full), 0.0))
+    return jnp.stack([pen_v, pen_i, pen_theta])
+
+
+def calc_soft_penalties(data: NetworkParams, v_full):
+    """Batched unweighted soft-limit violations ``(B, 3)`` = ``[pen_v, pen_i, pen_theta]``."""
+    v_full = with_slack_voltage(data, v_full)
+    return jax.vmap(_soft_penalties_one, in_axes=(None, 0))(data, v_full)
+
+
+def weighted_soft_penalty_sums(obj_weights, soft_penalty, suffix: str = "") -> dict:
+    """Batch sums of ``ρ_k · pen_k`` keyed ``penalty_v{suffix}``, ``penalty_i{suffix}``, ``penalty_theta{suffix}``.
+
+    For test-time reporting: dividing by the sample count gives each family's mean contribution to the
+    soft objective.
+    """
+    weighted = jnp.asarray(obj_weights)[:, N_ECON_WEIGHTS:] * jnp.asarray(soft_penalty)
+    sums = jnp.sum(weighted, axis=0)
+    return {f"{key}{suffix}": float(sums[k]) for k, key in enumerate(SOFT_PENALTY_KEYS)}
+
+
+def accumulate_soft_penalty_sums(totals: dict, obj_weights, pen_pred, pen_target) -> None:
+    """Add one batch's weighted soft-penalty sums (prediction and ``_target``) into ``totals``."""
+    for sums in (
+        weighted_soft_penalty_sums(obj_weights, pen_pred),
+        weighted_soft_penalty_sums(obj_weights, pen_target, "_target"),
+    ):
+        for key, value in sums.items():
+            totals[key] = totals.get(key, 0.0) + value
+
+
+def format_soft_penalty_summary(metrics: dict) -> str:
+    """One-line mean weighted soft-penalty breakdown (V / I / θ) for prediction vs target."""
+    pred = " / ".join(f"{metrics[k]:.4e}" for k in SOFT_PENALTY_KEYS)
+    target = " / ".join(f"{metrics[k + '_target']:.4e}" for k in SOFT_PENALTY_KEYS)
+    return f"Soft penalty ρ·Σs (V / I / θ): pred {pred} | target {target}"
 
 
 # --- Obj ---
@@ -119,8 +196,17 @@ def _group_phase_sum(values, groups, mask):
     return jnp.sum(gathered, axis=1)
 
 
-def calc_cost(data, psub, pder, pder_avai, obj_weights):
-    """Two-weight Julia objective: substation cost + DER cost + curtailment."""
+def calc_cost(data, psub, pder, pder_avai, obj_weights, v_full):
+    """Julia soft-OPF objective per sample.
+
+    ``w_cost (cost_sub + cost_der) + w_curtail curtailment + Σ_k ρ_k pen_k(v_full)`` with
+    ``obj_weights = [w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]`` and ``pen_k`` from ``calc_soft_penalties``.
+    """
+    if obj_weights.shape[-1] != N_OBJ_WEIGHTS:
+        raise ValueError(
+            f"obj_weights must have {N_OBJ_WEIGHTS} columns [w_cost, w_curtail, rho_v, rho_i, rho_theta], "
+            f"got {obj_weights.shape[-1]}"
+        )
     psub = jnp.reshape(psub, (-1,))
     unit_p = jax.vmap(_group_phase_sum, in_axes=(0, None, None))(
         pder, data.der_unit_to_phase, data.der_unit_to_phase_mask
@@ -129,7 +215,9 @@ def calc_cost(data, psub, pder, pder_avai, obj_weights):
     cost_der = jnp.sum(data.der_lin * pder + data.der_quad * pder**2, axis=1)
     obj_cost = cost_sub + cost_der
     obj_curtailment = jnp.sum(pder_avai - unit_p, axis=1)
-    return obj_weights[:, 0] * obj_cost + obj_weights[:, 1] * obj_curtailment
+    econ = obj_weights[:, 0] * obj_cost + obj_weights[:, 1] * obj_curtailment
+    penalty = jnp.sum(obj_weights[:, N_ECON_WEIGHTS:] * calc_soft_penalties(data, v_full), axis=1)
+    return econ + penalty
 
 
 def _zbus_residual(net: NetworkParams, s_load_i, s_der_i, v_net_i, w_i, y_inv_i):
@@ -165,10 +253,11 @@ def compute_ac_metrics_from_voltage(
     *,
     branch_status=None,
 ):
-    """AC cost, equality, and inequality metrics at a full or non-slack local voltage.
+    """AC soft-OPF cost, equality, and HARD inequality metrics at a full or non-slack local voltage.
 
-  ``v_full`` may be non-slack ``(B, n_net)`` or full ``(B, n_total)`` local voltage.
-  ``violation`` is ``max(eq_violation, ineq_violation)`` per sample.
+    ``v_full`` may be non-slack ``(B, n_net)`` or full ``(B, n_total)`` local voltage.
+    ``violation`` is ``max(eq_violation, ineq_violation)`` per sample; soft V/I/θ limits are priced
+    in ``cost`` (and reported unweighted in ``soft_penalty``), not counted as violations.
     """
     v_full = with_slack_voltage(net, v_full)
     v_net = v_full[..., : net.n_net]
@@ -177,7 +266,8 @@ def compute_ac_metrics_from_voltage(
         net, s_load_batch, s_der, v_net, topo.w, topo.Y_LL_inv
     )
     psub = substation_power_from_voltage(net, v_full, Y_0row=topo.Y_0row).real
-    cost = calc_cost(net, psub, p_der, pder_avai, obj_weights)
+    cost = calc_cost(net, psub, p_der, pder_avai, obj_weights, v_full)
+    soft_penalty = calc_soft_penalties(net, v_full)
     ineq_violation, ineq_violation_sq = calc_ineq_violation(
         net,
         p_der,
@@ -196,6 +286,7 @@ def compute_ac_metrics_from_voltage(
         eq_violation_sq=eq_violation_sq,
         ineq_violation=ineq_violation,
         ineq_violation_sq=ineq_violation_sq,
+        soft_penalty=soft_penalty,
     )
 
 
@@ -320,10 +411,14 @@ def _resolve_ac_violation_inputs(data, pder, qder, v_full, Y_0row, branch_status
 
 
 def ac_constraint_violation_vector(data, x_i, v_i, Y_i, av_i):
-    """Per-constraint violation vector for one sample (network rows + DER primal)."""
+    """Per-constraint HARD violation vector for one sample: substation rows + DER primal.
+
+    Voltage / angle / branch-current rows are soft (priced in ``calc_cost``) and excluded.
+    """
     vals = constraint_values_from_voltage(data, x_i, v_i, Y_i)
     lb, ub = constraint_bounds(data)
-    row_vio = _bounds_violation(vals, lb, ub)
+    sl_sub = constraint_row_layout(data)["sl_sub"]
+    row_vio = _bounds_violation(vals[sl_sub], lb[sl_sub], ub[sl_sub])
     p = x_i[: data.n_der_phase]
     q = x_i[data.n_der_phase :]
     p_vio = _bounds_violation(p, data.pdermin, data.pdermax)
@@ -346,7 +441,7 @@ def calc_ineq_violation(
     *,
     return_square=False,
 ):
-    """Per-sample max inequality violation, optionally with mean-square penalty."""
+    """Per-sample max HARD inequality violation (substation + DER), optionally with mean-square."""
     x, v_full, Y_use = _resolve_ac_violation_inputs(
         data, pder, qder, v_full, Y_0row, branch_status
     )
@@ -361,16 +456,21 @@ def calc_ineq_violation(
     return jax.vmap(one, in_axes=(0, 0, 0, 0))(x, v_full, Y_use, pder_avai)
 
 
-VIOLATION_COMPONENT_KEYS = (
-    "voltage_magnitude_violation",
-    "voltage_angle_violation",
+# Hard constraints: their max is ``total_violation`` (== ``calc_ineq_violation``).
+HARD_VIOLATION_KEYS = (
     "substation_violation",
-    "branch_current_violation",
     "unit_available_power_violation",
     "pder_box_violation",
     "qder_box_violation",
     "der_capacity_violation",
 )
+# Soft limits: max exceedance of the hard bound in the magnitude form, diagnostics only.
+SOFT_LIMIT_EXCEEDANCE_KEYS = (
+    "voltage_magnitude_violation",
+    "voltage_angle_violation",
+    "branch_current_violation",
+)
+VIOLATION_COMPONENT_KEYS = HARD_VIOLATION_KEYS + SOFT_LIMIT_EXCEEDANCE_KEYS
 
 
 @partial(jax.jit, static_argnums=(0,))
@@ -385,11 +485,11 @@ def calc_violation_components_ac(
 ):
     """Per-sample max violation split by constraint type, for diagnostics.
 
-    Components partition the rows of ``ac_constraint_violation_vector`` (via
-    ``constraint_row_layout``) plus the DER primal terms, so the max over all
-    components equals ``calc_ineq_violation``'s per-sample value. Returns a dict
-    with ``total_violation`` and one ``(B,)`` array per key in
-    ``VIOLATION_COMPONENT_KEYS``.
+    ``HARD_VIOLATION_KEYS`` partition the rows of ``ac_constraint_violation_vector``, so
+    ``total_violation`` (their max) equals ``calc_ineq_violation``'s per-sample value.
+    ``SOFT_LIMIT_EXCEEDANCE_KEYS`` report how far the soft V/θ/I limits are exceeded (magnitude form);
+    they are priced in the cost and excluded from ``total_violation``. Returns a dict with
+    ``total_violation`` and one ``(B,)`` array per key in ``VIOLATION_COMPONENT_KEYS``.
     """
     x, v_full, Y_use = _resolve_ac_violation_inputs(
         data, pder, qder, v_full, Y_0row, branch_status
@@ -411,18 +511,20 @@ def calc_violation_components_ac(
         unit_p = _group_phase_sum(p, data.der_unit_to_phase, data.der_unit_to_phase_mask)
         unit_vio = jnp.maximum(unit_p - av_i, 0.0)
 
-        components = (
-            _max0(row_vio[layout["sl_v"]]),
-            _max0(row_vio[layout["sl_angle"]]),
+        hard = (
             _max0(row_vio[layout["sl_sub"]]),
-            _max0(row_vio[layout["sl_branch"]]),
             _max0(unit_vio),
             _max0(p_vio),
             _max0(q_vio),
             _max0(s_vio),
         )
-        total = jnp.max(jnp.asarray(components))
-        return (total,) + components
+        soft = (
+            _max0(row_vio[layout["sl_v"]]),
+            _max0(row_vio[layout["sl_angle"]]),
+            _max0(row_vio[layout["sl_branch"]]),
+        )
+        total = jnp.max(jnp.asarray(hard))
+        return (total,) + hard + soft
 
     values = jax.vmap(one, in_axes=(0, 0, 0, 0))(x, v_full, Y_use, pder_avai)
     keys = ("total_violation",) + VIOLATION_COMPONENT_KEYS

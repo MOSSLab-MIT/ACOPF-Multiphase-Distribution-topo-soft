@@ -54,10 +54,11 @@ const DEFAULT_TESTING_CONFIG = Dict(
         "u" => 1.5,
         "sigma" => 0.10,
     ),
-    "obj" => Dict(
-        "wmin" => [0, 0],
-        "wmax" => [1, 10],
+    "obj" => Dict{String, Any}(
+        "wmin" => [0.5, 0.5],
+        "wmax" => [1.0, 10.0],
     ),
+    "penalty" => deepcopy(DEFAULT_PENALTY_SAMPLING),
     "der" => Dict(
         "frac_l" => 0.0,
         "frac_u" => 1.0,
@@ -86,12 +87,15 @@ const DEFAULT_TESTING_CONFIG = Dict(
         "random_sign" => true,
     ),
     "save_config" => true,
+    "output_suffix" => "",
 )
 
 const VALID_VARIANTS = ("base", "shifted")
 
-function parse_variant(flags::Dict{String, String})
-    variant = lowercase(strip(get(flags, "variant", "base")))
+# `--variant` wins; otherwise the config's `shift.enabled` selects base/shifted.
+function parse_variant(flags::Dict{String, String}, config::AbstractDict)
+    config_variant = config["shift"]["enabled"] ? "shifted" : "base"
+    variant = lowercase(strip(get(flags, "variant", config_variant)))
     variant in VALID_VARIANTS || error("Invalid variant '$variant'. Use one of: base, shifted.")
     return variant
 end
@@ -104,17 +108,18 @@ function generate_testing_dataset!(args::Vector{String}=String[]; datagen_dir::A
     if haskey(flags, "config")
         config = deep_merge_config(config, load_json_config(flags["config"]))
     end
+    config["obj"] = require_obj_block(config)
 
     grid_dir = length(positional) >= 1 ? positional[1] : joinpath(root_dir, "grid_data", "13_bus", "IEEE13Nodeckt.dss")
 
-    variant = parse_variant(flags)
+    variant = parse_variant(flags, config)
     seed_base = parse(Int, get(flags, "seed_base", string(config["randomness"]["seed_base"])))
     seed_start = parse(Int, get(flags, "seed_start", string(config["randomness"]["smin"])))
     num_scenarios = parse(Int, get(flags, "num_scenarios", string(config["scenario"]["num_scenarios"])))
     feasible_samples_per_scenario = parse(Int, get(flags, "feasible_samples_per_scenario", string(config["scenario"]["feasible_samples_per_scenario"])))
     max_attempts_multiplier = parse(Int, get(flags, "max_attempts_multiplier", string(config["scenario"]["max_attempts_multiplier"])))
     scenario_mode = parse_bool(get(flags, "scenario_mode", "true"))
-    output_suffix = get(flags, "output_suffix", "")
+    output_suffix = get(flags, "output_suffix", string(config["output_suffix"]))
     config["save_config"] = parse_bool(get(flags, "save_config", string(config["save_config"])))
     shift_mu = parse(Float64, get(flags, "shift_mu", string(config["shift"]["mu_rel"])))
     shift_der_mu = parse(Float64, get(flags, "shift_der_mu", string(config["shift"]["der_mu"])))
@@ -164,7 +169,7 @@ function generate_testing_dataset!(args::Vector{String}=String[]; datagen_dir::A
 
     ls = LoadScaler(network, config["load"])
     ds = DERScaler(network, config["der"])
-    os = ObjScaler(network, config["obj"])
+    os = ObjScaler(network, config["obj"], config["penalty"])
     ts = TopologySampler(network, config["topology"])
 
     case_name = network.case

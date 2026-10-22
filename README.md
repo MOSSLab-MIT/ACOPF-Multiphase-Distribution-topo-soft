@@ -4,28 +4,27 @@ AC Optimal Power Flow (ACOPF) for **distribution networks with changing topology
 
 Supported feeder scales include IEEE **13**, **123**, **240**, **906**, and **8500** buses (see `datagen_topo/grid_data/`).
 
-**Core library:** for notation, data containers, linearization math, topology backends, and truncated backprop, see [`docs/architecture.md`](docs/architecture.md). For Python file layout and naming, see [`docs/coding_style.md`](docs/coding_style.md). Contributor conventions and parameter defaults: [`AGENTS.md`](AGENTS.md).
+**Core library:** for notation, data containers, linearization math, and topology backends, see [`docs/architecture.md`](docs/architecture.md). For Python file layout and naming, see [`docs/coding_style.md`](docs/coding_style.md). Contributor conventions and parameter defaults: [`AGENTS.md`](AGENTS.md).
 
 ## Methods
 
 
 | Method             | Entry script                      | Idea                                                                                                                 |
 | ------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **SLFS / FSNet**   | `methods/slfs_fsnet/train.py`     | NN → linearize → PDHG FS → damped update; truncated backprop through first `diff_steps` linearization steps          |
-| **Penalty FS**     | `methods/penalty_fs/train.py`     | Fixed-penalty training on AC violations; FS / inference SLFS post-processing at deploy                               |
-| **Penalty Direct** | `methods/penalty_direct/train.py` | Penalty on jointly predicted DER controls and voltages (no FS inner loop); adaptive or fixed rho                     |
+| **Penalty PF**     | `methods/penalty_pf/train.py`     | NN → DER projection → AC power flow; fixed penalty on AC inequality violations. Test = same pipeline                 |
+| **Penalty Direct** | `methods/penalty_direct/train.py` | Penalty on jointly predicted DER controls and voltages (no PF solve); adaptive or fixed rho                          |
 | **Linear OPF**     | `methods/linear_opf/test.py`      | Fixed-reference linear OPF baseline (CVXPY + Clarabel); test-only, optional sharding                                 |
 
 
-Corresponding test drivers: `methods/slfs_fsnet/test.py`, `methods/penalty_fs/test.py`, `methods/penalty_direct/test.py`. Linear OPF is test-only.
+Corresponding test drivers: `methods/penalty_pf/test.py`, `methods/penalty_direct/test.py`. Linear OPF is test-only.
 
-**NN architectures** (`--model_type`, SLFS/FSNet and Penalty FS): `mlp` (default; compact load features), `gcn`, `modified_gcn` (full non-compact inputs).
+**NN architectures** (`--model_type`, Penalty PF): `mlp` (default; compact load features), `gcn`, `modified_gcn` (full non-compact inputs).
 
-**Successive linearization (SLFS / FSNet)**
+**Penalty PF pipeline** (identical at train, eval, and test time)
 
-1. NN predicts initial DER controls `(pder, qder)`.
-2. For `lin_steps` iterations: build a linearized AC model → PDHG feasibility seeking → `x += fs_damp * (x_fs - x)` → warm-start voltages.
-3. Gradients flow only through the first `diff_steps` iterations (`stop_gradient` on the rest).
+1. NN predicts DER controls `(pder, qder)`.
+2. Closed-form projection onto the DER device limits (`core/grids/der_projection.py`): `p ≥ pdermin`, per-unit availability cap, apparent-power disk.
+3. AC power flow at the projected controls gives the voltages; cost and voltage/current/angle violations are evaluated there and the violations are penalized in the loss.
 
 Topology changes use compact `changing_switch_status` in HDF5 (expanded to full branch status via `network_config.json`). `core/topology/` provides Woodbury updates (default) and a stamp reference backend, with batch precompute for training/eval.
 
@@ -67,14 +66,12 @@ julia --project=datagen_topo/FeederFlow.jl -e 'using Pkg; Pkg.instantiate()'
 
 ```
 ├── core/                      # Shared JAX library (import from submodules, not package roots)
-│   ├── grids/                 # OPFData, linear model, power flow, metrics, linear OPF solver
-│   ├── feasibility/           # PDHG FS, weighted inference FS, slfs_core
+│   ├── grids/                 # OPFData, linear model, power flow, metrics, DER projection, linear OPF solver
 │   ├── nn/                    # MLP / GCN + compact input layout
 │   ├── topology/              # Woodbury (default) and stamp backends, batch precompute
 │   └── utils/                 # types, loss, datasets, workflow, checkpoint, CLI
 ├── methods/
-│   ├── slfs_fsnet/            # SLFS / FSNet train & test
-│   ├── penalty_fs/            # Penalty + FS post-processing
+│   ├── penalty_pf/            # Penalty + power flow (NN → projection → PF)
 │   ├── penalty_direct/        # Penalty direct (joint voltage outputs)
 │   └── linear_opf/            # Linear OPF baseline (test-only)
 ├── datagen_topo/
@@ -97,7 +94,7 @@ julia --project=datagen_topo/FeederFlow.jl -e 'using Pkg; Pkg.instantiate()'
 
 Import style: `from core.grids.data import OPFData` (defining submodule), not package-root re-exports.
 
-## Quick start (IEEE 13-bus, Penalty FS)
+## Quick start (IEEE 13-bus, Penalty PF)
 
 Run from the repository root with `conda activate new_opt`.
 
@@ -142,16 +139,16 @@ julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testi
 
 Scenario layouts, shifted test sets, and CLI details: [`datagen_topo/gen_scripts/USAGE.md`](datagen_topo/gen_scripts/USAGE.md).
 
-### 3. Train Penalty FS
+### 3. Train Penalty PF
 
 ```bash
-bash scripts/example_scripts/train_example_13_penalty_fs.sh
+bash scripts/example_scripts/train_example_13_penalty_pf.sh
 ```
 
 Or invoke Python directly (lower `--train_samples` / `--epochs` if you only ran the smoke datagen):
 
 ```bash
-python methods/penalty_fs/train.py \
+python methods/penalty_pf/train.py \
   --train_h5 datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_training.h5 \
   --val_h5 datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5 \
   --test_h5_variants \
@@ -160,15 +157,14 @@ python methods/penalty_fs/train.py \
     feasible_high_load_low_der=datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_high_load_low_der.h5 \
     feasible_low_load_high_der=datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_low_load_high_der.h5 \
   --data_json datagen_topo/datasets/IEEE13Nodeckt/network_config.json \
-  --case_name IEEE13Nodeckt_penalty_fs \
+  --case_name IEEE13Nodeckt_penalty_pf \
   --results_dir results_draft \
   --epochs 20 --batch_size 64 --train_samples 100000 --eval_samples 2000 --test_samples 2000 \
   --hidden_size 512 --num_layers 4 --learning_rate 1e-4 --rho 1e5 \
-  --lin_steps 3 --diff_steps 0 --fs_maxiter 100 --fs_tol 1e-6 --fs_rho 0.0 \
-  --power_flow_solver fixed_point --voltage_weight 8.0 --seed 42
+  --power_flow_solver fixed_point --seed 42
 ```
 
-Checkpoints and logs: `results_draft/IEEE13Nodeckt_penalty_fs/`.
+Checkpoints and logs: `results_draft/IEEE13Nodeckt_penalty_pf/`.
 
 **CLI notes**
 
@@ -182,18 +178,13 @@ Example shell scripts under `scripts/example_scripts/`:
 
 | Script                                  | Case / method            |
 | --------------------------------------- | ------------------------ |
-| `train_example_13_penalty_fs.sh`        | 13-bus Penalty FS        |
-| `train_example_13_fsnet.sh`             | 13-bus SLFS / FSNet      |
+| `train_example_13_penalty_pf.sh`        | 13-bus Penalty PF        |
 | `train_example_13_penalty_direct.sh`    | 13-bus Penalty Direct    |
-| `train_example_123_penalty_fs.sh`       | 123-bus Penalty FS       |
-| `train_example_123_fsnet.sh`            | 123-bus SLFS / FSNet     |
-| `train_example_240_penalty_fs.sh`       | 240-bus Penalty FS       |
-| `train_example_906_penalty_fs.sh`       | 906-bus Penalty FS       |
-| `train_example_906_fsnet.sh`            | 906-bus SLFS / FSNet     |
-| `train_example_8500_penalty_fs.sh`      | 8500-bus Penalty FS      |
-| `train_example_8500_fsnet.sh`           | 8500-bus SLFS / FSNet    |
-| `train_example_13_penalty_fs_test.sh`   | 13-bus Penalty FS retest |
-| `train_example_13_fsnet_test.sh`        | 13-bus SLFS / FSNet retest |
+| `train_example_123_penalty_pf.sh`       | 123-bus Penalty PF       |
+| `train_example_240_penalty_pf.sh`       | 240-bus Penalty PF       |
+| `train_example_906_penalty_pf.sh`       | 906-bus Penalty PF       |
+| `train_example_8500_penalty_pf.sh`      | 8500-bus Penalty PF      |
+| `train_example_13_penalty_pf_test.sh`   | 13-bus Penalty PF retest |
 
 
 Linear OPF across grids: `scripts/run_linear_opf_all_grids.sh`.
@@ -206,11 +197,11 @@ YAML job matrices and launcher: [`scripts/slurm_runs/README.md`](scripts/slurm_r
 
 ```bash
 python scripts/slurm_runs/train_jobs.py generate \
-  --config scripts/slurm_runs/train_jobs_slfs_fsnet.yaml
-sbatch scripts/slurm_runs/slfs_fsnet/submit.sh
+  --config scripts/slurm_runs/train_jobs_penalty_pf.yaml
+sbatch scripts/slurm_runs/penalty_pf/submit_small.sh
 ```
 
-Suites cover SLFS/FSNet, GCN variants, Penalty FS / Direct rho sweeps, and regime ablations.
+Suites cover Penalty PF / Direct rho sweeps, GCN variants, and regime ablations.
 
 ## Dataset format
 
@@ -259,13 +250,7 @@ Training scripts pass HDF5 paths via `--val_h5` and `--test_h5_variants` (see `c
 
 | Parameter            | Typical     | Notes                                                              |
 | -------------------- | ----------- | ------------------------------------------------------------------ |
-| `lin_steps`          | 2–3         | Linearization iterations per forward pass                          |
-| `diff_steps`         | 0–2         | Differentiable steps; must be ≤ `lin_steps`                        |
-| `fs_maxiter`         | 100–200     | Max PDHG iterations (SLFS / inference FS)                          |
-| `fs_tol`             | 1e-6 – 1e-8 | FS convergence on max constraint violation                         |
-| `fs_damp`            | 1.0         | Damping on FS update                                               |
-| `fs_rho`             | 0.0         | Proximity term (often 0 in training)                               |
-| `weight_dist`        | 0.01–1.0    | Distance loss weight (SLFS / FSNet; preferred over violation loss) |
+| `rho`                | 1e4–1e6     | Fixed penalty weight on AC inequality violations (Penalty PF)      |
 | `topology_backend`   | `woodbury`  | `woodbury` (default) or `stamp`                                    |
 | `woodbury_ir_steps`  | `auto`      | SMW iterative refinement: `auto` / `0` / `1` / `2`                 |
 | `model_type`         | `mlp`       | `mlp`, `gcn`, or `modified_gcn`                                    |
@@ -280,7 +265,7 @@ pytest tests/ -q
 pytest tests/test_power_flow_solvers.py tests/test_linear_model_math.py -q
 ```
 
-Tests cover power-flow solvers, the AC-OPF formulation and linearization, feasibility-seeking training logic, and Woodbury topology updates.
+Tests cover power-flow solvers, the AC-OPF formulation and linearization, DER projection, penalty training helpers, and Woodbury topology updates.
 
 ## Analysis and results
 
@@ -288,9 +273,6 @@ Tests cover power-flow solvers, the AC-OPF formulation and linearization, feasib
 |------|------|
 | `analysis/woodbury_vs_direct/` | Woodbury SMW-IR vs dense solve |
 | `analysis/differentiation/` | PF autodiff: full / truncated / implicit |
-| `analysis/slfs_vs_voltage_ls/` | SLFS vs voltage least-squares |
-| `analysis/batch_size_inference_time/` | Penalty FS deploy time vs batch size |
-| `analysis/penalty_fs_vs_ipopt/` | Predicted DER/voltage vs Ipopt labels |
 | `processing_results/` | Aggregate `results/` into paper tables/plots |
 
 ## Notes

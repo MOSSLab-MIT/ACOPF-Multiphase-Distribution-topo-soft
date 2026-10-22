@@ -15,7 +15,10 @@ const CASE_PATHS = Dict(
 
     for (case_name, case_path) in CASE_PATHS
         @testset "case: $case_name" begin
-            network = FeederFlow.parse_file(case_path; regulator_model=:nonideal)
+            # Mirror OPFData (datagen_topo/src/opf/data.jl): parse with FeederFlow defaults.
+            # `regulator_model` is a Y-bus stamping option (`FeederFlow.build_y`), not a
+            # parser option, and does not affect line ratings or branch membership.
+            network = FeederFlow.parse_file(case_path)
             i_base = network.base.Sbase / network.base.Vbase
             fallback_imax_pu = IMAX_DEFAULT_AMPS / i_base
 

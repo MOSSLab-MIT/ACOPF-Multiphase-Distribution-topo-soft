@@ -3,9 +3,9 @@
 import numpy as np
 import jax.numpy as jnp
 
-from core.feasibility.fs_common import (
+from core.grids.der_projection import (
     project_der_controls_batch,
-    project_primal_controls_batch,
+    project_der_controls_from_x_batch,
     unit_active_power_violation_batch,
     unit_phase_sum_batch,
 )
@@ -54,19 +54,24 @@ def test_unit_projection_saturates_cap_preserves_q_and_disk():
     assert float(unit_active_power_violation_batch(data, p_proj, pder_avai)[0]) <= 1e-12
 
 
-def test_primal_projection_order_box_disk_then_unit_cap():
-    """Full control projection leaves q unchanged and enforces unit sum after box/disk."""
+def test_concatenated_projection_matches_split_and_enforces_unit_cap():
+    """``[p; q]`` projection: q unchanged (inside disk), unit-0 sum saturates at its cap."""
     data = _MultiPhaseUnitData()
     eps = jnp.asarray(1e-12, dtype=jnp.float64)
-    lx = jnp.concatenate([data.pdermin, -data.sdermax])
-    ux = jnp.concatenate([data.sdermax, data.sdermax])
     x = jnp.asarray([[2.0, 3.0, 1.0, 0.1, -0.2, 0.3]], dtype=jnp.float64)
     pder_avai = jnp.asarray([[2.0, 3.0]], dtype=jnp.float64)
 
-    x_proj = project_primal_controls_batch(data, x, lx, ux, pder_avai, eps)
+    x_proj = project_der_controls_from_x_batch(data, x, pder_avai, eps)
     p_proj = np.asarray(x_proj[:, : data.n_der_phase])
     q_proj = np.asarray(x_proj[:, data.n_der_phase :])
     q_raw = np.asarray(x[:, data.n_der_phase :])
+
+    # Identical to the split (p, q) interface.
+    p_split, q_split = project_der_controls_batch(
+        data, x[:, : data.n_der_phase], x[:, data.n_der_phase :], pder_avai, eps
+    )
+    np.testing.assert_array_equal(p_proj, np.asarray(p_split))
+    np.testing.assert_array_equal(q_proj, np.asarray(q_split))
 
     np.testing.assert_allclose(q_proj, q_raw, atol=1e-12, rtol=0.0)
     unit_sum = np.asarray(

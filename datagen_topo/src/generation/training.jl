@@ -46,10 +46,11 @@ const TRAINING_REGIMES = [
 ]
 
 const DEFAULT_TRAINING_CONFIG = Dict{String, Any}(
-    "obj" => Dict(
-        "wmin" => [0, 0],
-        "wmax" => [1, 10],
+    "obj" => Dict{String, Any}(
+        "wmin" => [0.5, 0.5],
+        "wmax" => [1.0, 10.0],
     ),
+    "penalty" => deepcopy(DEFAULT_PENALTY_SAMPLING),
     "topology" => Dict{String, Any}(
         "flip_probability" => 0.5,
         "radial_ratio" => 0.5,
@@ -67,11 +68,12 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
     positional, flags = parse_cli_tokens(String.(args))
 
     config_raw = haskey(flags, "config") ? load_json_config(flags["config"]) : Dict{String, Any}()
-    for key in ("obj", "topology", "randomness")
+    for key in ("obj", "penalty", "topology", "randomness")
         if haskey(config_raw, key)
             config[key] = deep_merge_config(config[key], config_raw[key])
         end
     end
+    config["obj"] = require_obj_block(config)
     if haskey(config_raw, "floating_point_type")
         config["floating_point_type"] = config_raw["floating_point_type"]
     end
@@ -99,7 +101,7 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
     @info "Floating-point data will be exported in `$(float_type)`"
 
     load_scalers, der_scalers = build_regime_scalers(network, regimes)
-    os = ObjScaler(network, config["obj"])
+    os = ObjScaler(network, config["obj"], config["penalty"])
     ts = TopologySampler(network, config["topology"])
 
     case_name = network.case
@@ -132,7 +134,7 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
     pder_mat = Matrix{Float64}(undef, n_der, n_samples)
     changing_mat = Matrix{Bool}(undef, n_changing, n_samples)
     is_radial_vec = Vector{Bool}(undef, n_samples)
-    obj_mat = Matrix{Float64}(undef, 2, n_samples)
+    obj_mat = Matrix{Float64}(undef, N_OBJ_WEIGHTS, n_samples)
     seed_vec = Vector{Int}(undef, n_samples)
     progress_every = max(1, n_samples ÷ 10)
 

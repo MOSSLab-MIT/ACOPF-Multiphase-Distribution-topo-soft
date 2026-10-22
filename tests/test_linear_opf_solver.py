@@ -14,12 +14,15 @@ import jax.numpy as jnp
 from conftest import load_h5_sample
 from core.grids.data import OPFData
 from core.grids.linear_opf_solver import (
+    RHO_I,
+    RHO_THETA,
+    RHO_V,
     LinearizationPowerFlowError,
     affine_voltage,
     build_linear_opf_cache,
     solve_linear_opf,
 )
-from core.grids.metrics import calc_ac_metrics_pf
+from core.grids.metrics import calc_ac_metrics_pf, constraint_bounds, constraint_row_layout
 from core.topology.batch import build_topology_batch_jit, precompute_topology
 from core.topology.utils import make_topology_data
 
@@ -34,6 +37,10 @@ FINITE_DIFF_STEP = 1e-6
 IPOPT_TARGET_AC_VIO_TOL = 1e-4
 COST_RATIO_LIMIT = 2.0
 COST_ABS_SLACK = 1.0
+# Clarabel primal feasibility tolerance (default 1e-8) with margin for row scaling.
+QP_FEAS_TOL = 1e-6
+# Indices scanned for a sample whose linearized soft rows are active at small ρ.
+SOFT_SCAN_INDICES = range(20)
 
 
 class LinearOPFSample(NamedTuple):
@@ -311,3 +318,91 @@ def test_linear_opf_metrics_vs_ipopt_target(sample_idx):
     assert cost_tgt > 0.0
     assert vio_pred < AC_VIO_TOL
     assert cost_pred < COST_RATIO_LIMIT * cost_tgt + COST_ABS_SLACK
+
+
+def _solve_with_rho(cache, sample: LinearOPFSample, rho: float):
+    w = np.asarray(sample.obj_weights, dtype=np.float64).copy()
+    w[2:] = rho
+    return solve_linear_opf(
+        cache,
+        np.asarray(sample.s_load),
+        np.asarray(sample.pder_avai),
+        w,
+        net=sample.data.net,
+        topo=sample.topo,
+    )
+
+
+def _linear_rows(cache, pder, qder):
+    """Linearized network rows ``A x + c`` (c recovered from the synced RHS: ub_rhs = ub - c)."""
+    assert np.all(np.isfinite(cache.ub))  # every network row (V, angle, sub, branch) has an upper bound
+    x = np.concatenate([pder, qder])
+    c = cache.ub - np.asarray(cache.ub_rhs_param.value)
+    return np.asarray(cache.a_param.value) @ x + c
+
+
+def test_soft_row_layout_partition_and_scales():
+    """Substation rows hard; V / angle / branch rows soft with squared-unit scales 2b (angle: 1)."""
+    sample = _load_sample(0)
+    net = sample.data.net
+    cache = build_linear_opf_cache(net, sample.topo, dict(sample.data.config))
+    rows = cache.soft_rows
+    layout = constraint_row_layout(net)
+    lb, ub = (np.asarray(b) for b in constraint_bounds(net))
+
+    sub_rows = np.arange(lb.size)[layout["sl_sub"]]
+    np.testing.assert_array_equal(np.sort(rows.hard_up), sub_rows)
+    assert rows.hard_lo.size == 0  # substation rows have no finite lower bound
+    assert np.intersect1d(rows.soft_up, sub_rows).size == 0
+    # Every finite bound is covered exactly once.
+    assert rows.hard_up.size + rows.soft_up.size == np.isfinite(ub).sum()
+    assert rows.hard_lo.size + rows.soft_lo.size == np.isfinite(lb).sum()
+
+    v_rows = np.arange(lb.size)[layout["sl_v"]]
+    np.testing.assert_array_equal(rows.soft_lo, v_rows)  # only V rows have finite lower bounds
+    np.testing.assert_allclose(rows.soft_lo_scale, 2.0 * np.asarray(net.vmin), rtol=0, atol=0)
+    assert np.all(rows.soft_lo_rho == RHO_V)
+    for rho_idx, sl, bound in (
+        (RHO_V, layout["sl_v"], 2.0 * ub[layout["sl_v"]]),
+        (RHO_THETA, layout["sl_angle"], np.ones(ub[layout["sl_angle"]].shape)),
+        (RHO_I, layout["sl_branch"], 2.0 * ub[layout["sl_branch"]]),
+    ):
+        family = np.arange(lb.size)[sl]
+        sel = np.isin(rows.soft_up, family)
+        np.testing.assert_array_equal(rows.soft_up[sel], family)
+        assert np.all(rows.soft_up_rho[sel] == rho_idx)
+        np.testing.assert_allclose(rows.soft_up_scale[sel], bound, rtol=0, atol=0)
+
+    _solve_with_rho(cache, sample, 250.0)
+    np.testing.assert_allclose(cache.penalty_up_param.value, 250.0 * rows.soft_up_scale, rtol=0, atol=0)
+    np.testing.assert_allclose(cache.penalty_lo_param.value, 250.0 * rows.soft_lo_scale, rtol=0, atol=0)
+
+
+def test_soft_linear_opf_complementarity_and_monotonicity():
+    """At the QP optimum slack = relu(row - bound) and hard rows hold; lowering ρ lowers the
+    objective and raises the accepted (weighted-unit) violation."""
+    data = _load_data()
+    found_active = False
+    for idx in SOFT_SCAN_INDICES:
+        sample = _load_sample(idx, data=data)
+        cache = build_linear_opf_cache(data.net, sample.topo, dict(data.config))
+        z_prev, viol_prev = np.inf, -np.inf
+        for rho in (1e3, 1e2, 1.0, 1e-2):
+            pder, qder, info = _solve_with_rho(cache, sample, rho)
+            assert info["solved"]
+            rows = cache.soft_rows
+            g = _linear_rows(cache, pder, qder)
+            t_up = np.asarray(cache.slack_up_var.value)
+            t_lo = np.asarray(cache.slack_lo_var.value)
+            np.testing.assert_allclose(t_up, np.maximum(g[rows.soft_up] - cache.ub[rows.soft_up], 0.0), atol=QP_FEAS_TOL)
+            np.testing.assert_allclose(t_lo, np.maximum(cache.lb[rows.soft_lo] - g[rows.soft_lo], 0.0), atol=QP_FEAS_TOL)
+            assert np.all(g[rows.hard_up] <= cache.ub[rows.hard_up] + QP_FEAS_TOL)
+
+            viol = float(rows.soft_up_scale @ t_up + rows.soft_lo_scale @ t_lo)
+            assert info["objective"] <= z_prev * (1 + 1e-6) + 1e-9
+            assert viol >= viol_prev - QP_FEAS_TOL
+            z_prev, viol_prev = info["objective"], viol
+            found_active |= viol > 1e-4
+        if found_active:
+            break
+    assert found_active, "no scanned sample activated a soft row; the soft path is untested"

@@ -1,0 +1,45 @@
+{
+  "load": {
+    "noise_type": "ScaledUniform",
+    "l": 0.2,
+    "u": 1.5,
+    "sigma": 0.1
+  },
+  "obj": {
+    "wmin": [0.5, 0.5],
+    "wmax": [1.0, 10.0]
+  },
+  "penalty": {
+    "rho_min": [1, 1, 1],
+    "rho_max": [100, 100, 100]
+  },
+  "der": {
+    "frac_l": 0.0,
+    "frac_u": 1.0
+  },
+  "topology": {
+    "flip_probability": 0.5,
+    "radial_ratio": 0.5
+  },
+  "randomness": {
+    "smin": 1
+  },
+  "scenario": {
+    "num_scenarios": 20,
+    "feasible_samples_per_scenario": 100,
+    "max_attempts_multiplier": 5
+  },
+  "shift": {
+    "enabled": true,
+    "noise_type": "gaussian",
+    "sigma_rel": 0.2,
+    "der_sigma": 0.2,
+    "mu_rel": 0.1,
+    "der_mu": 0.1,
+    "scale_factor": 1.0,
+    "random_sign": true
+  },
+  "save_config": false,
+  "floating_point_type": "Float64",
+  "output_suffix": "m01_std01"
+}

@@ -16,9 +16,8 @@ Grids live under `datagen_topo/grid_data/` (e.g. `13_bus/IEEE13Nodeckt.dss`, `12
 | [`create_testing_dataset.jl`](create_testing_dataset.jl) | Test data: scenario topologies + Ipopt OPF labels (feasible / infeasible); `--variant base` or `--variant shifted` |
 | [`../datagen_topo.jl`](../datagen_topo.jl) | Shared include aggregator for datagen code (not a Julia package) |
 | [`configs/`](configs/) | JSON defaults for training/testing generation |
-| [`cluster/run_datagen_matrix.sh`](cluster/run_datagen_matrix.sh) | Preferred Slurm launcher for training/testing matrices |
+| [`cluster/run_datagen.sh`](cluster/run_datagen.sh) | Slurm launcher (array index = grid, parameters from config); see [`cluster/README.md`](cluster/README.md) |
 
-Legacy shell scripts remain for compatibility, but new cluster jobs should prefer `cluster/run_datagen_matrix.sh`.
 
 ---
 
@@ -79,13 +78,13 @@ The generator writes **combined HDF5 files** (`*_test_feasible*.h5`, `*_test_inf
 
 | Flag | Default (in script) | Meaning |
 |------|------------------------|---------|
-| `--variant` | `base` | `base` or `shifted` (shifted applies Gaussian load/DER perturbation) |
+| `--variant` | config `shift.enabled` (`false` → `base`) | `base` or `shifted` (shifted applies Gaussian load/DER perturbation) |
 | `--num_scenarios` | `10` | Number of distinct topologies |
 | `--feasible_samples_per_scenario` | `100` | Target feasible OPF samples per scenario |
 | `--max_attempts_multiplier` | `5` | `attempt_limit = feasible_samples_per_scenario × multiplier` |
 | `--seed_base` | `1234` | RNG for topology plan |
 | `--seed_start` | `1` | First profile seed |
-| `--output_suffix` | `""` | Appends `_<suffix>` to output filenames |
+| `--output_suffix` | config `output_suffix` (`""`) | Appends `_<suffix>` to output filenames |
 | `--save_config` | `true` | Write `network_config.json` (or `network_config_<suffix>.json`) |
 | `--load_l`, `--load_u` | script `config` | Load scale bounds |
 | `--der_frac_l`, `--der_frac_u` | script `config` | DER availability fraction bounds |
@@ -170,13 +169,13 @@ julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testi
 
 ## HDF5 schema (test / scenario files)
 
-**`input/`:** `seed`, `scenario_index`, `pd`, `qd`, `pder_avai`, `changing_switch_status`, `is_radial`, `obj_weights`  
+**`input/`:** `seed`, `scenario_index`, `pd`, `qd`, `pder_avai`, `changing_switch_status`, `is_radial`, `obj_weights` (5 columns: `[w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]`)  
 
 **`primal/`:** `vr`, `vi`, `pder`, `qder`, `psub`, `qsub`, `psub_phase`, `qsub_phase` (OPF solution; scalar `psub`/`qsub` are phase sums)  
 
 **`network_config.json`:** `sub_smax_phase` — per-phase substation apparent-power limits (p.u.), length `n_slk`.
 
-**`meta/`:** Ipopt termination, timings, objectives  
+**`meta/`:** Ipopt termination, timings, objectives (`primal_objective_value` is the soft objective, penalties included)  
 
 Python loaders expand compact `changing_switch_status` to full `branch_status` via `network_config.json` ([`core/grids/data.py`](../../core/grids/data.py)).
 
@@ -213,8 +212,9 @@ Prefer explicit `--num_scenarios` and `--feasible_samples_per_scenario` for new 
 
 ## Customizing behavior
 
-- **Training regimes:** default mix is all-base (`training_defaults.json`, weights `1.0/0.0/0.0`). Previous default mix (`0.6/0.05/0.35`) lives in `configs/training_w060_005_035.json` with output suffix `060_005_035`. Load-cap OOR training (all-base load `[0.2, 0.8]`) uses `configs/training_l02_u08.json` with output suffix `l02_u08` (launcher: `cluster/run_training_regime_ablation.sh`).
+- **Training regimes:** default mix is all-base (`training_defaults.json`, weights `1.0/0.0/0.0`). Previous default mix (`0.6/0.05/0.35`) lives in `configs/training_w060_005_035.json` with output suffix `060_005_035`. Load-cap OOR training (all-base load `[0.2, 0.8]`) uses `configs/training_l02_u08.json` with output suffix `l02_u08` (launcher: `cluster/run_datagen.sh`, see `cluster/README.md`).
 - **Test sampling defaults:** use `--config datagen_topo/gen_scripts/configs/testing_defaults.json` as the editable template.
+- **Soft V / I / θ limits:** the OPF is soft-only. Voltage magnitude, branch current and angle-difference limits get nonnegative slacks with an L1 penalty `ρ_V·Σs_V + ρ_I·Σs_I + ρ_θ·Σs_θ` in raw pu² units (substation, DER and power balance stay hard). The `penalty` config block (`rho_min`, `rho_max`, default `[1, 1, 1]` / `[100, 100, 100]`) sets the per-sample ρ, sampled log-uniformly; `obj` still samples `[w_cost, w_curtail]` uniformly. Since V limits no longer cause infeasibility, `*_test_infeasible.h5` is normally empty and not written. Julia tests: `tests/test_soft_constraints.jl`.
 - **Topology / OPF:** shared code now loads through `datagen_topo/datagen_topo.jl`, with implementation files under `datagen_topo/src/`.
 
 See also the repository [README](../../README.md) and [AGENTS.md](../../AGENTS.md).

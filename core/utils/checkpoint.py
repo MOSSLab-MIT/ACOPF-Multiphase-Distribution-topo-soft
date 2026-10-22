@@ -64,11 +64,6 @@ def save_checkpoint(state, epoch, checkpoint_dir, data, args):
         "learning_rate": args.learning_rate,
         "min_lr_ratio": getattr(args, "min_lr_ratio", 0.5),
         "batch_size": args.batch_size,
-        "weight_dist": args.weight_dist,
-        "lin_steps": args.lin_steps,
-        "diff_steps": args.diff_steps,
-        "fs_tol": args.fs_tol,
-        "fs_maxiter": args.fs_maxiter,
         "power_flow_solver": getattr(
             args,
             "power_flow_solver",

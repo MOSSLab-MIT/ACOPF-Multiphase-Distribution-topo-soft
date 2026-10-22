@@ -731,7 +731,7 @@ def _write_readme(
         "",
         f"Each job writes to `{{results_dir}}/{{case_name}}/seed_{{seed}}/`.",
         f"With `results_dir: {results_dir}`, example:",
-        f"`{results_dir}/IEEE13Nodeckt_penalty_fs/seed_1/`.",
+        f"`{results_dir}/IEEE13Nodeckt_penalty_pf/seed_1/`.",
         "",
         "## Submit to Slurm",
         "",

@@ -5,15 +5,41 @@ using JSON
 const LOAD_DER_CLI_FLAGS = ("load_l", "load_u", "der_frac_l", "der_frac_u")
 
 function deep_merge_config(base::AbstractDict, override::AbstractDict)
-    merged = deepcopy(base)
+    # Dict{String, Any}: a concretely typed base (e.g. Dict{String, Vector{Int64}})
+    # would convert the override and throw InexactError on a float such as 0.5.
+    merged = Dict{String, Any}()
+    for (key, value) in base
+        merged[String(key)] = deepcopy(value)
+    end
     for (key, value) in override
-        if haskey(merged, key) && merged[key] isa AbstractDict && value isa AbstractDict
-            merged[key] = deep_merge_config(merged[key], value)
+        key_s = String(key)
+        if haskey(merged, key_s) && merged[key_s] isa AbstractDict && value isa AbstractDict
+            merged[key_s] = deep_merge_config(merged[key_s], value)
         else
-            merged[key] = deepcopy(value)
+            merged[key_s] = deepcopy(value)
         end
     end
     return merged
+end
+
+"""
+    require_obj_block(config) -> Dict
+
+Economic weights `obj.wmin` / `obj.wmax` (`w_cost`, `w_curtail`). The code default is `[0.5, 0.5]`–`[1.0, 10.0]`.
+"""
+function require_obj_block(config::AbstractDict)
+    haskey(config, "obj") ||
+        error("Config must include \"obj\" with \"wmin\" and \"wmax\".")
+    obj = config["obj"]
+    obj isa AbstractDict || error("Config \"obj\" must be an object.")
+    for bound in ("wmin", "wmax")
+        haskey(obj, bound) || error("Config obj is missing \"$bound\".")
+        vec = obj[bound]
+        vec isa AbstractVector || error("Config obj.$bound must be a vector.")
+        length(vec) == N_ECON_WEIGHTS ||
+            error("Config obj.$bound must have length $N_ECON_WEIGHTS; got $(length(vec)).")
+    end
+    return obj
 end
 
 function load_json_config(path::AbstractString)

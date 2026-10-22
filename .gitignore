@@ -9,7 +9,6 @@ processing_results/
 datagen_topo/datasets/*
 # !datagen_topo/datasets/IEEE13Nodeckt/
 
-datagen_topo/datasets0
 archived/
 experiments/
 .claude/
@@ -27,5 +26,4 @@ notebooks/
 results_rho_sweep/
 results_penalty_direct_rho_sweep/
 results_old/
-docs/
 AGENTS.md

@@ -2,6 +2,8 @@
 
 from typing import Any, Dict
 
+from core.grids.metrics import format_soft_penalty_summary
+
 
 def print_penalty_direct_test_metrics(batch_size: int, test_metrics: Dict[str, Any]) -> None:
     print(f"    Batch size: {batch_size}")
@@ -15,6 +17,8 @@ def print_penalty_direct_test_metrics(batch_size: int, test_metrics: Dict[str, A
         f"(signed {test_metrics['cost_error']:+.6f}, max {test_metrics['max_abs_cost_error']:.6f}) | "
         f"OptGap: {test_metrics['optimality_gap']:.6%}"
     )
+    if "penalty_v" in test_metrics:
+        print(f"    {format_soft_penalty_summary(test_metrics)}")
     print(
         f"    Inverse time: {test_metrics['total_inverse_time']:.4f}s | "
         f"Avg/batch: {test_metrics['avg_inverse_time_per_batch']:.6f}s"

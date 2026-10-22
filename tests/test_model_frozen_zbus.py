@@ -1,6 +1,6 @@
 """Rigorous correctness tests for ``core.grids.linear_model`` frozen Z-bus linearization.
 
-Validates the SLFS affine model
+Validates the linearized (frozen Z-bus) affine model
     f(x) ≈ f0 + A (x - x0),  c = f0 - A @ x0
 against:
   - direct constraint evaluation at the expansion point,
@@ -9,7 +9,7 @@ against:
   - first-order remainder scaling (quadratic in ||dx||),
   - ``create_models`` reduced-system assembly.
 
-Imports only the linear-model module, not the SLFS/training loops.
+Imports only the linear-model module, not the training loops.
 """
 
 from functools import partial

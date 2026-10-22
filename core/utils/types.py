@@ -33,17 +33,6 @@ class TopologyData(NamedTuple):
     branch_status: jnp.ndarray
 
 
-class ModelOutput(NamedTuple):
-    """Result of SLFS forward passes."""
-
-    pder_final: jnp.ndarray
-    qder_final: jnp.ndarray
-    s_der_final: jnp.ndarray
-    pder_pred: jnp.ndarray
-    qder_pred: jnp.ndarray
-    v_hat: jnp.ndarray
-
-
 @dataclass(frozen=True)
 class CostNormStats:
     """Eval-oracle target cost statistics for loss scaling."""

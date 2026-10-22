@@ -1,7 +1,8 @@
 """Linearized AC OPF model: power flow, constraint linearization, costs.
 
-Builds ``A x + c ≈ f(x)`` around a frozen voltage point and packages the
-reduced system consumed by PDHG in ``core/feasibility/fs.py``. See ``docs/architecture.md``.
+Builds ``A x + c ≈ f(x)`` around a frozen voltage point (used by the linear
+OPF baseline in ``core/grids/linear_opf_solver.py``) and packages the shifted
+bound form ``l − c ≤ A x ≤ u − c`` via ``create_reduced_system``.
 """
 from functools import partial
 
@@ -151,14 +152,14 @@ def create_linear_model(
 
 
 def create_reduced_system(data: NetworkParams, linear_model, pder_avai):
-    """Shift linearized bounds for feasibility seeking: ``l − c ≤ A x ≤ u − c``.
+    """Shift linearized bounds: ``l − c ≤ A x ≤ u − c``.
 
-    DER disk and per-unit availability constraints are enforced by primal
-    projection (``core/feasibility/fs_common.py``), not as rows in ``A``.
+    DER disk and per-unit availability constraints are not rows in ``A``; they
+    are handled by the DER projection (``core/grids/der_projection.py``).
 
     Returns:
         dict with keys ``A_reduced``, ``l_reduced``, ``u_reduced``, ``lx``, ``ux``,
-        ``pder_avai`` — the contract expected by ``feasibility_seeking_batch``.
+        ``pder_avai``.
     """
 
     lb, ub = constraint_bounds(data)

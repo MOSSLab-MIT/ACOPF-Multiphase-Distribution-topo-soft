@@ -20,6 +20,13 @@ const VMAX_DEFAULT_LARGE    = 1.06
 const DVA_MAX_DEFAULT = tan(pi / 3)
 const IMAX_DEFAULT_AMPS = 600.0 # fallback branch current rating when line amps are zero
 
+# Objective weight layout: [w_cost, w_curtail, ρ_V, ρ_I, ρ_θ].
+# ρ_* are L1 penalty weights on the soft voltage / branch-current / angle-difference slacks.
+const OBJ_WEIGHT_NAMES = ("w_cost", "w_curtail", "rho_v", "rho_i", "rho_theta")
+const N_OBJ_WEIGHTS = length(OBJ_WEIGHT_NAMES)
+const N_ECON_WEIGHTS = 2  # leading [w_cost, w_curtail]; the remaining entries are penalty weights
+const PENALTY_WEIGHT_DEFAULT = 1e3
+
 const HSL_PATH = get(ENV, "ACOPF_HSL_PATH", HSL_jll.libhsl_path) # Override via ACOPF_HSL_PATH env var; defaults to the HSL_jll-provided library.
 
 # Y-bus regularization for FeederFlow.build_y (transformer/regulator stamping).
@@ -620,9 +627,8 @@ function OPFData(
     end
     dvamax = DVA_MAX_DEFAULT
 
-    # Weighted objective interface uses [cost, curtailment].
-    # Keep notebook parity by defaulting to economic-cost-only.
-    obj_weights = [1.0, 0.0]
+    # Weighted objective [w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]: economic cost only, default soft penalties.
+    obj_weights = vcat([1.0, 0.0], fill(PENALTY_WEIGHT_DEFAULT, N_OBJ_WEIGHTS - N_ECON_WEIGHTS))
 
     data = OPFData(
         String(case_name),

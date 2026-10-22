@@ -6,8 +6,12 @@
     "sigma": 0.1
   },
   "obj": {
-    "wmin": [0, 0],
-    "wmax": [1, 10]
+    "wmin": [0.5, 0.5],
+    "wmax": [1.0, 10.0]
+  },
+  "penalty": {
+    "rho_min": [1, 1, 1],
+    "rho_max": [100, 100, 100]
   },
   "der": {
     "frac_l": 0.0,
@@ -18,11 +22,10 @@
     "radial_ratio": 0.5
   },
   "randomness": {
-    "seed_base": 1234,
     "smin": 1
   },
   "scenario": {
-    "num_scenarios": 20,
+    "num_scenarios": 10,
     "feasible_samples_per_scenario": 100,
     "max_attempts_multiplier": 5
   },
@@ -36,6 +39,7 @@
     "scale_factor": 1.0,
     "random_sign": true
   },
-  "save_config": true,
-  "floating_point_type": "Float64"
+  "save_config": false,
+  "floating_point_type": "Float64",
+  "output_suffix": "oor_load"
 }

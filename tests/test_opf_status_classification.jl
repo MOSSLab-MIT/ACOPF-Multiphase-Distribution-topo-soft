@@ -26,7 +26,10 @@ include(joinpath(DATAGEN_DIR, "datagen_topo.jl"))
     @test ipopt_infeasible_meta["primal_status"] != "LOCALLY_INFEASIBLE"
 end
 
-@testset "OPF infeasible samples are detectable under high-load low-DER regime" begin
+@testset "Soft OPF: solver infeasibility still detected when hard limits cannot be met" begin
+    # V / I / θ limits are soft, so voltage-driven infeasibility no longer occurs (covered in
+    # test_soft_constraints.jl). Power balance with the hard per-phase substation limit |S_sub,k| <= smax_k
+    # and no DER is still infeasible once total active load exceeds Σ_k smax_k (losses only add to demand).
     case_path = joinpath(DATAGEN_DIR, "grid_data", "13_bus", "IEEE13Nodeckt.dss")
     network = create_network_data(case_path)
     ls = LoadScaler(network, Dict(
@@ -35,30 +38,27 @@ end
         "u" => 1.0,
         "sigma" => 0.10,
     ))
-    ds = DERScaler(network, Dict("frac_l" => 0.0, "frac_u" => 0.3))
     os = ObjScaler(network, Dict("wmin" => [0, 0], "wmax" => [1, 10]))
 
     warm_start = compute_warm_start(network)
     cache = build_opf_cache(network, Ipopt.Optimizer; warm_start=warm_start)
 
-    found_infeasible = false
-    for seed in 1461:1475
-        rng = MersenneTwister(seed)
-        pd, qd = Random.rand(rng, ls)
-        pder_avai = Random.rand(rng, ds)
-        obj_weights = Random.rand(rng, os)
-        _set_loads!(network, pd, qd)
-        _set_DERs!(network, pder_avai)
-        _set_obj_weights!(network, obj_weights)
+    rng = MersenneTwister(1461)
+    pd, qd = Random.rand(rng, ls)
+    _set_DERs!(network, zeros(network.n_der_unit))
+    _set_obj_weights!(network, Random.rand(rng, os))
 
-        res = solve_cached_opf!(cache, network)
-        if is_opf_infeasible(res["meta"])
-            found_infeasible = true
-            @test res["meta"]["termination_status"] == "LOCALLY_INFEASIBLE"
-            @test res["meta"]["primal_status"] == "INFEASIBLE_POINT"
-            break
-        end
-    end
+    # Feasible reference: the sampled load is served.
+    _set_loads!(network, pd, qd)
+    res = solve_cached_opf!(cache, network)
+    @test is_opf_feasible(res["meta"])
 
-    @test found_infeasible
+    # Scale load so total P demand is twice the substation capability.
+    k = 2.0 * sum(network.sub_smax_phase) / sum(pd)
+    @test k > 1.0
+    _set_loads!(network, k .* pd, k .* qd)
+    res = solve_cached_opf!(cache, network)
+    @test is_opf_infeasible(res["meta"])
+    @test res["meta"]["termination_status"] == "LOCALLY_INFEASIBLE"
+    @test res["meta"]["primal_status"] == "INFEASIBLE_POINT"
 end

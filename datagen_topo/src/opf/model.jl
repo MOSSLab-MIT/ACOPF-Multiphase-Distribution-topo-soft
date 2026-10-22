@@ -1,10 +1,15 @@
 """
     _build_opf_cache(data, optimizer; warm_start, v_slack_local_override)
 
-Internal: assemble the full AC-OPF JuMP model (distflow SOC, nodal balance, DER/sub limits).
+Internal: assemble the non-convex AC-OPF JuMP model in rectangular coordinates (bus-injection
+nodal balance, DER/substation limits) with SOFT voltage, branch-current and angle-difference limits.
+
+Soft limits use nonnegative slacks `s` in the constraint's raw units (pu² of the hard form) and an
+L1 penalty `ρ·Σs` in the objective (exact penalty: for ρ above the hard-OPF multiplier the soft optimum
+equals the hard optimum). Power balance, DER and substation limits stay hard.
 
 Uses scaled Y-bus `Y_scaled` fixed at build time for the current topology. Sample-varying
-loads and DER availability enter via JuMP `Parameter` variables.
+loads, DER availability and objective/penalty weights enter via JuMP `Parameter` variables.
 """
 function _build_opf_cache(
     data::OPFData,
@@ -38,6 +43,9 @@ function _build_opf_cache(
     set_optimizer_attribute(model, "constr_viol_tol", 1e-6)
     set_optimizer_attribute(model, "max_iter", 500)
     set_optimizer_attribute(model, "mu_strategy", "adaptive")
+    # No bound relaxation: Ipopt's default (1e-8) lets every slack sit at s ≈ -1e-8, and ρ·Σs then biases
+    # the objective downward in proportion to ρ and the slack count (0.2% at ρ = 1e3 on IEEE13).
+    set_optimizer_attribute(model, "bound_relax_factor", 0.0)
     # set_optimizer_attribute(model, "linear_solver", "mumps")
     set_attribute(model, "hsllib", HSL_PATH) # Remove this if you don't have HSL
     set_attribute(model, "linear_solver", "ma97") #ma97 might be better for IEEE8500; ma57 is good for smaller networks
@@ -49,6 +57,9 @@ function _build_opf_cache(
     @variable(model, der_pavail_param[g=1:n_der_unit] in Parameter(0.0))
     @variable(model, w_cost in Parameter(1.0))
     @variable(model, w_curtail in Parameter(1.0))
+    @variable(model, rho_v in Parameter(PENALTY_WEIGHT_DEFAULT))
+    @variable(model, rho_i in Parameter(PENALTY_WEIGHT_DEFAULT))
+    @variable(model, rho_theta in Parameter(PENALTY_WEIGHT_DEFAULT))
 
     # Local-pu voltage variables on non-slack nodes.
     @variable(model, vr[1:n_net])
@@ -62,9 +73,12 @@ function _build_opf_cache(
     @variable(model, p_sub_k[k=1:n_slk], lower_bound=-data.sub_smax_phase[k], upper_bound=data.sub_smax_phase[k])
     @variable(model, q_sub_k[k=1:n_slk], lower_bound=-data.sub_smax_phase[k], upper_bound=data.sub_smax_phase[k])
 
-    # Voltage magnitude limits on non-slack nodes.
-    @constraint(model, [i=1:n_net], vr[i]^2 + vi[i]^2 >= data.vmin[i]^2)
-    @constraint(model, [i=1:n_net], vr[i]^2 + vi[i]^2 <= data.vmax[i]^2)
+    # Soft voltage magnitude limits on non-slack nodes (local pu²):
+    #   vmin² - s_vmin <= |u|² <= vmax² + s_vmax,   s_vmin, s_vmax >= 0.
+    @variable(model, s_vmin[1:n_net] >= 0.0)
+    @variable(model, s_vmax[1:n_net] >= 0.0)
+    @constraint(model, c_vmin[i=1:n_net], vr[i]^2 + vi[i]^2 >= data.vmin[i]^2 - s_vmin[i])
+    @constraint(model, c_vmax[i=1:n_net], vr[i]^2 + vi[i]^2 <= data.vmax[i]^2 + s_vmax[i])
 
     # Per-phase apparent limits and per-unit aggregate active availability.
     @constraint(model, [k=1:n_der_phase], pder[k]^2 + qder[k]^2 <= data.der_smax[k]^2)
@@ -161,6 +175,16 @@ function _build_opf_cache(
         return ir, ii
     end
 
+    # One slack per valid (line, phase-row) for current and for each sign of the angle limit.
+    n_branch_rows = sum(count(v) for v in data.branch_valid; init=0)
+    @variable(model, s_imax[1:n_branch_rows] >= 0.0)
+    @variable(model, s_ang_pos[1:n_branch_rows] >= 0.0)
+    @variable(model, s_ang_neg[1:n_branch_rows] >= 0.0)
+    c_imax = Vector{ConstraintRef}(undef, n_branch_rows)
+    c_ang_pos = Vector{ConstraintRef}(undef, n_branch_rows)
+    c_ang_neg = Vector{ConstraintRef}(undef, n_branch_rows)
+    row = 0
+
     for line_idx in eachindex(data.branch_from_idx)
         terminal_cache = (
             from_idx = data.branch_from_idx[line_idx],
@@ -172,6 +196,7 @@ function _build_opf_cache(
 
         for r in eachindex(terminal_cache.from_idx)
             terminal_cache.valid[r] || continue
+            row += 1
 
             i_f = terminal_cache.from_idx[r]
             i_t = terminal_cache.to_idx[r]
@@ -180,18 +205,24 @@ function _build_opf_cache(
             vr_t, vi_t = local_voltage_parts(i_t)
 
             angle_dot = @expression(model, vr_f * vr_t + vi_f * vi_t)
-            # Angle bound: |Im(u_f * conj(u_t))| <= dvamax * Re(u_f * conj(u_t))  (60 deg default).
+            # Soft angle bound: |Im(u_f * conj(u_t))| <= dvamax * Re(u_f * conj(u_t)) + s  (60 deg default).
             angle_cross = @expression(model, vr_f * vi_t - vi_f * vr_t)
 
-            @constraint(model, angle_cross <= data.dvamax * angle_dot)
-            @constraint(model, -angle_cross <= data.dvamax * angle_dot)
+            c_ang_pos[row] = @constraint(model, angle_cross <= data.dvamax * angle_dot + s_ang_pos[row])
+            c_ang_neg[row] = @constraint(model, -angle_cross <= data.dvamax * angle_dot + s_ang_neg[row])
 
+            # Soft current bound in system pu²: |I|² <= imax² + s.
             ir_line, ii_line = line_current_parts(y_series, r, terminal_cache)
-            @constraint(model, ir_line^2 + ii_line^2 <= imax^2)
+            c_imax[row] = @constraint(model, ir_line^2 + ii_line^2 <= imax^2 + s_imax[row])
         end
     end
+    row == n_branch_rows || error("internal: branch slack count mismatch ($row != $n_branch_rows)")
+    # Register soft branch constraints (row-aligned with their slacks) for dual / KKT access.
+    model[:c_imax] = c_imax
+    model[:c_ang_pos] = c_ang_pos
+    model[:c_ang_neg] = c_ang_neg
 
-    length(data.obj_weights) == 2 || throw(DimensionMismatch("obj_weights must have length 2"))
+    length(data.obj_weights) == N_OBJ_WEIGHTS || throw(DimensionMismatch("obj_weights must have length $N_OBJ_WEIGHTS"))
     sub_lin, sub_quad = _linear_quadratic_terms(data.sub_cost)
     der_lin = [(_linear_quadratic_terms(c))[1] for c in data.der_cost]
     der_quad = [(_linear_quadratic_terms(c))[2] for c in data.der_cost]
@@ -205,8 +236,16 @@ function _build_opf_cache(
         sum(der_pavail_param[g] - sum(pder[k] for k in data.der_unit_to_phase[g]; init=0.0) for g in 1:n_der_unit),
     )
 
-    # Weighted sum: economic cost (DER + substation quadratic/linear) + curtailment slack.
-    @objective(model, Min, w_cost * obj_cost + w_curtail * obj_curtailment)
+    # L1 penalties on soft-limit slacks (raw pu² units).
+    @expression(model, pen_v, sum(s_vmin) + sum(s_vmax))
+    @expression(model, pen_i, sum(s_imax))
+    @expression(model, pen_theta, sum(s_ang_pos) + sum(s_ang_neg))
+
+    # Weighted sum: economic cost (DER + substation quadratic/linear) + curtailment + soft-limit penalties.
+    @objective(model, Min,
+        w_cost * obj_cost + w_curtail * obj_curtailment +
+        rho_v * pen_v + rho_i * pen_i + rho_theta * pen_theta,
+    )
 
     return OPFSolveCache(
         model,
@@ -217,6 +256,7 @@ function _build_opf_cache(
         [der_pavail_param[g] for g in 1:n_der_unit],
         w_cost,
         w_curtail,
+        [rho_v, rho_i, rho_theta],
         [vr[i] for i in 1:n_net],
         [vi[i] for i in 1:n_net],
         u_start,

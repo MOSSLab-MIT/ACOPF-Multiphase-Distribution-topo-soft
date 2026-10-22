@@ -218,37 +218,61 @@ end
 
 DERScaler(data::OPFData) = DERScaler(data, Dict{String, Any}())
 
+# Default soft-limit penalty sampling: ρ_V, ρ_I, ρ_θ ~ log-uniform on [rho_min, rho_max].
+const DEFAULT_PENALTY_SAMPLING = Dict{String, Any}(
+    "rho_min" => [100.0, 100.0, 100.0],
+    "rho_max" => [1000.0, 1000.0, 1000.0],
+)
+
+"""
+    ObjScaler
+
+Sampler for `obj_weights = [w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]`. With `ϵ ~ U(0, 1)` per entry:
+- economic weights (`log_scale = false`): `w = wmin + ϵ (wmax - wmin)`;
+- penalty weights (`log_scale = true`): `log w = log wmin + ϵ (log wmax - log wmin)` (log-uniform),
+  since penalty weights are meaningful across orders of magnitude.
+"""
 struct ObjScaler
-    d::Vector{Uniform{Float64}}  # distribution of multiplicative noise
+    d::Vector{Uniform{Float64}}  # distribution of the per-entry uniform noise
     wmin::Vector{Float64}  # minimum weights
     wmax::Vector{Float64}  # maximum weights
+    log_scale::Vector{Bool}  # true: sample log-uniformly
 end
 
 function Random.rand(rng::AbstractRNG, obj_weights::ObjScaler)
-    D = length(obj_weights.wmin)
-    ϵ = rand.(rng, obj_weights.d)  # sample multiplicative noise
+    ϵ = rand.(rng, obj_weights.d)  # sample uniform noise
 
-    weights = ϵ .* (obj_weights.wmax - obj_weights.wmin ) + obj_weights.wmin
-
-    return weights
+    return [
+        ls ? exp(log(lo) + e * (log(hi) - log(lo))) : lo + e * (hi - lo)
+        for (e, lo, hi, ls) in zip(ϵ, obj_weights.wmin, obj_weights.wmax, obj_weights.log_scale)
+    ]
 end
 
-function ObjScaler(data::OPFData, options::Dict)
-    dim = length(data.obj_weights)
-    wmin_raw = get(options, "wmin", nothing)
-    wmax_raw = get(options, "wmax", nothing)
+function _parse_weight_bounds(options::Dict, key_min::String, key_max::String, dim::Int, block::String)
+    lo_raw = get(options, key_min, nothing)
+    hi_raw = get(options, key_max, nothing)
+    lo_raw isa AbstractVector || error("Missing or invalid $block.$key_min: expected a vector of length $dim.")
+    hi_raw isa AbstractVector || error("Missing or invalid $block.$key_max: expected a vector of length $dim.")
+    length(lo_raw) == dim || error("Invalid $block.$key_min length $(length(lo_raw)); expected $dim.")
+    length(hi_raw) == dim || error("Invalid $block.$key_max length $(length(hi_raw)); expected $dim.")
+    lo = Float64.(lo_raw)
+    hi = Float64.(hi_raw)
+    all(isfinite, lo) && all(isfinite, hi) || error("Invalid $block bounds: entries must be finite.")
+    all(lo .<= hi) || error("Invalid $block bounds: every $key_min entry must be <= $key_max.")
+    return lo, hi
+end
 
-    wmin_raw isa AbstractVector || error("Missing or invalid obj.wmin: expected a vector of length $dim.")
-    wmax_raw isa AbstractVector || error("Missing or invalid obj.wmax: expected a vector of length $dim.")
-    length(wmin_raw) == dim || error("Invalid obj.wmin length $(length(wmin_raw)); expected $dim.")
-    length(wmax_raw) == dim || error("Invalid obj.wmax length $(length(wmax_raw)); expected $dim.")
+function ObjScaler(data::OPFData, obj_options::Dict, penalty_options::Dict=DEFAULT_PENALTY_SAMPLING)
+    length(data.obj_weights) == N_OBJ_WEIGHTS ||
+        error("data.obj_weights has length $(length(data.obj_weights)); expected $N_OBJ_WEIGHTS.")
+    n_pen = N_OBJ_WEIGHTS - N_ECON_WEIGHTS
 
-    wmin = Float64.(wmin_raw)
-    wmax = Float64.(wmax_raw)
-    all(wmin .<= wmax) || error("Invalid obj weight bounds: every wmin entry must be <= wmax.")
+    wmin, wmax = _parse_weight_bounds(obj_options, "wmin", "wmax", N_ECON_WEIGHTS, "obj")
+    all(wmin .>= 0.0) || error("Invalid obj.wmin: weights must be nonnegative.")
+    rho_min, rho_max = _parse_weight_bounds(penalty_options, "rho_min", "rho_max", n_pen, "penalty")
+    all(rho_min .> 0.0) || error("Invalid penalty.rho_min: log-uniform sampling needs rho_min > 0.")
 
-    # Noise distribution
-    d = [Uniform(0.0, 1.0) for _ in 1:dim]
-
-    return ObjScaler(d, wmin, wmax)
+    d = [Uniform(0.0, 1.0) for _ in 1:N_OBJ_WEIGHTS]
+    log_scale = vcat(falses(N_ECON_WEIGHTS), trues(n_pen))
+    return ObjScaler(d, vcat(wmin, rho_min), vcat(wmax, rho_max), log_scale)
 end

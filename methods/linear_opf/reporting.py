@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from core.grids.metrics import format_soft_penalty_summary
+
 
 def print_linear_opf_benchmark_metrics(batch_size: int, metrics: dict[str, Any]) -> None:
     print(
@@ -48,6 +50,8 @@ def print_linear_opf_benchmark_metrics(batch_size: int, metrics: dict[str, Any])
         f"(signed {metrics['cost_error']:+.6f}, max {metrics['max_abs_cost_error']:.6f}) | "
         f"OptGap: {metrics['optimality_gap']:.6%}"
     )
+    if "penalty_v" in metrics:
+        print(f"    {format_soft_penalty_summary(metrics)}")
     print(
         f"    Solver speedup: {metrics['solver_speedup']:.2f}x "
         f"(Ipopt {metrics['total_solve_time']:.4f}s vs "

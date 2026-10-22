@@ -6,7 +6,7 @@ Total jobs: 60
 
 Each job writes to `{results_dir}/{case_name}/seed_{seed}/`.
 With `results_dir: results/penalty_direct`, example:
-`results/penalty_direct/IEEE13Nodeckt_penalty_fs/seed_1/`.
+`results/penalty_direct/IEEE13Nodeckt_penalty_pf/seed_1/`.
 
 ## Submit to Slurm
 
