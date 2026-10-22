@@ -3,7 +3,7 @@
 Julia scripts that build HDF5 datasets for Python training. The OPF behind the labels is the **soft-constraint**
 AC-OPF: voltage-magnitude, branch-current and angle-difference limits are relaxed with slacks and penalized with
 per-sample weights `ρ_V, ρ_I, ρ_θ` (see [Soft V / I / θ limits](#soft-v--i--θ-limits)). Run from the **repository root**
-with the FeederFlow project (the package must be checked out at `datagen_topo/FeederFlow.jl/`, see the
+with the FeederFlow project (the FeederFlow.jl submodule must be initialized at `datagen_topo/FeederFlow.jl/`, see the
 [README](../../README.md#installation)):
 
 ```bash

@@ -105,9 +105,14 @@ TensorFlow is used only for CPU-side data loading (GPUs are hidden from it).
 
 Julia (dataset generation), Julia ≥ 1.10:
 
-* The package [FeederFlow.jl](datagen_topo/FeederFlow.jl/) is tracked as a git link at `datagen_topo/FeederFlow.jl`
-  (pinned commit `12f129d`), but the repository carries no `.gitmodules`, so a plain `git clone` leaves that
-  directory **empty**. Place a checkout of FeederFlow.jl there before running any Julia command.
+* [FeederFlow.jl](https://github.com/hoang-tn/FeederFlow.jl) is a git submodule at `datagen_topo/FeederFlow.jl`
+  (pinned to commit `12f129d`). Clone with submodules, or initialize them in an existing clone:
+
+  ```bash
+  git clone --recurse-submodules https://github.com/hoang-tn/ACOPF-Multiphase-Distribution-topo-soft.git
+  # or, in an existing clone:
+  git submodule update --init
+  ```
 * Then instantiate the project used by all commands in this README:
 
   ```bash
@@ -311,7 +316,7 @@ compact `changing_switch_status` to the full branch status using `network_config
 │   ├── penalty_direct/        # NN predicts controls + voltages
 │   └── linear_opf/            # Linear OPF baseline (test-only, sharding + merge helpers)
 ├── datagen_topo/
-│   ├── FeederFlow.jl/         # Julia power-flow package (git link; see Installation)
+│   ├── FeederFlow.jl/         # Julia power-flow package (git submodule; see Installation)
 │   ├── src/                   # Soft-OPF model, samplers, topology graph, HDF5 writers
 │   ├── gen_scripts/           # create_{training,testing}_dataset.jl, JSON configs, USAGE.md, cluster/
 │   ├── grid_data/             # OpenDSS feeders
