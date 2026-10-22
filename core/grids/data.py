@@ -2,7 +2,18 @@
 
 ``NetworkParams`` holds static feeder physics; ``OPFData`` adds session state
 (HDF5 paths, slice indexing, topology backend). Julia indices in JSON are
-converted to 0-based in ``_idx_array_0``. See ``docs/architecture.md``.
+converted to 0-based in ``_idx_array_0``.
+
+Conventions used throughout ``core``:
+
+* Nodes are ``(bus, phase)`` pairs. Full voltage vectors are ordered ``[non-slack (n_net), slack (n_slk)]``
+  (``n_total`` entries) in **scaled local** per-unit coordinates; ``v_scale_full`` converts to system pu.
+* The network is described by ``Y_scaled = [[Y_LL, Y_L0], [Y_sn, Y_ss]]``; ``Y_LL`` is the only block that
+  changes with the switch topology.
+* HDF5 files store the compact ``changing_switch_status`` (only the switches that can change);
+  ``expand_branch_status`` scatters it into the full branch status using ``network_config.json``.
+* ``obj_weights`` (per sample) is ``[w_cost, w_curtail, rho_V, rho_I, rho_theta]``: the last three weight the
+  soft voltage / branch-current / angle-difference penalties (see ``core/grids/metrics.py``).
 """
 import json
 from types import MappingProxyType
@@ -463,6 +474,7 @@ class NetworkParams:
         return Y_scaled, Y_LL_inv, w, self.expand_branch_status(branch_status)
 
     def topology_matrices_batch(self, branch_status_batch):
+        """Batched topology_matrices via vmap."""
         return jax.vmap(self.topology_matrices, in_axes=(0,))(branch_status_batch)
 
 
@@ -471,9 +483,11 @@ class TopologyBackend(Protocol):
     """Switch-topology backend: stamping (reference) or Woodbury (default)."""
 
     def topology_matrices(self, branch_status) -> Tuple[jnp.ndarray, ...]:
+        """Matrices for one branch status (backend-specific tuple; see core/topology)."""
         ...
 
     def topology_matrices_batch(self, branch_status_batch) -> Tuple[jnp.ndarray, ...]:
+        """Matrices for a batch of branch statuses."""
         ...
 
 
@@ -756,15 +770,19 @@ class OPFData:
         }
 
     def compute_net_injection(self, load, der):
+        """Delegate to NetworkParams.compute_net_injection."""
         return self.net.compute_net_injection(load, der)
 
     def expand_branch_status(self, branch_status):
+        """Delegate to NetworkParams.expand_branch_status."""
         return self.net.expand_branch_status(branch_status)
 
     def topology_matrices(self, branch_status):
+        """Delegate to the configured topology backend."""
         return self.topology_backend.topology_matrices(branch_status)
 
     def topology_matrices_batch(self, branch_status_batch):
+        """Delegate to the configured topology backend (batched)."""
         return self.topology_backend.topology_matrices_batch(branch_status_batch)
 
     def expand_branch_status_np(self, branch_status):
@@ -819,6 +837,7 @@ class OPFData:
                 start += width
 
     def make_train_dataset(self, samples: int = None) -> tf.data.Dataset:
+        """Shuffled tf.data dataset of training inputs (optionally the first samples rows)."""
         inputs = self._load_inputs(self.train_h5_path, samples=samples)
         dataset = tf.data.Dataset.from_tensor_slices(inputs)
         return dataset.shuffle(buffer_size=min(len(inputs), 10000))
@@ -828,6 +847,7 @@ class OPFData:
         samples: int = None,
         sample_offset: int = 0,
     ) -> tf.data.Dataset:
+        """tf.data dataset of (inputs, targets) from the bound test HDF5 (samples rows from sample_offset)."""
         inputs = self._load_inputs(
             self.test_h5_path, samples=samples, sample_offset=sample_offset
         )
@@ -865,5 +885,6 @@ class OPFData:
 
 
 def map_to_node(s, n_node, node_map):
+    """Scatter-add per-device values s onto n_node nodes via the index map node_map."""
     s_node = jnp.zeros(n_node, dtype=s.dtype)
     return s_node.at[node_map].add(s)

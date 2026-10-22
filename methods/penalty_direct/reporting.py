@@ -6,6 +6,7 @@ from core.grids.metrics import format_soft_penalty_summary
 
 
 def print_penalty_direct_test_metrics(batch_size: int, test_metrics: Dict[str, Any]) -> None:
+    """Print one batch-size summary returned by test_penalty_direct_fn (Vio = hard-constraint violation; soft limits appear in the Soft penalty line)."""
     print(f"    Batch size: {batch_size}")
     print(
         f"    Cost: {test_metrics['cost']:.6f} | Vio: {test_metrics['violation']:.6e} | "

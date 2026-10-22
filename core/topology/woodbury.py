@@ -941,6 +941,7 @@ class WoodburyTopologyBackend:
     def normalize_compact_status(
         self, status: Any, sample_index: Optional[int] = None
     ) -> np.ndarray:
+        """Validate one compact switch-status vector (binary, width n_changing_switches) as int32."""
         arr = np.asarray(status, dtype=np.int32).reshape(-1)
         if arr.shape[0] != self.n_changing_switches:
             raise ValueError(
@@ -956,6 +957,7 @@ class WoodburyTopologyBackend:
         return arr
 
     def normalize_compact_status_matrix(self, statuses: Any) -> np.ndarray:
+        """Validate a batch of compact statuses as a (B, n_changing_switches) int32 matrix (a transposed input is accepted)."""
         arr = np.asarray(statuses, dtype=np.int32)
         if arr.ndim == 1:
             arr = arr.reshape(1, -1)
@@ -980,6 +982,7 @@ class WoodburyTopologyBackend:
     def topology_matrices(
         self, compact_status: Any, sample_index: Optional[int] = None
     ) -> Tuple[jnp.ndarray, ...]:
+        """(Y_0row, Y_LL_inv, w, full_status) for one compact status (jitted Woodbury update)."""
         compact = self.normalize_compact_status(compact_status, sample_index=sample_index)
         return self._topology_matrices_jit(
             self.static, jnp.asarray(compact, dtype=jnp.int32)
@@ -988,6 +991,7 @@ class WoodburyTopologyBackend:
     def topology_matrices_eager(
         self, compact_status: Any, sample_index: Optional[int] = None
     ) -> Tuple[jnp.ndarray, ...]:
+        """Same as topology_matrices without the outer jit (eager slim function)."""
         compact = self.normalize_compact_status(compact_status, sample_index=sample_index)
         return self._fn_slim(self.static, jnp.asarray(compact, dtype=jnp.int32))
 
@@ -999,6 +1003,7 @@ class WoodburyTopologyBackend:
         return self._fn_full(self.static, jnp.asarray(compact, dtype=jnp.int32))
 
     def topology_matrices_batch(self, compact_status_batch: Any) -> Tuple[jnp.ndarray, ...]:
+        """Batched (Y_0row, Y_LL_inv, w, full_status) for compact statuses, dispatched by batch_mode."""
         status_batch = self.normalize_compact_status_matrix(compact_status_batch)
         return self.batch_matrices_jit(
             self.static, jnp.asarray(status_batch, dtype=jnp.int32)
@@ -1008,6 +1013,7 @@ class WoodburyTopologyBackend:
         # ``_fn_slim`` always returns the slim ``Y_0row`` as its first element
         # (fixed/branchless/adaptive branches all produce the slack-row slice),
         # so the ``matrices_first_to_y_0row`` normalizer is a no-op here.
+        """TopologyData for one compact status."""
         Y_0row, Y_LL_inv, w, full_status = self.topology_matrices(
             compact_status, sample_index=sample_index
         )
@@ -1020,6 +1026,7 @@ class WoodburyTopologyBackend:
         )
 
     def topology_data_batch(self, compact_status_batch: Any):
+        """Batched TopologyData for compact statuses."""
         Y_0row, Y_LL_inv, w, full_status = self.topology_matrices_batch(
             compact_status_batch
         )

@@ -77,10 +77,12 @@ def prepare_batch_data(
 
 
 def make_results_root(results_dir: str, case_name: str, seed: int) -> Path:
+    """Return <results_dir>/<case_name>/seed_<seed> as an absolute path."""
     return (Path(results_dir) / case_name / f"seed_{seed}").resolve()
 
 
 def ensure_dirs(paths: Iterable[Path]) -> None:
+    """Create every directory in paths (parents included)."""
     for path in paths:
         path.mkdir(parents=True, exist_ok=True)
 
@@ -129,6 +131,7 @@ def compute_training_normalization(
     eval_samples: Optional[int] = None,
     verbose: bool = True,
 ) -> Tuple[Tuple[jnp.ndarray, jnp.ndarray], CostNormStats]:
+    """Compute NN input statistics from the training set and the cost-normalization scale from the validation (or reference test) HDF5."""
     if verbose:
         print("Computing input statistics...")
     input_stat = compute_input_stats(
@@ -167,6 +170,7 @@ def create_train_results_layout(
     case_name: str,
     seed: int,
 ) -> Path:
+    """Create models/, training/ and testing/ under the results root and return it."""
     root = make_results_root(results_dir, case_name, seed)
     ensure_dirs([root / "models", root / "training", root / "testing"])
     print(f"Results directory: {root.absolute()}")
@@ -178,6 +182,7 @@ def create_test_results_layout(
     case_name: str,
     seed: int,
 ) -> Path:
+    """Create testing/ under the results root and return it."""
     root = make_results_root(results_dir, case_name, seed)
     ensure_dirs([root / "testing"])
     print(f"Results directory: {root}")
@@ -191,6 +196,7 @@ def save_variant_test_metrics(
     *,
     pop_batch_metrics: bool = True,
 ) -> tuple[Path, Optional[Path]]:
+    """Write testing_results_batch_<B>.json (and per-batch details when kept) for one test variant; returns the paths."""
     from core.utils.checkpoint import to_json_serializable
 
     variant_results_dir.mkdir(parents=True, exist_ok=True)

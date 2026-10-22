@@ -1,6 +1,6 @@
 # Datagen Cluster Launcher
 
-One script, [`run_datagen.sh`](run_datagen.sh). Edit the `JOBS` list at the top, then submit:
+Slurm launcher for the soft-constraint datasets described in [`../USAGE.md`](../USAGE.md). One script, [`run_datagen.sh`](run_datagen.sh). Edit the `JOBS` list at the top, then submit:
 
 ```bash
 bash datagen_topo/gen_scripts/cluster/run_datagen.sh              # all JOBS as one Slurm array
@@ -35,8 +35,10 @@ JOBS=(
 |---|---|---|---|---|
 | `testing_defaults.json` | [0.2, 1.5] | [0.0, 1.0] | – | `<case>_test_feasible.h5` |
 | `testing_low_load_high_der.json` | [0.2, 0.5] | [0.6, 1.0] | – | `..._low_load_high_der.h5` |
-| `testing_high_load_low_der.json` | [0.6, 1.0] | [0.0, 0.4] | – | `..._high_load_low_der.h5` |
+| `testing_high_load_low_der.json` | [0.7, 1.0] | [0.0, 0.3] | – | `..._high_load_low_der.h5` |
 | `testing_shifted_m0k_std0k.json` | [0.2, 1.5] | [0.0, 1.0] | 0.k | `..._shifted_m0k_std0k.h5` |
 | `testing_oor_load.json` | [0.5, 2.0] | [0.0, 1.0] | – | `..._oor_load.h5` |
+
+`testing_*` configs write `network_config.json` only when `save_config` is `true` (`testing_defaults.json`); the regime/shifted/OOR configs set it to `false`, so run `testing_defaults.json` for each grid. Training configs (`training_*.json`) never write it.
 
 All tasks in one submission share the same Slurm resources. Submit large feeders (e.g. 8500) separately with more `--mem`.

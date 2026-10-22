@@ -75,6 +75,7 @@ def parse_args():
 
 
 def main():
+    """Restore a penalty_direct checkpoint and evaluate it on every configured test dataset."""
     args = parse_args()
     print_banner("OPF Neural Network - penalty_direct Test", args)
 

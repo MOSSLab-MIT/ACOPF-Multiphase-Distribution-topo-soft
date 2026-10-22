@@ -53,6 +53,7 @@ from methods.linear_opf.sharding import resolve_shard_test_range, shard_results_
 
 
 def parse_args():
+    """Parse command-line arguments (sharding flags select a contiguous slice of the test samples)."""
     parser = argparse.ArgumentParser(
         description="Test fixed-reference linear OPF baseline (CVXPY + Clarabel)"
     )
@@ -173,6 +174,7 @@ def _run_single_variant_benchmark(
 
 
 def main():
+    """Run the linear OPF baseline on every configured test dataset and save per-variant JSON metrics."""
     args = parse_args()
     print_banner("Linear OPF Baseline - Test", args)
 

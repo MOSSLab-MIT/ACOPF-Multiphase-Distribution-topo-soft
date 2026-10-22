@@ -3,7 +3,9 @@
 
 TRAIN_H5="datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_training.h5"
 VAL_H5="datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5"
-# Slots 1–2: bare paths → mandatory feasible_only + infeasible_only; further entries: name=path.
+# Test sets: names are inferred from the *_test_<name>.h5 stem (or given as name=path). The first entry is the
+# reference set and must exist; missing optional entries are skipped with a warning. The soft-limit OPF rarely
+# produces infeasible samples, so *_test_infeasible.h5 is usually absent.
 TEST_H5_VARIANTS=(
     "datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5"
     "datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_infeasible.h5"
@@ -28,7 +30,8 @@ TRAIN_SAMPLES=200000
 EVAL_SAMPLES=2000
 TEST_SAMPLES=2000
 
-# Adaptive penalty configuration
+# Penalty configuration (rho_eq: power-flow residual, rho_ineq: hard-constraint violation).
+# RHO_RATE=0 and RHO_DECAY_RATE=1 keep both weights fixed; set RHO_RATE>0 / RHO_DECAY_RATE<1 for the adaptive scheme.
 RHO_EQ_INIT=100
 RHO_INEQ_INIT=100
 RHO_RATE=0

@@ -103,6 +103,12 @@ def compute_penalty_direct_loss(
     params, state, inputs_batch, targets_batch, session: OPFData, rho_eq, rho_ineq, topo: TopologyData,
     cost_scale=None,
 ):
+    """Penalty-direct loss and metrics for one batch.
+
+    loss = mean(cost_norm) + rho_eq * mean(eq_violation_sq) + rho_ineq * mean(ineq_violation_sq) at the
+    projected controls and the raw predicted voltages; cost is the soft-OPF objective and
+    ineq_violation_sq covers the hard constraints only. Returns (loss, metrics, internals).
+    """
     net = session.net
     batch = prepare_batch_data(inputs_batch, targets_batch, session, topo=topo)
 
@@ -158,6 +164,7 @@ def compute_penalty_direct_loss(
 @partial(jax.jit, static_argnums=(3,))
 def train_step_penalty_direct(state, inputs_batch, targets_batch, session: OPFData, rho_eq, rho_ineq, topo: TopologyData,
                           cost_scale=None):
+    """One Optax step on compute_penalty_direct_loss; the update is skipped when the gradient norm is non-finite."""
     def loss_fn(params):
         loss, metrics, _ = compute_penalty_direct_loss(
             params, state, inputs_batch, targets_batch, session, rho_eq, rho_ineq, topo,
@@ -224,6 +231,7 @@ def train_epoch_penalty_direct(
 
 
 def eval_epoch_penalty_direct(state, eval_loader, data, rho_eq, rho_ineq, cost_scale=None):
+    """Evaluation epoch: loss/violations of the predictions plus cost error and optimality gap against the stored OPF solution."""
     net = data.net
     metrics_sum = {
         "loss": 0.0,
@@ -326,6 +334,7 @@ def eval_epoch_penalty_direct(state, eval_loader, data, rho_eq, rho_ineq, cost_s
 
 
 def compute_norms(predicted, target):
+    """L1, L2 and L-inf distances between predicted and target arrays ((batch, n))."""
     diff = predicted - target
     return {
         "l1_norm": float(jnp.mean(jnp.abs(diff))),
@@ -335,6 +344,7 @@ def compute_norms(predicted, target):
 
 
 def test_penalty_direct_fn(state, data, batch_size, test_samples):
+    """Test the penalty-direct pipeline (NN → DER projection) against the stored OPF solution; returns metrics, soft-penalty breakdown and timings."""
     test_batched = (
         data.make_test_dataset(samples=test_samples)
         .batch(batch_size, drop_remainder=True)

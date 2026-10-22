@@ -234,6 +234,7 @@ def merge_variant_shards(variant_dir: Path, batch_size: int) -> tuple[Path, Path
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
         description="Merge sharded linear OPF test JSON into canonical variant results"
     )
@@ -253,6 +254,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Merge the shard JSON files of one variant directory into the canonical summary (and details) files."""
     args = parse_args()
     variant_dir = Path(args.variant_dir)
     summary_path, details_path = merge_variant_shards(variant_dir, args.batch_size)

@@ -44,6 +44,7 @@ class CostNormStats:
     n_samples: int
 
     def to_dict(self) -> dict:
+        """Return a JSON-serializable dict."""
         return {
             "cost_max": self.cost_max,
             "cost_p95": self.cost_p95,
@@ -54,6 +55,7 @@ class CostNormStats:
 
     @classmethod
     def from_dict(cls, data: dict) -> "CostNormStats":
+        """Rebuild from to_dict output."""
         return cls(
             cost_max=float(data["cost_max"]),
             cost_p95=float(data["cost_p95"]),
@@ -63,11 +65,13 @@ class CostNormStats:
         )
 
     def cost_scale_jax(self, dtype=jnp.float64) -> jnp.ndarray:
+        """Cost scale as a JAX scalar."""
         return jnp.asarray(self.cost_scale, dtype=dtype)
 
 
 @dataclass(frozen=True)
 class OPFDataBuildOptions:
+    """Options forwarded to OPFData and the power-flow / topology backends."""
     topology_backend: str = "woodbury"
     power_flow_solver: str = "fixed_point"
     include_topo_nn_input: bool = True
@@ -77,6 +81,7 @@ class OPFDataBuildOptions:
 
 @dataclass(frozen=True)
 class CheckpointModelSpec:
+    """Model size and learning rate used to rebuild a train state when restoring a checkpoint."""
     hidden_size: int
     num_layers: int
     learning_rate: float
@@ -84,6 +89,7 @@ class CheckpointModelSpec:
 
 @dataclass(frozen=True)
 class VariantTestSpec:
+    """Which test datasets, batch sizes and sample counts to run after training or from a checkpoint."""
     test_h5_paths: TestH5Paths
     testing_results_dir: Path
     batch_sizes: Sequence[int]

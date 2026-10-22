@@ -4,7 +4,11 @@ Compare **production JAX Woodbury** (slim stamping + `lax.map` batch JIT) agains
 **dense `jnp.linalg.solve(Y_LL, I)`** on identical stamped admittances. Each grid
 is timed and accuracy-checked at **IR steps = 0, 1, 2** (iterative refinement)
 to expose the effect of SMW-IR corrections on residual and runtime. Output is
-structured JSON per grid for tables in `processing_results/`.
+structured JSON per grid for downstream result tables.
+
+These benchmarks concern only the topology update (`Y_LL⁻¹`), so they are independent of the soft-constraint
+formulation. They need the generated `*_training.h5` / `*_test_feasible.h5` and `network_config.json` of each grid
+(see the [main README](../../README.md)).
 
 ## Comparison
 
@@ -61,8 +65,8 @@ bash analysis/woodbury_vs_direct/run_all.sh
 
 Override grids: `bash analysis/woodbury_vs_direct/run_all.sh -- 13 906`
 
-First grid run includes XLA compile time (covered by warmup). Full four-grid run
-typically takes a few minutes on GPU; 906-bus is the slowest (~1–2 min).
+First grid run includes XLA compile time (covered by warmup). Running all five grids
+typically takes a few minutes on GPU; the larger feeders (906, 8500) dominate.
 
 ## JSON schema
 
@@ -122,7 +126,7 @@ own timing block, `speedup`, and accuracy metrics. `direct` is a single timing
 block (IR-independent). The per-IR `speedup` is `direct.time_per_batch_ms /
 woodbury.<ir>.time_per_batch_ms`.
 
-### Suggested `processing_results` columns
+### Suggested result-table columns
 
 | Column | JSON field |
 |--------|------------|
@@ -142,9 +146,9 @@ correct — check `elementwise_diff_trusted` and `max_Y_LL_cond`.
 When `elementwise_diff_trusted` is `false`, prefer `inverse_residual_max` and
 `max_Y_LL_inv_diff_well_cond` over the raw diff for interpretation.
 
-IEEE123 is a known case: unregularized delta transformer at bus 610 yields
+IEEE123 is a known ill-conditioned case: unregularized delta transformer at bus 610 yields
 `cond(Y_LL) ~ 2e12` while both Woodbury and direct satisfy
-`‖Y Y^{-1} - I‖ ~ 1e-7` (see `tasks/lessons.md`).
+`‖Y Y^{-1} - I‖ ~ 1e-7`.
 
 ### Effect of iterative refinement
 
@@ -166,7 +170,7 @@ no-op (with a small time cost) on the larger, well-conditioned ones.
 
 ## Expected crossover
 
-From prior benchmarks (`experiments/benchmark_woodbury_batch_map_vs_vmap_results.md`):
+From earlier benchmark runs:
 
 - **IEEE13** (`n_net≈38`): Woodbury **slower** than direct (`speedup < 1`) — fixed
   overhead dominates on tiny matrices.

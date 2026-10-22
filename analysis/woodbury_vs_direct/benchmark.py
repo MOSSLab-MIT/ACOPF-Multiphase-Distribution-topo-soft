@@ -2,7 +2,7 @@
 """Benchmark production Woodbury (slim + lax.map) vs dense JAX ``solve(Y_LL, I)``.
 
 Times identical stamped topologies on GPU, checks inverse accuracy, and writes
-structured JSON for downstream ``processing_results`` tables.
+structured JSON for downstream result tables.
 """
 
 from __future__ import annotations
@@ -75,6 +75,7 @@ GRID_PRESETS: dict[str, str] = {
 
 
 def resolve_grid_case(grid: str) -> str:
+    """Map a ``--grid`` key (13, 123, 240, 906, 8500) to its dataset case name."""
     if grid not in GRID_PRESETS:
         raise ValueError(f"Unknown grid {grid!r}; choose from {sorted(GRID_PRESETS)}")
     return GRID_PRESETS[grid]
@@ -315,6 +316,7 @@ def run_benchmark(
 
 
 def write_results(payload: dict[str, Any], out_path: Path) -> None:
+    """Write the benchmark results dict as JSON, creating parent directories."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
@@ -322,6 +324,7 @@ def write_results(payload: dict[str, Any], out_path: Path) -> None:
 
 
 def main() -> None:
+    """CLI entrypoint: benchmark one grid and write the results JSON."""
     parser = argparse.ArgumentParser(
         description="Benchmark Woodbury slim batch vs dense JAX inverse."
     )

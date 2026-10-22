@@ -84,6 +84,7 @@ def parse_args():
 
 
 def main():
+    """Restore a penalty_pf checkpoint and evaluate it on every configured test dataset."""
     args = parse_args()
     print_banner("OPF Neural Network - penalty_pf Test", args)
 

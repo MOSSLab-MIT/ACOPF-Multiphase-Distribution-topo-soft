@@ -2,7 +2,7 @@
 
 Production training uses ``core/topology/woodbury.py`` (Woodbury updates).
 This module provides ``StampTopologyBackend`` as a correctness reference and
-for diagnostics. See ``docs/architecture.md`` (Topology changes).
+for diagnostics (select with ``--topology_backend stamp``).
 """
 from typing import Optional
 
@@ -178,6 +178,7 @@ class StampTopologyBackend:
             raise ValueError("switch_is_closed_base must contain only binary values {0, 1}.")
 
     def normalize_compact_status(self, status, sample_index: Optional[int] = None) -> np.ndarray:
+        """Validate one compact switch-status vector (binary, width n_changing_switches) as int32."""
         arr = np.asarray(status, dtype=np.int32).reshape(-1)
         if arr.shape[0] != self.n_changing_switches:
             raise ValueError(
@@ -193,6 +194,7 @@ class StampTopologyBackend:
         return arr
 
     def normalize_compact_status_matrix(self, statuses) -> np.ndarray:
+        """Validate a batch of compact statuses as a (B, n_changing_switches) int32 matrix (a transposed input is accepted)."""
         arr = np.asarray(statuses, dtype=np.int32)
         if arr.ndim == 1:
             arr = arr.reshape(1, -1)
@@ -220,6 +222,7 @@ class StampTopologyBackend:
         return arr
 
     def expand_compact_status(self, compact_status, sample_index: Optional[int] = None) -> np.ndarray:
+        """Scatter a compact status into the full branch status (base status elsewhere)."""
         compact = self.normalize_compact_status(compact_status, sample_index=sample_index)
         full = self.base_branch_status.copy()
         if self.n_changing_switches > 0:
@@ -332,6 +335,7 @@ class StampTopologyBackend:
         return Y_scaled, Y_LL_inv, w, full_status
 
     def topology_data(self, compact_status, sample_index: Optional[int] = None):
+        """TopologyData for one compact status (Y_0row, Y_LL_inv, w, full branch status)."""
         Y_scaled, Y_LL_inv, w, full_status = self.topology_matrices(
             compact_status,
             sample_index=sample_index,
@@ -345,6 +349,7 @@ class StampTopologyBackend:
         )
 
     def topology_matrices_batch(self, compact_status_batch):
+        """Stamped (Y_scaled, Y_LL_inv, w, full_status) for a batch of compact statuses."""
         status_batch = self.normalize_compact_status_matrix(compact_status_batch)
 
         if self._native_topology_batch_fn is None:
@@ -385,6 +390,7 @@ class StampTopologyBackend:
         return Y_scaled, Y_LL_inv, w, full_status.astype(jnp.int32)
 
     def topology_data_batch(self, compact_status_batch):
+        """Batched TopologyData for compact statuses."""
         Y_scaled, Y_LL_inv, w, full_status = self.topology_matrices_batch(
             compact_status_batch
         )

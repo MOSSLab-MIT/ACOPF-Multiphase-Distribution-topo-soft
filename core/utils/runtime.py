@@ -177,6 +177,7 @@ def create_lr_schedule(
 
 
 def set_protobuf_implementation() -> None:
+    """Default to the pure-Python protobuf implementation and silence its warnings (call before importing TensorFlow)."""
     os.environ.setdefault("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python")
     warnings.filterwarnings("ignore", category=UserWarning, module="google.protobuf")
 

@@ -1,52 +1,16 @@
-# Generation entrypoint extracted from gen_scripts/create_testing_dataset.jl.
+# Test-dataset generator: `generate_testing_dataset!(args)`, called by gen_scripts/create_testing_dataset.jl.
+#
+# For each scenario (one fixed topology) it samples load/DER profiles and per-sample objective weights
+# `[w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]`, solves the soft-constraint AC-OPF with Ipopt, and writes the
+# feasible / infeasible samples plus `network_config.json`. Flags, outputs and examples:
+# datagen_topo/gen_scripts/USAGE.md.
 
 using JSON
 using Random
 
 const DEFAULT_FLOAT_PRECISION = Float64
 
-# Examples:
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --num_scenarios 10 --feasible_samples_per_scenario 100 --max_attempts_multiplier 5 --output_layout scenario+flat  --load_l 0.3 --load_u 1.5
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --num_scenarios 10 --feasible_samples_per_scenario 100 --max_attempts_multiplier 5 --output_layout scenario+flat  --load_l 0.2 --load_u 0.4 --der_frac_l 0.7 --der_frac_u 1.0 --output_suffix "low_load_high_der"
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --num_scenarios 10 --feasible_samples_per_scenario 100 --max_attempts_multiplier 5 --output_layout scenario+flat  --load_l 0.7 --load_u 1.0 --der_frac_l 0.0 --der_frac_u 0.3 --output_suffix "high_load_low_der"
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/13_bus_test/IEEE13_test.dss --num_scenarios 10 --feasible_samples_per_scenario 100 --max_attempts_multiplier 5 
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/13_bus_test/IEEE13_test.dss --num_scenarios 10 --feasible_samples_per_scenario 100 --max_attempts_multiplier 5 --output_layout scenario+flat  --load_l 0.2 --load_u 0.4 --der_frac_l 0.7 --der_frac_u 1.0 --output_suffix "low_load_high_der"
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/13_bus_test/IEEE13_test.dss --num_scenarios 10 --feasible_samples_per_scenario 100 --max_attempts_multiplier 5 --output_layout scenario+flat  --load_l 0.7 --load_u 1.0 --der_frac_l 0.0 --der_frac_u 0.3 --output_suffix "high_load_low_der"
-
-
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss --num_scenarios 10 --feasible_samples_per_scenario 10 --max_attempts_multiplier 1
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 1 --load_l 0.7 --load_u 1.0 --der_frac_l 0.0 --der_frac_u 0.3 --output_suffix "high_load_low_der"
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 1 --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der"
-
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/240_bus/240bus_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 5 --output_layout scenario+flat --load_l 0.2 --load_u 1.5
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/240_bus/240bus_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 5 --output_layout scenario+flat --load_l 0.7 --load_u 1.0 --der_frac_l 0.0 --der_frac_u 0.3 --output_suffix "high_load_low_der"
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/240_bus/240bus_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 5 --output_layout scenario+flat --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der"
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/906_bus/906bus_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 5 --output_layout scenario+flat --load_l 0.2 --load_u 1.5
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/906_bus/906bus_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 5 --output_layout scenario+flat --load_l 0.7 --load_u 1.0 --der_frac_l 0.0 --der_frac_u 0.3 --output_suffix "high_load_low_der"
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/906_bus/906bus_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 5 --output_layout scenario+flat --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der"
-
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss --num_scenarios 5 --feasible_samples_per_scenario 10 --max_attempts_multiplier 5 --output_layout flat_only
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 10 --max_attempts_multiplier 5 --output_layout flat_only --load_l 0.7 --load_u 1.0 --der_frac_l 0.0 --der_frac_u 0.3 --output_suffix "high_load_low_der" --save_config false
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 10 --max_attempts_multiplier 5 --output_layout flat_only --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der" --save_config false
-
-
+# Built-in defaults, used when no `--config` is given (configs/testing_defaults.json is the editable template).
 const DEFAULT_TESTING_CONFIG = Dict(
     "load" => Dict(
         "noise_type" => "ScaledUniform",

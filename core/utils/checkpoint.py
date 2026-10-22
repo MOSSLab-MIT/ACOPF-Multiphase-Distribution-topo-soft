@@ -162,6 +162,7 @@ def resolve_checkpoint_model_spec(
     num_layers: Optional[int] = None,
     learning_rate: Optional[float] = None,
 ) -> tuple[Path, CheckpointModelSpec]:
+    """Resolve the checkpoint directory and its model size (CLI values override config.json saved in the checkpoint)."""
     path = resolve_checkpoint_path(Path(checkpoint_path).resolve())
     if not path.exists():
         raise FileNotFoundError(f"Checkpoint path does not exist: {path}")
@@ -192,6 +193,7 @@ def restore_checkpoint_state(
     dout: int,
     scheduler: Any = None,
 ) -> Any:
+    """Rebuild the NN input layout and model state for data and restore the weights from checkpoint_path."""
     def _recompute_stats(use_compact: bool = True):
         print("Computing input statistics...")
         return compute_input_stats(train_dataset, data, use_compact=use_compact)

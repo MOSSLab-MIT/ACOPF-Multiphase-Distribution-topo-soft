@@ -8,7 +8,7 @@ Validates that:
   IR steps is exact).
 - vmap of the branchless fn matches per-sample eager evaluation.
 
-Run with conda env ``new_opt`` (see ``AGENTS.md``):
+Run with conda env ``new_opt`` (requires the generated datasets, see README):
 
     python -m pytest tests/test_woodbury_ir_steps.py -v
 """

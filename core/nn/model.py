@@ -63,6 +63,7 @@ class MLP(nnx.Module):
 
 
 class GraphConv(nnx.Module):
+    """Graph convolution: a linear map of each node plus a linear map of its neighbor-aggregated features (adj: (B, N, N))."""
     def __init__(self, din: int, dout: int, rngs: nnx.Rngs):
         kernel_init = nnx.initializers.he_normal()
         bias_init = nnx.initializers.zeros
@@ -337,4 +338,5 @@ def create_train_state_full(din, dhid, dout, num_layers, scheduler, input_stat, 
 
 @jax.jit
 def update_model(state, grads):
+    """Apply one optimizer step with grads and return the updated TrainState."""
     return state.apply_gradients(grads=grads)

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Training script for OPF Neural Network with the penalty_pf method.
+Training script for the penalty_pf method (soft-constraint AC-OPF).
 
-NN predicts DER setpoints, which are projected to the DER feasible set and fed
-to an AC power-flow solve; training uses a fixed penalty rho on AC inequality
-violations. Testing runs exactly the same pipeline (no post-processing).
+The NN predicts DER setpoints, which are projected onto the hard DER limits and fed to an AC power-flow
+solve. The loss is the soft-OPF cost (economic terms plus the per-sample ``rho_V, rho_I, rho_theta``
+penalties on voltage / current / angle limits) plus a fixed ``--rho`` times the squared violation of the
+remaining hard constraints. Testing runs exactly the same pipeline (no post-processing).
 """
 import os
 import sys

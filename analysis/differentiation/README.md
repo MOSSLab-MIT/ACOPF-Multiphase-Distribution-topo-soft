@@ -4,6 +4,10 @@ Compare **autodiff through AC power flow** w.r.t. net injection `s` on isolated 
 (no neural network). All code lives under this folder; `core/` is imported
 read-only.
 
+The benchmark only differentiates the power-flow solve, so it is independent of the soft-constraint formulation. It
+needs the generated `*_training.h5` / `*_test_feasible.h5` and `network_config.json` of each grid (see the
+[main README](../../README.md)).
+
 ## Methods
 
 | Key | Forward | Backward | AD mode (dense Jacobian) |

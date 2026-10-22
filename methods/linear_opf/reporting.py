@@ -6,6 +6,7 @@ from core.grids.metrics import format_soft_penalty_summary
 
 
 def print_linear_opf_benchmark_metrics(batch_size: int, metrics: dict[str, Any]) -> None:
+    """Print one batch-size summary of the linear OPF benchmark (cost, hard violation, soft-penalty breakdown, timings)."""
     print(
         f"    Batch size: {batch_size} | Num batches: {metrics['num_batches']} | "
         f"Num samples: {metrics['num_samples']} | Evaluated: {metrics.get('num_evaluated', metrics['num_samples'])} | "

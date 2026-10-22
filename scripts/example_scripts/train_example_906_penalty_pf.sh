@@ -1,8 +1,11 @@
 #!/bin/bash
-# Example training script for Penalty PF method on IEEE 123-bus case
+# Example training script for Penalty PF method on the 906-bus case
 
 TRAIN_H5="datagen_topo/datasets/906bus_Master/906bus_Master_training.h5"
 VAL_H5="datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible.h5"
+# Test sets: names are inferred from the *_test_<name>.h5 stem (or given as name=path). The first entry is the
+# reference set and must exist; missing optional entries are skipped with a warning. The soft-limit OPF rarely
+# produces infeasible samples, so *_test_infeasible.h5 is usually absent.
 TEST_H5_VARIANTS=(
     "datagen_topo/datasets/906bus_Master/906bus_Master_test_feasible.h5"
     "datagen_topo/datasets/906bus_Master/906bus_Master_test_infeasible.h5"
@@ -27,7 +30,7 @@ TRAIN_SAMPLES=200000
 EVAL_SAMPLES=2000
 TEST_SAMPLES=2000
 
-# Penalty (fixed rho for entire run)
+# Penalty weight rho on the squared hard-constraint violation (fixed for the entire run)
 RHO=1e3
 
 LOG_EVERY=1

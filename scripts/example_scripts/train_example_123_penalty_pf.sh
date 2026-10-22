@@ -26,7 +26,7 @@ TRAIN_SAMPLES=200000
 EVAL_SAMPLES=2000
 TEST_SAMPLES=2000
 
-# Penalty (fixed rho for entire run)
+# Penalty weight rho on the squared hard-constraint violation (fixed for the entire run)
 RHO=1e5
 
 LOG_EVERY=1

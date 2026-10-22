@@ -166,6 +166,7 @@ def validate_primary_test_dataset(test_h5_paths: Dict[str, str]) -> None:
 
 
 def print_test_dataset_paths(test_h5_paths: Dict[str, str]) -> None:
+    """Print the resolved name: path of every test dataset."""
     print("Test dataset paths:")
     for variant, path in test_h5_paths.items():
         print(f"  {variant}: {path}")
@@ -179,6 +180,7 @@ def resolve_and_validate_test_paths(
     test_datasets: Optional[Sequence[Tuple[str, str]]] = None,
     print_paths: bool = True,
 ) -> TestH5Paths:
+    """Resolve --test_h5 / --test_h5_variants / --test_dataset into an ordered name -> path map and check that the reference (first) file exists."""
     test_h5_paths = resolve_test_dataset_paths(
         test_h5=test_h5,
         test_h5_variants=test_h5_variants,
@@ -197,6 +199,7 @@ def load_opf_data(
     test_h5_paths: TestH5Paths,
     build: OPFDataBuildOptions,
 ) -> OPFData:
+    """Build OPFData from the training HDF5, the reference test HDF5 and network_config.json, and attach the power-flow solver."""
     _, test_h5_path = primary_test_dataset(test_h5_paths)
     print("Loading data...")
     data = OPFData(
@@ -229,6 +232,10 @@ def prepare_training_datasets(
     log_layout: bool = True,
     validate_loads: bool = True,
 ) -> Tuple[OPFData, object, Optional[object], int]:
+    """Create the training dataset and the optional validation dataset.
+
+    Returns (data, train_dataset, eval_dataset_or_None, steps_per_epoch).
+    """
     train_dataset = data.make_train_dataset(samples=train_samples)
     eval_dataset = None
     if val_h5_path is not None:
@@ -260,6 +267,7 @@ def prepare_checkpoint_test_data(
     build: OPFDataBuildOptions,
     train_samples: Optional[int] = None,
 ) -> tuple[OPFData, object]:
+    """Load OPFData and the training dataset needed to rebuild input statistics before restoring a checkpoint."""
     data = load_opf_data(
         train_h5=train_h5,
         data_json=data_json,

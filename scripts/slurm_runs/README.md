@@ -1,8 +1,11 @@
 # Slurm training job configs
 
-YAML-driven job matrices for batch training on Slurm. Each config expands into
-`methods × grids × seeds` jobs, generates `jobs.jsonl` + `submit.sh`, and runs
-training entrypoints under `methods/*/train.py`.
+YAML-driven job matrices for batch training on Slurm (soft-constraint datasets). Each config expands into
+`methods × grids × seeds` jobs, generates `jobs.jsonl` + `submit_<profile>.sh`, and runs
+training entrypoints under `methods/*/train.py`. `rho` / `rho_eq` / `rho_ineq` in the YAML are the **training-loss**
+weights on hard-constraint violations; they are unrelated to the per-sample soft-limit penalties `ρ_V, ρ_I, ρ_θ`
+stored in the datasets. Datasets must exist first (see the [main README](../../README.md)); grids `13/123/240/906/8500`
+map to `datagen_topo/datasets/<case_dir>/`.
 
 **One YAML per method family / ablation:**
 
@@ -22,7 +25,7 @@ Generate and submit each method separately (`group_by_resource: true` emits one
 
 ```bash
 conda activate new_opt
-cd /path/to/ACOPF-Multiphase-Distribution-topo
+cd <path-to-repository-root>
 
 # Penalty PF (rho sweep + no-topo ablation)
 python scripts/slurm_runs/train_jobs.py generate \
@@ -62,7 +65,7 @@ CLI entrypoint: [`train_jobs.py`](train_jobs.py).
 After `generate`, artifacts land in `scripts/slurm_runs/<config.name>/`:
 
 - `jobs.jsonl` — one JSON record per array task (includes full `command`)
-- `submit_<profile>.sh` — Slurm array script(s)
+- `submit_<profile>.sh` — Slurm array script(s), one per resource profile
 - `README.md` — auto-generated summary
 
 Regenerate whenever you edit a YAML config.

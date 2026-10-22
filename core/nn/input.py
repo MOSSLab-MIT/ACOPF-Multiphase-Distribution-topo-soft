@@ -33,17 +33,20 @@ class NNInputLayout(NamedTuple):
 
     @property
     def load_sparsity_frac(self) -> float:
+        """Fraction of non-slack nodes without load (dropped from the compact input)."""
         if self.n_net <= 0:
             return 0.0
         return 1.0 - float(self.n_load) / float(self.n_net)
 
     @property
     def din_reduction_frac(self) -> float:
+        """Relative input-width reduction of the compact layout versus the full HDF5 layout."""
         if self.din_full <= 0:
             return 0.0
         return 1.0 - float(self.din_compact) / float(self.din_full)
 
     def summary_dict(self) -> dict[str, Any]:
+        """JSON-serializable layout summary for logs and checkpoints."""
         return {
             "din_full": self.din_full,
             "din_compact": self.din_compact,

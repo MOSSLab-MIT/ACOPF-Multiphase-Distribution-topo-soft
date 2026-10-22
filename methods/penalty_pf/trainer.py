@@ -69,24 +69,26 @@ def calc_batch_quantities(
     v_init=None,
 ):
     """
-    Calculate quantities needed for the penalty loss.
-    
+    Solve power flow at the DER setpoints and evaluate the penalty-loss quantities.
+
     Args:
         net: NetworkParams object
-        s_load_batch: Load power (batch, n_bus-1)
-        x_pred: Current DER setpoints [p_der; q_der] (batch, 2*n_der)
-        pder_avai: DER availability (batch, n_der)
+        s_load_batch: Complex load power at non-slack nodes (batch, n_net)
+        x_pred: Projected DER setpoints [p_der; q_der] (batch, 2*n_der)
+        pder_avai: Per-unit DER availability (batch, n_der_unit)
         obj_weights: Objective weights [w_cost, w_curtail, rho_v, rho_i, rho_theta] (batch, 5)
-        num_der: Number of DERs
+        num_der: Number of DER phases
         topo: Precomputed topology matrices (required when topology varies)
-        v_init: Optional pre-computed voltage to skip PF solve
-    
+        v_init: Optional pre-computed voltage; if given, the PF solve is skipped
+
     Returns:
-        v_final: Voltages (batch, n_bus-1)
-        s_der: DER setpoints (batch, n_der)
-        cost: Objective cost (batch,)
-        violation: Total max constraint violation (batch,)
-        ineq_violation_sq: Mean-square inequality penalty (batch,)
+        v_final: Non-slack voltages (batch, n_net)
+        s_der: Complex DER setpoints (batch, n_der)
+        cost: Soft-OPF objective incl. weighted V/I/theta penalties (batch,)
+        violation: max(eq_violation, ineq_violation); soft limits are not counted (batch,)
+        eq_violation: Max Z-bus fixed-point residual (batch,)
+        ineq_violation: Max HARD inequality violation: substation + DER limits (batch,)
+        ineq_violation_sq: Mean-square hard inequality violation, the term weighted by ``rho`` (batch,)
     """
     pder = x_pred[:, :num_der]
     qder = x_pred[:, num_der:]

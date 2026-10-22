@@ -729,16 +729,17 @@ def _write_readme(
         "",
         "## Results layout",
         "",
-        f"Each job writes to `{{results_dir}}/{{case_name}}/seed_{{seed}}/`.",
+        f"Each job writes to `{{results_dir}}/{{case_name}}/seed_{{seed}}/`, where `case_name` is",
+        "`<case_dir>_<case_suffix>` (e.g. `IEEE13Nodeckt_<case_suffix>`).",
         f"With `results_dir: {results_dir}`, example:",
-        f"`{results_dir}/IEEE13Nodeckt_penalty_pf/seed_1/`.",
+        f"`{results_dir}/IEEE13Nodeckt_<case_suffix>/seed_1/`.",
         "",
         "## Submit to Slurm",
         "",
         "Run `sbatch` from the **repository root** (Slurm log paths are relative to that directory):",
         "",
         "```bash",
-        "cd /path/to/ACOPF-Multiphase-Distribution-topo",
+        "cd <path-to-repository-root>",
         "```",
         "",
     ]
@@ -854,6 +855,7 @@ def generate_artifacts(
 
 
 def load_jobs(jobs_path: Path) -> list[dict[str, Any]]:
+    """Read the JSON-lines job records written by ``generate``."""
     jobs: list[dict[str, Any]] = []
     with jobs_path.open(encoding="utf-8") as handle:
         for line in handle:
@@ -872,6 +874,7 @@ def find_job(
     seed: int | None = None,
     train_suffix: str | None = None,
 ) -> dict[str, Any]:
+    """Select one job record by ``index`` or by ``(method, grid, seed[, train_suffix])``; raises ``KeyError`` if none matches."""
     if index is not None:
         for job in jobs:
             if int(job["index"]) == index:
@@ -927,6 +930,7 @@ def run_job_record(
     dry_run: bool = False,
     expect_resource_profile: str | None = None,
 ) -> int:
+    """Run (or, with ``dry_run``, print) the training command of one job record; returns the process exit code."""
     _validate_job_resource_profile(
         job,
         expect_resource_profile=expect_resource_profile,
@@ -1015,6 +1019,7 @@ def _cmd_list(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the ``generate | list | run | verify`` CLI parser."""
     parser = argparse.ArgumentParser(
         description="Generate and run training jobs from YAML config.",
     )
@@ -1091,6 +1096,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """CLI entrypoint; returns the exit code of the selected sub-command."""
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "generate" and args.config is None:

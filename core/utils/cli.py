@@ -12,6 +12,7 @@ _BANNER_SKIP_KEYS = frozenset({"input_stat", "cost_norm_stats"})
 
 
 def print_banner(title: str, args) -> None:
+    """Print a title and every parsed CLI argument (large stat objects are skipped)."""
     print("=" * 80)
     print(title)
     print("=" * 80)

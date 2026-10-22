@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Training script for OPF Neural Network with penalty_direct method.
+Training script for the penalty_direct method (soft-constraint AC-OPF).
 
-NN predicts DER setpoints and voltages jointly; penalties are applied directly
-on AC violations at the predicted (pder, qder, vr, vi).
+The NN predicts DER setpoints and voltages jointly (no power-flow solve). The loss is the soft-OPF cost at
+the predicted ``(pder, qder, vr, vi)`` plus ``rho_eq`` times the squared power-flow residual and ``rho_ineq``
+times the squared violation of the hard constraints; both weights are fixed or adapted per batch
+(``--rho_rate``, ``--rho_decay_rate``, ``--violation_threshold``, ``--rho_max``).
 """
 import os
 import sys

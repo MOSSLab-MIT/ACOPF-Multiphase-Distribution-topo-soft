@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Submit parallel Slurm jobs for fixed-reference linear OPF on standard grids.
+# Submit parallel Slurm jobs for the fixed-reference linear OPF baseline (soft V/I/θ rows) on standard grids.
+# For each grid it evaluates the test variants listed in list_variant_names() below (CPU-only: CVXPY + Clarabel).
 #
 # Submit (from repository root):
 #   bash scripts/run_linear_opf_all_grids.sh
@@ -14,9 +15,9 @@
 #   RESULTS_DIR      default: results/linear_opf
 #   TEST_SAMPLES     default: 2000
 #   SEED             default: 1
-#   NUM_SHARDS       default: 1 for grids 13/123, 6 for 240/906/8500
+#   NUM_SHARDS       default: 1 for grids 13/123/240, 8 for 906/8500
 #   CONDA_ENV        default: new_opt
-#   SLURM_PARTITION  default: pi_donti
+#   SLURM_PARTITION  default: pi_donti,mit_preemptable
 
 set -euo pipefail
 
@@ -121,8 +122,8 @@ list_variant_names() {
   local grid_key="$1"
   case "$grid_key" in
     13|123|240|906|8500)
-      # echo "feasible"
-      echo "infeasible"
+      # The soft-limit OPF rarely yields infeasible samples, so *_test_infeasible.h5 is normally absent.
+      echo "feasible"
       echo "feasible_high_load_low_der"
       echo "feasible_low_load_high_der"
       ;;

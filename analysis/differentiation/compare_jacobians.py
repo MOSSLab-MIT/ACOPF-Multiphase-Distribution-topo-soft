@@ -76,12 +76,14 @@ GRID_PRESETS: dict[str, dict[str, str]] = {
 
 @dataclass
 class TimingStats:
+    """Total and per-batch wall time (seconds) of one timed method."""
     total_s: float
     per_batch_s: float
 
 
 @dataclass
 class MethodStats:
+    """Jacobian error versus the full-unroll reference, timing and memory of one method."""
     error_max: float
     error_mean: float
     error_rel_fro: float
@@ -99,6 +101,7 @@ class MethodStats:
 
 
 def get_test_feasible_cases(datasets_root: str) -> List[Tuple[str, str, str]]:
+    """List ``(case_name, train_h5, test_h5, data_json)`` for every dataset folder under ``datasets_root`` that has a feasible test file and a network config."""
     cases = []
     for name in sorted(os.listdir(datasets_root)):
         case_dir = os.path.join(datasets_root, name)
@@ -228,6 +231,7 @@ def verify_forward_convergence(
 
 
 def compute_jacobian_real_single(s, v_init, y_inv, w, solver_fn):
+    """Dense real-valued Jacobian of the PF solution (``[Re v; Im v]``) w.r.t. ``[Re s; Im s]`` by forward-mode AD (``jacfwd``)."""
     def pf_wrapper(s_flat):
         n = s_flat.shape[0] // 2
         s_curr = s_flat[:n] + 1j * s_flat[n:]
@@ -239,6 +243,7 @@ def compute_jacobian_real_single(s, v_init, y_inv, w, solver_fn):
 
 
 def compute_jacobian_real_single_rev(s, v_init, y_inv, w, solver_fn):
+    """Same as ``compute_jacobian_real_single`` with reverse-mode AD (``jacrev``)."""
     def pf_wrapper(s_flat):
         n = s_flat.shape[0] // 2
         s_curr = s_flat[:n] + 1j * s_flat[n:]
@@ -250,6 +255,7 @@ def compute_jacobian_real_single_rev(s, v_init, y_inv, w, solver_fn):
 
 
 def make_batched_jacobian(solver_fn, *, use_rev: bool = False):
+    """Return a jitted, vmapped Jacobian function for ``solver_fn`` (reverse mode if ``use_rev``)."""
     if use_rev:
         single = lambda s, v_init, y, ww: compute_jacobian_real_single_rev(
             s, v_init, y, ww, solver_fn
@@ -262,6 +268,7 @@ def make_batched_jacobian(solver_fn, *, use_rev: bool = False):
 
 
 def jacobian_error_stats(j_method: jnp.ndarray, j_full: jnp.ndarray) -> Tuple[float, float, float]:
+    """Return ``(max, mean, relative Frobenius)`` elementwise error of ``j_method`` against ``j_full``."""
     diff = jnp.abs(j_method - j_full)
     err_max = float(jnp.max(diff))
     err_mean = float(jnp.mean(diff))
@@ -272,6 +279,7 @@ def jacobian_error_stats(j_method: jnp.ndarray, j_full: jnp.ndarray) -> Tuple[fl
 
 
 def peak_mem_kb() -> int:
+    """Peak resident set size of this process (KiB on Linux)."""
     return int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
 
@@ -392,6 +400,7 @@ def run_case(
     maxiter: int,
     diffiters: List[int],
 ) -> Dict[str, MethodStats]:
+    """Benchmark all differentiation methods on one case; returns ``{method_key: MethodStats}``."""
     data = OPFData(train_h5_path=train_h5, test_h5_path=test_h5, json_path=cfg_json)
     s_net, v_init, y_inv, w = load_batch_tensors(data, test_h5, samples)
     actual_samples = int(s_net.shape[0])
@@ -573,6 +582,7 @@ def run_case(
 
 
 def resolve_cases_from_h5(h5_paths: List[str]) -> List[Tuple[str, str, str, str]]:
+    """Map explicit test HDF5 paths to ``(case_name, train_h5, test_h5, data_json)`` tuples."""
     cases: List[Tuple[str, str, str, str]] = []
     for h5 in h5_paths:
         h5_path = os.path.abspath(h5)
@@ -591,6 +601,7 @@ def resolve_cases_from_h5(h5_paths: List[str]) -> List[Tuple[str, str, str, str]
 
 
 def resolve_grid_case(grid: str) -> Tuple[str, str, str, str]:
+    """Resolve a ``--grid`` preset to ``(case_name, train_h5, test_h5, data_json)``."""
     if grid not in GRID_PRESETS:
         raise ValueError(f"Unknown --grid {grid!r}; choose from {sorted(GRID_PRESETS)}")
     preset = GRID_PRESETS[grid]
@@ -604,6 +615,7 @@ def resolve_grid_case(grid: str) -> Tuple[str, str, str, str]:
 
 
 def method_stats_to_dict(stats: MethodStats) -> dict:
+    """Flatten ``MethodStats`` into the JSON result schema."""
     return {
         "error_max": stats.error_max,
         "error_mean": stats.error_mean,
@@ -622,6 +634,7 @@ def method_stats_to_dict(stats: MethodStats) -> dict:
 
 
 def main():
+    """CLI entrypoint: run the benchmark for the selected grid/files and write the results JSON."""
     parser = argparse.ArgumentParser(
         description="Compare PF Jacobian autodiff: full unroll, truncated, implicit."
     )
