@@ -11,12 +11,12 @@ voltage / angle / substation / branch limits; nodal Y-bus balance is
 encoded implicitly through the frozen-Z voltage sensitivity rather than
 as bilinear ``vr, vi`` equalities (those require Ipopt in Julia).
 
-Soft limits (as in Julia): voltage-magnitude, angle and branch-current rows get nonnegative slacks
-``t`` with an L1 penalty; substation rows stay hard. Julia penalizes the squared forms
-``|u|² - vmax²`` and ``|I|² - imax²`` while the linear rows are magnitudes ``g = |u|, |I|``. For an
-excess ``t = g - b`` over a bound ``b``: ``g² - b² = 2 b t + t²``, so the row weight ``ρ · 2b`` matches
-Julia's penalty to first order in the violation (independent of the linearization point). Angle rows
-are already in Julia's units (weight ``ρ``).
+Soft limits (as in Julia): every network row (voltage magnitude, angle, substation apparent power,
+branch current) gets a nonnegative slack ``t`` with an L1 penalty; only DER limits stay hard. Julia
+penalizes the squared forms ``|u|² - vmax²``, ``|S|² - smax²`` and ``|I|² - imax²`` while the linear
+rows are magnitudes ``g = |u|, |S|, |I|``. For an excess ``t = g - b`` over a bound ``b``:
+``g² - b² = 2 b t + t²``, so the row weight ``ρ · 2b`` matches Julia's penalty to first order in the
+violation (independent of the linearization point). Angle rows are already in Julia's units (weight ``ρ``).
 """
 
 from __future__ import annotations
@@ -30,9 +30,10 @@ import cvxpy as cp
 import jax.numpy as jnp
 import numpy as np
 
-from core.grids.data import NetworkParams
+from core.grids.network import NetworkParams
 from core.grids.linear_model import create_linear_model
-from core.grids.metrics import N_ECON_WEIGHTS, N_OBJ_WEIGHTS, constraint_bounds, constraint_row_layout
+from core.grids.metrics import constraint_bounds, constraint_row_layout
+from core.grids.network import N_ECON_WEIGHTS, N_OBJ_WEIGHTS
 from core.grids.power_flow import (
     PowerFlowSolver,
     get_power_flow_solve_fn,
@@ -49,8 +50,8 @@ DISK_MODE_POLY_INNER = "poly_inner"
 # fixed point on networks with near-singular Y_LL rows) and Newton is used instead.
 PF_RESIDUAL_TOL = 1e-6
 COST_COEFF_TOL = 1e-12
-# Index into the penalty weights [ρ_V, ρ_I, ρ_θ] (obj_weights[N_ECON_WEIGHTS:]).
-RHO_V, RHO_I, RHO_THETA = 0, 1, 2
+# Index into the penalty weights [ρ_V, ρ_I, ρ_θ, ρ_sub] (obj_weights[N_ECON_WEIGHTS:]).
+RHO_V, RHO_I, RHO_THETA, RHO_SUB = 0, 1, 2, 3
 
 
 class LinearizationPowerFlowError(RuntimeError):
@@ -104,10 +105,11 @@ class LinearOPFProblemCache:
 class SoftRowLayout:
     """Row partition of the linear network constraints ``lb <= A x + c <= ub``.
 
-    ``hard_up/hard_lo``: finite-bound rows enforced exactly (substation).
-    ``soft_up/soft_lo``: finite-bound soft rows (V, angle, branch current) with slacks; ``*_rho`` picks
-    the penalty weight (RHO_V / RHO_I / RHO_THETA) and ``*_scale`` is the squared-unit factor ``2b``
-    (or 1 for angle rows) so that row weight = ``ρ[*_rho] * *_scale``.
+    ``hard_up/hard_lo``: finite-bound rows enforced exactly (none with the current all-soft layout;
+    kept so a hard network row family can be reintroduced in ``_soft_row_layout``).
+    ``soft_up/soft_lo``: finite-bound soft rows (V, angle, substation, branch current) with slacks;
+    ``*_rho`` picks the penalty weight (RHO_V / RHO_I / RHO_THETA / RHO_SUB) and ``*_scale`` is the
+    squared-unit factor ``2b`` (or 1 for angle rows) so that row weight = ``ρ[*_rho] * *_scale``.
     """
 
     hard_up: np.ndarray
@@ -193,16 +195,17 @@ def _der_linearization_point_from_availability(
 
 
 def _soft_row_layout(net: NetworkParams, lb: np.ndarray, ub: np.ndarray) -> SoftRowLayout:
-    """Partition network rows into hard (substation) and soft (V / angle / branch) with penalty scales."""
+    """Partition network rows into hard and soft (V / angle / substation / branch) with penalty scales."""
     layout = constraint_row_layout(net)
     n_con = lb.shape[0]
     rho_idx = np.full(n_con, -1, dtype=np.int64)
     rho_idx[layout["sl_v"]] = RHO_V
     rho_idx[layout["sl_angle"]] = RHO_THETA
     rho_idx[layout["sl_branch"]] = RHO_I
+    rho_idx[layout["sl_sub"]] = RHO_SUB
     is_soft = rho_idx >= 0
-    # Squared-unit factor 2b for magnitude rows (|u|, |I|); angle rows are already in Julia's units.
-    squared_rows = (rho_idx == RHO_V) | (rho_idx == RHO_I)
+    # Squared-unit factor 2b for magnitude rows (|u|, |S|, |I|); angle rows are already in Julia's units.
+    squared_rows = (rho_idx == RHO_V) | (rho_idx == RHO_I) | (rho_idx == RHO_SUB)
 
     def scale(bound):
         return np.where(squared_rows, 2.0 * np.abs(bound), 1.0)
@@ -369,8 +372,7 @@ def _build_cvxpy_problem(
 
     ax = a_param @ x
     constraints = [
-        # Hard network rows (substation) and soft rows relaxed by nonnegative slacks.
-        ax[rows.hard_up] <= ub_rhs_param[rows.hard_up],
+        # Soft network rows relaxed by nonnegative slacks (hard rows appended below if any).
         ax[rows.soft_up] <= ub_rhs_param[rows.soft_up] + slack_up,
         ax[rows.soft_lo] >= lb_rhs_param[rows.soft_lo] - slack_lo,
         # Julia: pder box, qder box, apparent-power disk, unit availability.
@@ -380,6 +382,8 @@ def _build_cvxpy_problem(
         qder <= ux[n_der:],
         unit_matrix @ pder <= pder_avai_param,
     ]
+    if rows.hard_up.size:
+        constraints.append(ax[rows.hard_up] <= ub_rhs_param[rows.hard_up])
     if rows.hard_lo.size:
         constraints.append(ax[rows.hard_lo] >= lb_rhs_param[rows.hard_lo])
     if disk_mode == DISK_MODE_SOC:
@@ -396,17 +400,6 @@ def _build_cvxpy_problem(
     else:
         raise ValueError(f"Unknown disk constraint mode: {disk_mode!r}")
 
-    # Previous non-DPP formulation kept for reference:
-    # psub = psub0_param + a_psub_param @ (x - x0_param)
-    # cost_der = cp.sum(
-    #     cp.multiply(der_lin, pder) + cp.multiply(der_quad, cp.square(pder))
-    # )
-    # cost_sub = sub_lin * psub + sub_quad * cp.square(psub)
-    # unit_p = unit_matrix @ pder
-    # curtail = cp.sum(pder_avai_param - unit_p)
-    # objective = cp.Minimize(
-    #     w_cost_param * (cost_der + cost_sub) + w_curtail_param * curtail
-    # )
     psub = cp.Variable(name="psub")
     psub_quad_scaled = cp.Variable(name="psub_quad_scaled")
     constraints.append(psub == psub_offset_param + a_psub_param @ x)

@@ -10,7 +10,7 @@ import jax
 import jax.numpy as jnp
 
 from core.utils.types import TopologyData
-from core.grids.data import NetworkParams
+from core.grids.network import NetworkParams
 from core.grids.power_flow import PowerFlowSolver, get_power_flow_solve_fn
 from core.grids.metrics import constraint_bounds
 

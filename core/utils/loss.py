@@ -1,4 +1,4 @@
-"""Cost scaling for loss and shared eval optimality metrics."""
+"""Cost scaling for the training loss and cost-normalization statistics."""
 
 from pathlib import Path
 from typing import Literal, Optional
@@ -12,16 +12,7 @@ from core.utils.types import CostNormStats
 
 CostNormMode = Literal["robust", "max", "none"]
 _EPS = 1e-8
-_COST_TARGET_DENOM_EPS = 1e-6
 _PRIMAL_OBJECTIVE_META_KEY = "primal_objective_value"
-
-
-def compute_optimality_metrics(cost, cost_target):
-    """Signed error, absolute error, and relative optimality gap (per sample)."""
-    cost_error = cost - cost_target
-    abs_cost_error = jnp.abs(cost_error)
-    optimality_gap = cost_error / (jnp.abs(cost_target) + _COST_TARGET_DENOM_EPS)
-    return cost_error, abs_cost_error, optimality_gap
 
 
 def normalize_cost_for_loss(

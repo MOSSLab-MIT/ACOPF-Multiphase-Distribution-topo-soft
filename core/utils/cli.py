@@ -2,9 +2,7 @@
 
 import argparse
 import re
-from typing import Optional, Tuple
-
-from core.utils.runtime import lr_schedule_params
+from typing import Tuple
 
 _TEST_DATASET_NAME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
 
@@ -20,40 +18,6 @@ def print_banner(title: str, args) -> None:
         if arg in _BANNER_SKIP_KEYS:
             continue
         print(f"  {arg}: {value}")
-    print()
-
-
-def print_training_schedule_summary(
-    *,
-    learning_rate: float,
-    warmup_epochs: int,
-    epochs: int,
-    steps_per_epoch: int,
-    min_lr_ratio: float = 0.5,
-    rho: Optional[float] = None,
-) -> None:
-    """Print resolved LR warmup/cosine schedule (requires ``steps_per_epoch``)."""
-    params = lr_schedule_params(
-        learning_rate, warmup_epochs, epochs, steps_per_epoch, min_lr_ratio
-    )
-    print("Training schedule:")
-    print(f"  learning_rate (peak): {params['peak_lr']:g}")
-    print(
-        f"  warmup_epochs: {params['warmup_epochs']} "
-        f"({params['warmup_steps']} optimizer steps)"
-    )
-    print(
-        f"  steps_per_epoch: {params['steps_per_epoch']}  |  "
-        f"total_epochs: {params['total_epochs']}  |  "
-        f"total_steps: {params['total_steps']}"
-    )
-    print(
-        f"  initial_lr: {params['init_lr']:g}  ->  peak_lr: {params['peak_lr']:g}  ->  "
-        f"min_lr: {params['min_lr']:g}  (min_lr_ratio={params['min_lr_ratio']})"
-    )
-    print(f"  cosine_decay_steps: {params['decay_steps']}")
-    if rho is not None:
-        print(f"  penalty rho: {rho:g}  (loss = cost + rho * ineq_violation_sq)")
     print()
 
 

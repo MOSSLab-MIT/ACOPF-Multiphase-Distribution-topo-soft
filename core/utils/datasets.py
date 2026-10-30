@@ -204,7 +204,6 @@ def load_opf_data(
         test_h5_path,
         data_json,
         topology_backend=build.topology_backend,
-        include_topo_nn_input=build.include_topo_nn_input,
         woodbury_ir_steps=build.woodbury_ir_steps,
         woodbury_batch_mode=build.woodbury_batch_mode,
     )

@@ -285,22 +285,6 @@ def get_power_flow_batch_fn(solver: str | PowerFlowSolver):
     return _SOLVER_BATCH_FUNCS[key]
 
 
-# def estimate_fixed_point_contractivity(Y_LL_inv, s, v_trial):
-#     """Rough spectral-radius estimate of the Z-bus map Jacobian at ``v_trial`` (power iter)."""
-
-#     diag_term = -jnp.conj(s / (v_trial**2))
-
-#     u = jnp.ones_like(v_trial, dtype=Y_LL_inv.dtype)
-#     for _ in range(3):
-#         u = Y_LL_inv @ (diag_term * u)
-#         u_norm = jnp.linalg.norm(u)
-#         u = u / (u_norm + 1e-16)
-
-#     Au = Y_LL_inv @ (diag_term * u)
-#     rho = jnp.linalg.norm(Au) / (jnp.linalg.norm(u) + 1e-16)
-#     return rho
-
-
 def power_flow_residual(u, s, Y_LL, Y_L0, v_slack_local):
     """Return ``u * conj(Y_LL @ u + Y_L0 @ v_slack) - s``."""
     current = Y_LL @ u + Y_L0 @ v_slack_local

@@ -9,9 +9,9 @@ import numpy as np
 from flax import nnx
 from flax.training import checkpoints
 from core.grids.data import OPFData
-from core.nn.model import compute_input_stats
 from core.grids.power_flow import PowerFlowSolver
-from core.nn.input import log_nn_input_layout, resolve_nn_input_for_checkpoint, save_nn_input_artifacts
+from core.nn.artifacts import resolve_nn_input_for_checkpoint, save_nn_input_artifacts
+from core.nn.input import compute_input_stats, log_nn_input_layout
 from core.utils.types import CheckpointModelSpec
 
 
@@ -201,7 +201,6 @@ def restore_checkpoint_state(
     )
     data.use_compact_nn = use_compact
     data.nn_layout = layout
-    data.include_topo_nn_input = getattr(layout, "include_topo_nn_input", True)
     log_nn_input_layout(layout)
 
     din = layout.din_compact if use_compact else layout.din_full

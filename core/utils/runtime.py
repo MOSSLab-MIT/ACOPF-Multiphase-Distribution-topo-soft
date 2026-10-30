@@ -6,7 +6,6 @@ import warnings
 
 import jax
 import numpy as np
-import optax
 import tensorflow as tf
 
 _BYTES_PER_GB = 1024**3
@@ -126,54 +125,6 @@ def set_random_seeds(seed: int):
     """Set non-JAX random seeds; JAX PRNG keys remain explicit."""
     np.random.seed(seed)
     tf.random.set_seed(seed)
-
-
-def lr_schedule_params(
-    base_lr: float,
-    warmup_epochs: int,
-    total_epochs: int,
-    steps_per_epoch: int,
-    min_lr_ratio: float = 0.5,
-) -> dict[str, float | int]:
-    """Resolved warmup-cosine schedule parameters for Optax and startup logging."""
-    warmup_steps = warmup_epochs * steps_per_epoch
-    total_steps = total_epochs * steps_per_epoch
-    decay_steps = max(total_steps - warmup_steps, 1)
-    min_lr = min_lr_ratio * base_lr
-    init_lr = 0.0 if warmup_steps > 0 else base_lr
-    return {
-        "peak_lr": base_lr,
-        "init_lr": init_lr,
-        "min_lr": min_lr,
-        "min_lr_ratio": min_lr_ratio,
-        "warmup_epochs": warmup_epochs,
-        "warmup_steps": warmup_steps,
-        "total_epochs": total_epochs,
-        "steps_per_epoch": steps_per_epoch,
-        "total_steps": total_steps,
-        "decay_steps": decay_steps,
-    }
-
-
-def create_lr_schedule(
-    base_lr,
-    warmup_epochs,
-    total_epochs,
-    steps_per_epoch,
-    min_lr_ratio: float = 0.5,
-):
-    """Create warmup-cosine learning-rate schedule."""
-    params = lr_schedule_params(
-        base_lr, warmup_epochs, total_epochs, steps_per_epoch, min_lr_ratio
-    )
-
-    return optax.warmup_cosine_decay_schedule(
-        init_value=params["init_lr"],
-        peak_value=params["peak_lr"],
-        warmup_steps=params["warmup_steps"],
-        decay_steps=params["decay_steps"],
-        end_value=params["min_lr"],
-    )
 
 
 def set_protobuf_implementation() -> None:

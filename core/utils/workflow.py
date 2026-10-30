@@ -1,79 +1,20 @@
-"""Train/test orchestration and batch extraction for method entry scripts."""
+"""Train/test orchestration helpers for method entry scripts."""
 
 import json
 import time
 import warnings
-from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Iterable, List, Optional, Tuple
 
-import jax
 import jax.numpy as jnp
 
 from core.grids.data import OPFData
-from core.nn.model import compute_input_stats
-from core.utils.loss import compute_cost_norm_stats_from_eval
+from core.nn.input import compute_input_stats
+from core.utils.checkpoint import to_json_serializable
 from core.utils.datasets import primary_test_dataset, resolve_cost_norm_h5_path
-from core.utils.types import (
-    BatchData,
-    CostNormStats,
-    TestH5Paths,
-    TopologyData,
-    VariantTestSpec,
-)
-
-
-@partial(jax.jit, static_argnums=(2,))
-def prepare_batch_data(
-    inputs_batch,
-    targets_batch,
-    session: OPFData,
-    topo: TopologyData | None = None,
-) -> BatchData:
-    """Extract physics tensors and OPF labels from flat HDF5 batches."""
-    net = session.net
-    pd = inputs_batch[:, session.slices["input"]["pd"]]
-    qd = inputs_batch[:, session.slices["input"]["qd"]]
-    pder_avai = inputs_batch[:, session.slices["input"]["pder_avai"]]
-    obj_weights = inputs_batch[:, session.slices["input"]["obj_weights"]]
-    s_load = jax.lax.complex(pd, qd)
-    if topo is not None:
-        branch_status = topo.branch_status
-        switchable_status = branch_status[:, net.changing_switches]
-    else:
-        topo_key = session.topology_input_key
-        branch_status_compact = jnp.asarray(
-            inputs_batch[:, session.slices["input"][topo_key]], dtype=jnp.int32
-        )
-        branch_status = session.expand_branch_status(branch_status_compact)
-        switchable_status = branch_status[:, net.changing_switches]
-
-    pder_target = targets_batch[:, session.slices["target"]["pder"]]
-    qder_target = targets_batch[:, session.slices["target"]["qder"]]
-    vr_target = targets_batch[:, session.slices["target"]["vr"]]
-    vi_target = targets_batch[:, session.slices["target"]["vi"]]
-    v_target = jax.lax.complex(vr_target, vi_target)
-
-    if topo is not None:
-        v_init = (
-            topo.w
-            if topo.w.ndim > 1
-            else jnp.broadcast_to(topo.w[None, :], (pd.shape[0], net.n_net))
-        )
-    else:
-        v_init = jnp.broadcast_to(net.w[None, :], (pd.shape[0], net.n_net))
-
-    return BatchData(
-        s_load=s_load,
-        pder_avai=pder_avai,
-        obj_weights=obj_weights,
-        branch_status=branch_status,
-        switchable_status=switchable_status,
-        v_init=v_init,
-        v_target=v_target,
-        pder_target=pder_target,
-        qder_target=qder_target,
-    )
+from core.utils.loss import compute_cost_norm_stats_from_eval
+from core.utils.runtime import clear_gpu_memory
+from core.utils.types import CostNormStats, TestH5Paths, VariantTestSpec
 
 
 def make_results_root(results_dir: str, case_name: str, seed: int) -> Path:
@@ -120,10 +61,8 @@ def filter_existing_test_datasets(
 
 def compute_training_normalization(
     train_dataset: Any,
-    eval_dataset: Any,
     data: OPFData,
     *,
-    batch_size: int,
     mode: str = "robust",
     val_h5_path: Optional[str] = None,
     eval_samples: Optional[int] = None,
@@ -191,8 +130,6 @@ def save_variant_test_metrics(
     *,
     pop_batch_metrics: bool = True,
 ) -> tuple[Path, Optional[Path]]:
-    from core.utils.checkpoint import to_json_serializable
-
     variant_results_dir.mkdir(parents=True, exist_ok=True)
     metrics = dict(test_metrics)
     batch_metrics = metrics.pop("batch_metrics", None) if pop_batch_metrics else None
@@ -220,8 +157,6 @@ def run_variant_batch_tests(
     print_metrics: Optional[Callable[[int, dict[str, Any]], None]] = None,
 ) -> dict[str, dict[int, dict[str, Any]]]:
     """Run test_fn over existing dataset variants and batch sizes; save JSON summaries."""
-    from core.utils.runtime import clear_gpu_memory
-
     test_fn_kwargs = test_fn_kwargs or {}
     all_results: dict[str, dict[int, dict[str, Any]]] = {}
 

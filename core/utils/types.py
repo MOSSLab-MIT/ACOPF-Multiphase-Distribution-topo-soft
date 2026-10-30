@@ -10,7 +10,7 @@ TestH5Paths = Dict[str, str]
 
 
 class BatchData(NamedTuple):
-    """Per-batch tensors extracted from HDF5 via ``prepare_batch_data``."""
+    """Per-batch tensors extracted from HDF5 via ``core.utils.batch.prepare_batch_data``."""
 
     s_load: jnp.ndarray
     pder_avai: jnp.ndarray
@@ -52,16 +52,6 @@ class CostNormStats:
             "n_samples": self.n_samples,
         }
 
-    @classmethod
-    def from_dict(cls, data: dict) -> "CostNormStats":
-        return cls(
-            cost_max=float(data["cost_max"]),
-            cost_p95=float(data["cost_p95"]),
-            mode=str(data["mode"]),
-            cost_scale=float(data["cost_scale"]),
-            n_samples=int(data["n_samples"]),
-        )
-
     def cost_scale_jax(self, dtype=jnp.float64) -> jnp.ndarray:
         return jnp.asarray(self.cost_scale, dtype=dtype)
 
@@ -70,7 +60,6 @@ class CostNormStats:
 class OPFDataBuildOptions:
     topology_backend: str = "woodbury"
     power_flow_solver: str = "fixed_point"
-    include_topo_nn_input: bool = True
     woodbury_ir_steps: str = "auto"  # "auto", "0", "1", "2"
     woodbury_batch_mode: str = "vmap"  # "vmap" (fast, higher VRAM), "map" (lower VRAM)
 

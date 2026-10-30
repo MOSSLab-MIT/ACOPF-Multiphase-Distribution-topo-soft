@@ -4,14 +4,18 @@ The NN predicts raw per-phase DER setpoints ``(pder, qder)``. Before power flow,
 they are mapped to a set that respects the DER device limits (which are hard,
 unlike the soft network voltage/current/angle limits):
 
-1. ``p >= pdermin`` (per phase),
+1. per-phase active-power bounds, also leaving enough apparent-power capacity
+   for the reactive-power box,
 2. per-unit active-power cap ``sum_{phases in unit} p <= pder_avai`` enforced by
-   one common scale factor for all phases of a unit (preserves phase ratios),
-3. apparent-power disk ``p^2 + q^2 <= sdermax^2`` (per phase) by clipping ``q``
-   at the projected ``p``.
+   one common scale factor for the power above each phase's lower bound
+   (preserves clipped phase ratios when ``pdermin == 0``),
+3. the intersection of the reactive-power box and apparent-power disk
+   ``p^2 + q^2 <= sdermax^2`` (per phase) by clipping ``q`` at the projected ``p``.
 
-Step 2 only shrinks ``p``, so the disk in step 3 always has a non-empty ``q``
-interval provided ``pdermin <= sdermax``.
+Requires nonnegative active-power lower bounds and a nonempty feasible set:
+each phase's box must intersect its disk, and each device's availability must
+cover the sum of its active-power lower bounds. The data loader uses zero
+active-power lower bounds. This sequential map is not a Euclidean projection.
 """
 
 import jax.numpy as jnp
@@ -37,35 +41,56 @@ def project_der_controls_batch(data, p, q, pder_avai, eps):
     """Project DER ``(p, q)`` onto box, per-unit availability, and apparent-power disk.
 
     Args:
-        data: ``NetworkParams`` (or any object with ``pdermin``, ``sdermax``,
+        data: ``NetworkParams`` (or any object with ``pdermin``, ``pdermax``,
+            ``qdermin``, ``qdermax``, ``sdermax``,
             ``der_unit_to_phase``, ``der_unit_to_phase_mask``, ``der_phase_to_unit``).
         p, q: Per-phase active / reactive setpoints ``(B, n_der_phase)``.
         pder_avai: Per-unit active-power caps ``(B, n_der_unit)`` or ``(n_der_unit,)``.
-        eps: Small constant for safe divisions / square roots.
+        eps: Positive constant used only in inactive division / square-root
+            branches; it does not enlarge the disk or shrink feasible controls.
 
     Returns:
         ``(p_proj, q_proj)``, each ``(B, n_der_phase)``.
     """
-    p_der = jnp.maximum(p, data.pdermin)
+    # The point in the q box closest to zero needs the least apparent power.
+    # Reserving this headroom also supports q boxes that exclude zero.
+    q_nearest_zero = jnp.clip(jnp.zeros_like(data.qdermin), data.qdermin, data.qdermax)
+    p_disk_max = _nonnegative_sqrt(data.sdermax**2 - q_nearest_zero**2, eps)
+    p_der = jnp.clip(p, data.pdermin, jnp.minimum(data.pdermax, p_disk_max))
     caps = _broadcast_batch(pder_avai.astype(p.dtype), p.shape[0])
-    unit_p = unit_phase_sum_batch(
-        p_der,
+    p_excess = p_der - data.pdermin
+    unit_excess = unit_phase_sum_batch(
+        p_excess,
         data.der_unit_to_phase,
         data.der_unit_to_phase_mask,
     )
-    # Common per-unit scale s_u = min(1, cap_u / sum_u p); units with zero
-    # (or negative) total active power are left unchanged.
-    safe_unit_p = jnp.maximum(unit_p, eps)
+    unit_min = unit_phase_sum_batch(
+        data.pdermin[None, :], data.der_unit_to_phase, data.der_unit_to_phase_mask
+    )
+    # Scale only the excess above the lower bounds, so scaling cannot violate
+    # them. With zero lower bounds this is the original common phase scaling.
+    safe_unit_excess = jnp.where(unit_excess > 0.0, unit_excess, eps)
     unit_scale = jnp.where(
-        unit_p > 0.0,
-        jnp.minimum(1.0, jnp.maximum(caps, 0.0) / safe_unit_p),
+        unit_excess > 0.0,
+        jnp.minimum(1.0, jnp.maximum(caps - unit_min, 0.0) / safe_unit_excess),
         1.0,
     )
-    p_der = p_der * unit_scale[:, data.der_phase_to_unit]
-    # Disk |s| <= sdermax at the projected p:  |q| <= sqrt(sdermax^2 - p^2).
-    q_der_max = jnp.sqrt(jnp.maximum(data.sdermax**2 - p_der**2, eps))
-    q_der = jnp.clip(q, -q_der_max, q_der_max)
+    p_der = data.pdermin + p_excess * unit_scale[:, data.der_phase_to_unit]
+    q_disk_max = _nonnegative_sqrt(data.sdermax**2 - p_der**2, eps)
+    q_lower = jnp.maximum(data.qdermin, -q_disk_max)
+    q_upper = jnp.minimum(data.qdermax, q_disk_max)
+    q_der = jnp.clip(q, q_lower, q_upper)
     return p_der, q_der
+
+
+def _nonnegative_sqrt(value, eps):
+    """Exact sqrt(max(value, 0)) with a finite, zero derivative at value <= 0.
+
+    Mask the input to sqrt as well as its output: differentiating an inactive
+    sqrt(0) branch otherwise introduces NaNs at a saturated apparent-power disk.
+    """
+    positive = value > 0.0
+    return jnp.where(positive, jnp.sqrt(jnp.where(positive, value, eps)), 0.0)
 
 
 def project_der_controls_from_x_batch(data, x, pder_avai, eps):

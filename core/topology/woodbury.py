@@ -854,7 +854,6 @@ class WoodburyTopologyBackend:
             self._fn_slim = woodbury_topology_matrices_slim
 
         self._topology_matrices_jit = jax.jit(self._fn_slim)
-        self._topology_matrices_full_jit = jax.jit(self._fn_full)
 
         # vmap batch JIT — built when branchless fn is selected (explicit or resolved).
         self.batch_vmap_jit: Optional[Callable] = None

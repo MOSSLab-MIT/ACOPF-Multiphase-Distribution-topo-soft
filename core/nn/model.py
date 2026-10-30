@@ -1,48 +1,35 @@
-"""Flax NNX MLP for DER setpoint prediction."""
+"""Flax NNX networks: MLP and the feeder-graph GCN (``OPFGCN``)."""
 
 import jax
 import jax.numpy as jnp
-import numpy as np
-import optax
 from flax import nnx
-from flax.training import train_state
-
-from core.nn.input import gather_nn_features_from_session, log_input_stats
-
-from core.grids.data import OPFData
-
-_NORM_EPS = 1e-8
-_INPUT_CLIP_MAX = 5.0
 
 
 class MLP(nnx.Module):
     """MLP optimized for OPF problems with LayerNorm after each hidden activation."""
+
     def __init__(self, din: int, dhid: int, dout: int, num_layers: int, rngs: nnx.Rngs):
-        # kernel_init = nnx.initializers.normal(stddev=0.1)
         kernel_init = nnx.initializers.he_normal()
-        # kernel_init = nnx.initializers.variance_scaling(scale=1.0, mode='fan_in', distribution='truncated_normal')
         bias_init = nnx.initializers.zeros
 
         self.linear_in = nnx.Linear(din, dhid,
-                                   kernel_init=kernel_init,
-                                   bias_init=bias_init,
-                                   rngs=rngs)
+                                    kernel_init=kernel_init,
+                                    bias_init=bias_init,
+                                    rngs=rngs)
 
         self.linear_hidden = nnx.List([
             nnx.Linear(dhid, dhid,
-                      kernel_init=kernel_init,
-                      bias_init=bias_init,
-                      rngs=rngs)
+                       kernel_init=kernel_init,
+                       bias_init=bias_init,
+                       rngs=rngs)
             for _ in range(num_layers - 2)
         ])
 
-        # Output layer: smaller initialization for stability
         self.linear_out = nnx.Linear(dhid, dout,
-                                    kernel_init=kernel_init,
-                                    bias_init=nnx.initializers.zeros,
-                                    rngs=rngs)
+                                     kernel_init=kernel_init,
+                                     bias_init=bias_init,
+                                     rngs=rngs)
 
-        # LayerNorm after each hidden activation to stabilize training
         self.norm_in = nnx.LayerNorm(dhid, rngs=rngs)
         self.norm_hidden = nnx.List([
             nnx.LayerNorm(dhid, rngs=rngs)
@@ -50,19 +37,16 @@ class MLP(nnx.Module):
         ])
 
     def __call__(self, x: jax.Array) -> jax.Array:
-        x = self.linear_in(x)
-        activation = nnx.leaky_relu
-        x = activation(x)
+        x = nnx.leaky_relu(self.linear_in(x))
         x = self.norm_in(x)
         for layer, norm in zip(self.linear_hidden, self.norm_hidden):
-            x = layer(x)
-            x = activation(x)
-            x = norm(x)
-        x = self.linear_out(x)
-        return x
+            x = norm(nnx.leaky_relu(layer(x)))
+        return self.linear_out(x)
 
 
 class GraphConv(nnx.Module):
+    """Self + neighbor linear message passing on a batched dense adjacency."""
+
     def __init__(self, din: int, dout: int, rngs: nnx.Rngs):
         kernel_init = nnx.initializers.he_normal()
         bias_init = nnx.initializers.zeros
@@ -114,6 +98,11 @@ def _normalized_topology_adjacency(session, raw_x):
     return adj_norm, degree
 
 
+# Per-bus features before the broadcast obj_weights: pd, qd, pder_avai (node-scattered),
+# status_mean, is_radial, degree. The obj_weights columns are appended on top of this.
+GCN_BASE_NODE_FEATURES = 6
+
+
 def _opf_node_features(session, x_norm, raw_x, degree):
     """Per-bus feature stack: loads, DER availability, and broadcast globals."""
     net = getattr(session, "net", session)
@@ -154,7 +143,6 @@ class OPFGCN(nnx.Module):
         self,
         node_features: int,
         dhid: int,
-        dout: int,
         num_layers: int,
         improved: bool,
         rngs: nnx.Rngs,
@@ -197,144 +185,3 @@ class OPFGCN(nnx.Module):
 
         y_pair = self.decoder_out(nnx.leaky_relu(self.decoder_hidden(h_der)))
         return jnp.concatenate([y_pair[:, :, 0], y_pair[:, :, 1]], axis=1)
-
-
-def compute_input_stats(
-    train_dataset,
-    session: OPFData,
-    *,
-    use_compact: bool = True,
-) -> tuple[jnp.ndarray, jnp.ndarray]:
-    """Compute mean and std for input normalization on NN features."""
-    layout = session.nn_layout
-    n = len(train_dataset)
-    chunks = []
-    for inputs_batch in train_dataset.batch(n):
-        full = inputs_batch.numpy()
-        if use_compact:
-            compact = np.asarray(
-                gather_nn_features_from_session(full, session), dtype=np.float64
-            )
-            chunks.append(compact)
-        else:
-            chunks.append(np.asarray(full, dtype=np.float64))
-    all_data = np.concatenate(chunks, axis=0)
-    input_mean = jnp.mean(all_data, axis=0)
-    input_std = jnp.std(all_data, axis=0)
-    din = int(all_data.shape[1])
-    expected = layout.din_compact if use_compact else layout.din_full
-    if din != expected:
-        raise ValueError(f"Input stats width {din} != expected {expected}")
-    log_input_stats(input_mean, input_std, layout)
-    return input_mean, input_std
-
-
-def create_train_state(din, dhid, dout, num_layers, scheduler, input_stat, data, rng, model_type="mlp"):
-    """Creates initial `TrainState`."""
-    model_type = model_type.lower()
-    if model_type == "mlp":
-        model = MLP(din=din, dhid=dhid, dout=dout, num_layers=num_layers, rngs=rng)
-    elif model_type in ("gcn", "modified_gcn"):
-        if getattr(data, "use_compact_nn", False):
-            raise ValueError(
-                "model_type gcn/modified_gcn requires full NN inputs; "
-                "set data.use_compact_nn = False before create_train_state."
-            )
-        obj_sl = data.slices["input"]["obj_weights"]
-        node_features = 6 + (obj_sl.stop - obj_sl.start)
-        model = OPFGCN(
-            node_features=node_features,
-            dhid=dhid,
-            dout=dout,
-            num_layers=num_layers,
-            improved=model_type == "modified_gcn",
-            rngs=rng,
-        )
-    else:
-        raise ValueError("model_type must be one of: mlp, gcn, modified_gcn")
-    graphdef, params, others = nnx.split(model, nnx.Param, ...)
-
-    input_mean, input_std = input_stat
-
-    def normalize_input(x):
-        normalized = (x - input_mean) / (input_std + jnp.asarray(_NORM_EPS, dtype=input_std.dtype))
-        return jnp.clip(normalized, -_INPUT_CLIP_MAX, _INPUT_CLIP_MAX)
-
-    net = getattr(data, "net", data)
-
-    def normalize_output(y_pred):
-        raw_pder = y_pred[:, :net.n_der_phase]
-        raw_qder = y_pred[:, net.n_der_phase:]
-
-        pder = nnx.sigmoid(raw_pder) * (net.pdermax - net.pdermin) + net.pdermin
-        qder = nnx.sigmoid(raw_qder) * (net.qdermax - net.qdermin) + net.qdermin
-        return jnp.concatenate([pder, qder], axis=1)
-
-    @jax.jit
-    def apply_fn(params, x):
-        model_with_params = nnx.merge(graphdef, params, others)
-        normalized_x = normalize_input(x)
-        if model_type == "mlp":
-            y_pred = model_with_params(normalized_x)
-        else:
-            y_pred = model_with_params(normalized_x, x, data)
-        return normalize_output(y_pred)
-        # return y_pred
-
-    # tx = optax.adamw(learning_rate=scheduler, weight_decay=1e-3)
-    # tx = optax.adam(learning_rate=scheduler)
-    tx = optax.chain(
-        optax.clip_by_global_norm(1.0),  # Clip gradients to avoid exploding gradients
-        # optax.adamw(learning_rate=scheduler, weight_decay=1e-4)
-        optax.adam(learning_rate=scheduler)
-        )
-
-    return train_state.TrainState.create(apply_fn=apply_fn, params=params, tx=tx)
-
-
-def create_train_state_full(din, dhid, dout, num_layers, scheduler, input_stat, data, rng):
-    """Creates initial `TrainState`."""
-    model = MLP(din=din, dhid=dhid, dout=dout, num_layers=num_layers, rngs=rng)
-    graphdef, params, others = nnx.split(model, nnx.Param, ...)
-
-    input_mean, input_std = input_stat
-
-    def normalize_input(x):
-        normalized = (x - input_mean) / (input_std + jnp.asarray(_NORM_EPS, dtype=input_std.dtype))
-        return jnp.clip(normalized, -_INPUT_CLIP_MAX, _INPUT_CLIP_MAX)
-
-    net = getattr(data, "net", data)
-
-    def normalize_output(y_pred):
-        raw_pder = y_pred[:, :net.n_der_phase]
-        raw_qder = y_pred[:, net.n_der_phase:2 * net.n_der_phase]
-        raw_vr = y_pred[:, 2 * net.n_der_phase : 2 * net.n_der_phase + net.n_net]
-        raw_vi = y_pred[:, 2 * net.n_der_phase + net.n_net : 2 * net.n_der_phase + 2 * net.n_net]
-
-        pder = nnx.sigmoid(raw_pder) * (net.pdermax - net.pdermin) + net.pdermin
-        qder = nnx.sigmoid(raw_qder) * (net.qdermax - net.qdermin) + net.qdermin
-        vr = nnx.sigmoid(raw_vr) * (net.vrmax - net.vrmin) + net.vrmin
-        vi = nnx.sigmoid(raw_vi) * (net.vimax - net.vimin) + net.vimin
-        return jnp.concatenate([pder, qder, vr, vi], axis=1)
-
-    @jax.jit
-    def apply_fn(params, x):
-        model_with_params = nnx.merge(graphdef, params, others)
-        normalized_x = normalize_input(x)
-        y_pred = model_with_params(normalized_x)
-        return normalize_output(y_pred)
-        # return y_pred
-
-    # tx = optax.adamw(learning_rate=scheduler, weight_decay=1e-3)
-    # tx = optax.adam(learning_rate=scheduler)
-    tx = optax.chain(
-        optax.clip_by_global_norm(1.0),  # Clip gradients to avoid exploding gradients
-        optax.adam(learning_rate=scheduler)
-        )
-
-    return train_state.TrainState.create(apply_fn=apply_fn, params=params, tx=tx)
-
-
-@jax.jit
-def update_model(state, grads):
-    return state.apply_gradients(grads=grads)
