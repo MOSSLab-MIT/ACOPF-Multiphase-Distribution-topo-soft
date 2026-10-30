@@ -1,0 +1,38 @@
+# IEEE 13-node feeder.
+#
+# seed:         training seeds (one Slurm array task each)
+# slurm:        per-grid sbatch options (key: value -> --key=value)
+# args:         training args shared by every method (key: value -> --key value)
+# method_args:  extra args per method family (methods/<family>/train.py); override `args`
+# test_sets:    names -> datagen_topo/datasets/<case_dir>/<case_dir>_test_<name>.h5
+#               (first entry is the reference test set)
+
+case_dir: IEEE13Nodeckt
+seed: [1, 2, 3]   # one Slurm array task per seed
+
+slurm:
+  time: "12:00:00"
+  mem: 32G
+  partition: pi_donti_gpu,mit_preemptable
+
+args:
+  num_layers: 4
+  hidden_size: 512
+  learning_rate: 5.0e-5
+  batch_size: 32
+  power_flow_solver: fixed_point
+  train_samples: 200000
+  eval_samples: 2000
+  test_samples: 2000
+
+method_args:
+  penalty_pf:
+    epochs: 10
+  penalty_direct:
+    epochs: 20
+
+test_sets:
+  core: [feasible, feasible_high_load_low_der, feasible_low_load_high_der]
+  full: [feasible, feasible_high_load_low_der, feasible_low_load_high_der,
+         feasible_shifted_m01_std01, feasible_shifted_m02_std02, feasible_shifted_m03_std03,
+         feasible_shifted_m04_std04, feasible_shifted_m05_std05, feasible_oor_load]

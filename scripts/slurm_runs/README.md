@@ -1,229 +1,83 @@
-# Slurm training job configs
+# Slurm training jobs
 
-YAML-driven job matrices for batch training on Slurm. Each config expands into
-`methods × grids × seeds` jobs, generates `jobs.jsonl` + `submit.sh`, and runs
-training entrypoints under `methods/*/train.py`.
+One script per method, one YAML config per grid. Run a method script directly: it calls
+`sbatch` on itself once per grid (one array task per seed) and exits.
 
-**One YAML per method family / ablation:**
+```
+scripts/slurm_runs/
+├── penalty_pf.sbatch                   # Penalty PF
+├── penalty_direct.sbatch               # Penalty Direct        (knob: RHO=<rho_eq_init>, default 100)
+├── penalty_pf_gcn.sbatch               # Penalty PF, GCN backbone
+├── penalty_pf_regime_ablation.sbatch   # Penalty PF on <case>_training_<TRAIN_SUFFIX>.h5 (knob required)
+├── common.sh                           # shared submit / job setup, sourced by every method script
+├── grid_config.py                      # prints configs/<grid>.yaml as bash variables
+├── configs/
+│   └── 13.yaml  123.yaml  240.yaml  906.yaml  8500.yaml   # per-grid seeds, resources, args, test sets
+└── manual/                             # one-off hand-written sbatch scripts
+```
 
-| Method | Config | Output dir | Results |
-|--------|--------|------------|---------|
-| Penalty PF (rho sweep) | [`train_jobs_penalty_pf.yaml`](train_jobs_penalty_pf.yaml) | `penalty_pf/` | `results/penalty_pf/` |
-| Penalty PF (GCN) | [`train_jobs_penalty_pf_gcn.yaml`](train_jobs_penalty_pf_gcn.yaml) | `penalty_pf_gcn/` | `results/penalty_pf_gcn/` |
-| Penalty direct (rho sweep) | [`train_jobs_penalty_direct.yaml`](train_jobs_penalty_direct.yaml) | `penalty_direct/` | `results/penalty_direct/` |
-| Penalty PF regime ablation | [`train_jobs_regime_ablation_penalty_pf.yaml`](train_jobs_regime_ablation_penalty_pf.yaml) | `penalty_pf_regime_ablation/` | `results/penalty_pf_regime_ablation/` |
+- **Grid config** (`configs/<grid>.yaml`):
+  ```yaml
+  case_dir: IEEE13Nodeckt
+  seed:         [1, 2, 3]                                       # one array task per seed
+  slurm:        {time: "12:00:00", mem: 32G, partition: ...}   # -> --time=... --mem=...
+  args:         {num_layers: 4, hidden_size: 512, ...}          # all methods
+  method_args:  {penalty_pf: {epochs: 10}, penalty_direct: {epochs: 20}}  # per family, overrides args
+  test_sets:    {core: [feasible, ...], full: [feasible, ...]}  # first = reference test set
+  ```
+- **Method script** (`<method>.sbatch`): sets `METHOD`, `FAMILY`, the default `GRIDS`
+  (`123 240 8500`) and sources `common.sh`, then builds and runs `methods/<FAMILY>/train.py`.
+  - Run from a login node: `common.sh` submits the script for each grid with the grid's seeds
+    and Slurm options, job name `<method>_<grid>`, and logs in `logs/training/<method>/`.
+  - Inside the job: `common.sh` loads the grid config (`CASE_DIR`, `DATA`, `GRID_ARGS`,
+    `TEST_CORE_H5`, `TEST_FULL_H5`) and sets `SEED` from the array index.
 
-All commands assume the **repository root** and the `new_opt` conda environment.
+Jobs activate `new_opt` themselves; so does the submit step (for PyYAML). Don't pass a
+method script to `sbatch` yourself; it refuses to run that way.
 
-## Quick start
-
-Generate and submit each method separately (`group_by_resource: true` emits one
-`submit_<profile>.sh` per resource profile):
+## Submit
 
 ```bash
-conda activate new_opt
-cd /path/to/ACOPF-Multiphase-Distribution-topo
+scripts/slurm_runs/penalty_pf.sbatch                   # grids 123 240 8500, seeds from each config
+scripts/slurm_runs/penalty_pf.sbatch 13                # just grid 13
+DRY_RUN=1 scripts/slurm_runs/penalty_pf.sbatch         # print sbatch + training commands only
 
-# Penalty PF (rho sweep + no-topo ablation)
-python scripts/slurm_runs/train_jobs.py generate \
-  --config scripts/slurm_runs/train_jobs_penalty_pf.yaml
-sbatch scripts/slurm_runs/penalty_pf/submit_small.sh
-sbatch scripts/slurm_runs/penalty_pf/submit_medium.sh
-sbatch scripts/slurm_runs/penalty_pf/submit_large.sh
+# Penalty Direct rho sweep
+for rho in 10 100 500 1000; do RHO=$rho scripts/slurm_runs/penalty_direct.sbatch; done
 
-# Penalty direct (rho_eq = rho_ineq sweep: 10, 100, 500, 1000)
-python scripts/slurm_runs/train_jobs.py generate \
-  --config scripts/slurm_runs/train_jobs_penalty_direct.yaml
-sbatch scripts/slurm_runs/penalty_direct/submit_small.sh
+# GCN
+scripts/slurm_runs/penalty_pf_gcn.sbatch
 
-# Penalty PF GCN (rho=1e5)
-python scripts/slurm_runs/train_jobs.py generate \
-  --config scripts/slurm_runs/train_jobs_penalty_pf_gcn.yaml
-sbatch scripts/slurm_runs/penalty_pf_gcn/submit_small.sh
+# Regime-weight ablation (seed 1 by default)
+for s in 060_005_035 060_035_005 060_020_020 l02_u08; do
+  TRAIN_SUFFIX=$s scripts/slurm_runs/penalty_pf_regime_ablation.sbatch
+done
 ```
 
-Preview jobs without generating files:
+Options:
 
-```bash
-python scripts/slurm_runs/train_jobs.py list \
-  --config scripts/slurm_runs/train_jobs_penalty_pf.yaml
-```
+- Leading arguments are grids (`penalty_pf.sbatch 13 906`); they replace the script's `GRIDS`.
+- Change the default grids: edit `GRIDS=(...)` near the top of the method script.
+- Change the seeds: edit `seed:` in `configs/<grid>.yaml`. For a one-off run,
+  `SEEDS=1,4` or `SEEDS=1-5` overrides it for every grid. The regime ablation defaults to `SEEDS=1`.
+- Options after the grids go to `sbatch` and override the grid defaults, e.g.
+  `penalty_direct.sbatch 240 --time=24:00:00 --partition=pi_donti_gpu`.
+- `--test-only` (as an sbatch option) asks Slurm to validate each job without submitting.
 
-Dry-run one job locally:
+## Results and logs
 
-```bash
-python scripts/slurm_runs/train_jobs.py run \
-  --jobs scripts/slurm_runs/penalty_pf/jobs.jsonl \
-  --method penalty_pf_rho1e5 --grid 13 --seed 1 --dry-run
-```
+- Checkpoints: `results/<method dir>/<CASE_DIR>_<suffix>/seed_<seed>/`, e.g.
+  `results/penalty_pf/IEEE13Nodeckt_penalty_pf/seed_1/`,
+  `results/penalty_direct/IEEE123Master_penalty_direct_rho500/seed_2/`,
+  `results/penalty_pf_regime_ablation/IEEE13Nodeckt_penalty_pf_060_035_005/seed_1/`.
+- Slurm logs: `logs/training/<method>/<method>_<grid>_seed<seed>_<jobid>.{out,err}`.
+  The first line of each log is the results directory, the second the full command.
 
-CLI entrypoint: [`train_jobs.py`](train_jobs.py).
+## Adding things
 
-After `generate`, artifacts land in `scripts/slurm_runs/<config.name>/`:
-
-- `jobs.jsonl` — one JSON record per array task (includes full `command`)
-- `submit_<profile>.sh` — Slurm array script(s)
-- `README.md` — auto-generated summary
-
-Regenerate whenever you edit a YAML config.
-
-## Results layout
-
-```
-{results_dir}/{case_name}/seed_{seed}/
-```
-
-Examples:
-
-- `results/penalty_pf/IEEE13Nodeckt_penalty_pf_rho1e5/seed_1/` — Penalty PF, rho=1e5
-- `results/penalty_pf/IEEE13Nodeckt_penalty_pf_rho1e5_no_topo/seed_1/` — Penalty PF without topo NN input
-- `results/penalty_pf_gcn/IEEE13Nodeckt_penalty_pf_rho1e5_gcn/seed_1/` — Penalty PF GCN, rho=1e5
-- `results/penalty_direct/IEEE13Nodeckt_penalty_direct_rho500/seed_1/` — Penalty direct, rho=500
-
-Different hyperparameter values use different `case_suffix` values so checkpoints
-never collide.
-
-Slurm logs: `logs/training/<config.name>/`.
-
-## Config summaries
-
-### `train_jobs_penalty_pf.yaml` — 60 jobs (4 × 5 × 3)
-
-| Method key | case_suffix | `rho` |
-|------------|-------------|-------|
-| `penalty_pf_rho1e4` | `penalty_pf_rho1e4` | 1e4 |
-| `penalty_pf_rho1e5` | `penalty_pf_rho1e5` | 1e5 |
-| `penalty_pf_rho1e5_no_topo` | `penalty_pf_rho1e5_no_topo` | 1e5, no topo NN input |
-| `penalty_pf_rho1e6` | `penalty_pf_rho1e6` | 1e6 |
-
-(`penalty_pf_rho1e3` is defined as a profile but not in the default matrix.)
-
-### `train_jobs_penalty_pf_gcn.yaml` — 12 jobs (1 × 4 × 3)
-
-| Method key | case_suffix | Notes |
-|------------|-------------|-------|
-| `penalty_pf_rho1e5_gcn` | `penalty_pf_rho1e5_gcn` | `model_type=gcn`, `rho=1e5` |
-
-Grids: 13, 123, 240, 906.
-
-### `train_jobs_penalty_direct.yaml` — 60 jobs (4 × 5 × 3)
-
-| Method key | case_suffix | `rho_eq_init` = `rho_ineq_init` |
-|------------|-------------|----------------------------------|
-| `penalty_direct_rho10` | `penalty_direct_rho10` | 10 |
-| `penalty_direct_rho100` | `penalty_direct_rho100` | 100 |
-| `penalty_direct_rho500` | `penalty_direct_rho500` | 500 |
-| `penalty_direct_rho1000` | `penalty_direct_rho1000` | 1000 |
-
-All variants use `rho_rate=0`, `rho_decay_rate=1` (penalty fixed at init).
-
-## YAML structure
-
-```yaml
-name: penalty_pf              # → scripts/slurm_runs/penalty_pf/
-
-matrix:
-  methods: [penalty_pf_rho1e5, penalty_pf_rho1e5_no_topo]
-  grids: ["13", "123"]
-  seeds: [1, 2, 3, 4, 5]
-
-results_dir: results
-max_parallel: 8
-
-method_profiles:
-  penalty_pf_rho1e5:
-    entrypoint: methods/penalty_pf/train.py
-    case_suffix: penalty_pf_rho1e5
-    args:
-      rho: 1.0e5
-
-grid_profiles:
-  "13":
-    case_dir: IEEE13Nodeckt
-    resource_profile: small
-    val_h5: datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5
-    test_variants: [...]   # post-training evaluation only
-    method_overrides:
-      penalty_pf_rho1e5:
-        batch_size: 32
-```
-
-**Arg merge order** (later wins): grid defaults → `method_profiles.args` → `method_overrides`.
-
-`val_h5` is passed as `--val_h5` for in-epoch validation. Cost normalization uses
-`val_h5` when set, otherwise the reference test HDF5 (first `test_variants` entry).
-`test_variants` maps to `--test_h5_variants` for post-training evaluation only.
-
-## Adding variants
-
-Each distinct hyperparameter or ablation needs its own method profile with a
-unique `case_suffix`. See the rho sweep configs for the
-pattern. Prefer a dedicated YAML rather than merging sweeps into one file.
-
-## Regime-weight ablation (W0–W3)
-
-Train Penalty PF on suffixed training HDF5 generated by
-`datagen_topo/gen_scripts/cluster/run_datagen.sh` (see its README). The default
-unsuffixed `<case>_training.h5` (W0, all-base mix) is **not** re-trained in the
-ablation matrix; compare against existing default training runs.
-
-| Config | Output dir | Results |
-|--------|------------|---------|
-| [`train_jobs_regime_ablation_penalty_pf.yaml`](train_jobs_regime_ablation_penalty_pf.yaml) | `penalty_pf_regime_ablation/` | `results/penalty_pf_regime_ablation/` |
-
-**Training HDF5 suffixes** (per grid, 12 files total):
-
-| Label | Weights (base / high / low) | Load scale (base) | `train_h5` suffix |
-|-------|-----------------------------|-------------------|-------------------|
-| W0 (default, not in ablation) | 1.0 / 0.0 / 0.0 | [0.2, 1.5] | *(unsuffixed)* `<case>_training.h5` |
-| W1 | 0.6 / 0.05 / 0.35 | [0.2, 1.5] | `060_005_035` |
-| W2 | 0.6 / 0.35 / 0.05 | [0.2, 1.5] | `060_035_005` |
-| W3 | 0.6 / 0.2 / 0.2 | [0.2, 1.5] | `060_020_020` |
-| OOR load cap | 1.0 / 0.0 / 0.0 | [0.2, 0.8] | `l02_u08` |
-
-Paths: `datagen_topo/datasets/<case>/<case>_training_<suffix>.h5`
-
-**W0 baseline results** (for comparison):
-
-- Penalty PF: `results/penalty_pf/IEEE13Nodeckt_penalty_pf_rho1e5/seed_1/`
-
-Each ablation job uses `matrix.train_variants` and `ablation_case_token` in the
-method profile. Example `case_name`:
-`IEEE13Nodeckt_penalty_pf_060_035_005`.
-
-```bash
-# Verify suffixed HDF5 exist, then generate
-python scripts/slurm_runs/train_jobs.py generate \
-  --config scripts/slurm_runs/train_jobs_regime_ablation_penalty_pf.yaml \
-  --check-train-h5
-
-python scripts/slurm_runs/train_jobs.py list \
-  --config scripts/slurm_runs/train_jobs_regime_ablation_penalty_pf.yaml
-
-# Dry-run one job
-python scripts/slurm_runs/train_jobs.py run \
-  --jobs scripts/slurm_runs/penalty_pf_regime_ablation/jobs.jsonl \
-  --index 0 --dry-run
-
-# Submit both resource groups (13/123 small, 240 medium). Do not override `--array`.
-sbatch scripts/slurm_runs/penalty_pf_regime_ablation/submit_small.sh
-sbatch scripts/slurm_runs/penalty_pf_regime_ablation/submit_medium.sh
-
-python scripts/slurm_runs/train_jobs.py verify \
-  --jobs-dir scripts/slurm_runs/penalty_pf_regime_ablation
-```
-
-Post-training evaluation runs automatically inside `train.py` via
-`--test_h5_variants` (no separate `test.py` jobs). Filter a single variant
-locally with `--train-suffix` on the `run` subcommand.
-
-## Slurm resources
-
-`resources` defines `small` / `medium` / `large` profiles. Each grid sets
-`resource_profile`. Edit `partition`, `gpu_type`, etc. for your cluster.
-
-Set `group_by_resource: true` to emit separate `submit_<profile>.sh` scripts.
-Each generated script documents the `jobs.jsonl` indices it runs and rejects
-stale `sbatch --array=...` overrides at job start. After `generate`, run
-`train_jobs.py verify --jobs-dir <output_dir>` to confirm arrays match
-`jobs.jsonl`.
+- **New grid**: copy `configs/13.yaml` to `configs/<grid>.yaml` and edit.
+- **New method / ablation**: copy the closest `<method>.sbatch` to `<new>.sbatch`, set
+  `METHOD=<new>`, and change its args, `CASE_NAME` and `RESULTS_DIR`. Distinct settings
+  need distinct `CASE_NAME`s so checkpoints never collide.
+- **Change a grid's hyperparameter**: edit `args` in `configs/<grid>.yaml` (every method)
+  or `method_args.<family>` (one method family only).

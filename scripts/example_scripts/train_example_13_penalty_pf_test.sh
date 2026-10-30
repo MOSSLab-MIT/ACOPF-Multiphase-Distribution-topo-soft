@@ -3,10 +3,9 @@
 
 TRAIN_H5="datagen_topo/datasets/IEEE13_test/IEEE13_test_training.h5"
 VAL_H5="datagen_topo/datasets/IEEE13_test/IEEE13_test_test_feasible.h5"
-# Slots 1–2: bare paths → mandatory feasible_only + infeasible_only; further entries: name=path.
+# First entry (bare path) is the reference test set; further entries: name=path.
 TEST_H5_VARIANTS=(
     "datagen_topo/datasets/IEEE13_test/IEEE13_test_test_feasible.h5"
-    "datagen_topo/datasets/IEEE13_test/IEEE13_test_test_infeasible.h5"
     "feasible_high_load_low_der=datagen_topo/datasets/IEEE13_test/IEEE13_test_test_feasible_high_load_low_der.h5"
     "feasible_low_load_high_der=datagen_topo/datasets/IEEE13_test/IEEE13_test_test_feasible_low_load_high_der.h5"
 )
@@ -27,9 +26,6 @@ LEARNING_RATE=0.5e-4
 TRAIN_SAMPLES=200000
 EVAL_SAMPLES=2000
 TEST_SAMPLES=2000
-
-# Penalty (fixed rho for entire run)
-RHO=1e5
 
 LOG_EVERY=1
 EVAL_EVERY=1
@@ -54,7 +50,6 @@ python methods/penalty_pf/train.py \
     --eval_samples $EVAL_SAMPLES \
     --test_samples $TEST_SAMPLES \
     --learning_rate $LEARNING_RATE \
-    --rho $RHO \
     --save_every 100 \
     --log_every $LOG_EVERY \
     --eval_every $EVAL_EVERY \

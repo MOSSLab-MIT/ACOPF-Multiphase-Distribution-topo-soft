@@ -3,10 +3,9 @@
 
 TRAIN_H5="datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_training.h5"
 VAL_H5="datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5"
-# Slots 1–2: bare paths → mandatory feasible_only + infeasible_only; further entries: name=path.
+# First entry (bare path) is the reference test set; further entries: name=path.
 TEST_H5_VARIANTS=(
     "datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5"
-    "datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_infeasible.h5"
     "feasible_high_load_low_der=datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_high_load_low_der.h5"
     "feasible_low_load_high_der=datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_low_load_high_der.h5"
 )
@@ -28,9 +27,8 @@ TRAIN_SAMPLES=200000
 EVAL_SAMPLES=2000
 TEST_SAMPLES=2000
 
-# Adaptive penalty configuration
+# Adaptive power-flow equality penalty configuration
 RHO_EQ_INIT=100
-RHO_INEQ_INIT=100
 RHO_RATE=0
 VIOLATION_THRESHOLD=1e-3
 RHO_DECAY_RATE=1.0
@@ -59,7 +57,6 @@ python methods/penalty_direct/train.py \
     --test_samples $TEST_SAMPLES \
     --learning_rate $LEARNING_RATE \
     --rho_eq_init $RHO_EQ_INIT \
-    --rho_ineq_init $RHO_INEQ_INIT \
     --rho_rate $RHO_RATE \
     --violation_threshold $VIOLATION_THRESHOLD \
     --rho_decay_rate $RHO_DECAY_RATE \

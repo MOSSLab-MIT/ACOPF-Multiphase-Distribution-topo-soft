@@ -15,11 +15,11 @@
 #
 # From repository root:
 #   mkdir -p logs/testing/penalty_direct
-#   sbatch scripts/slurm_runs/penalty_direct/retest_123_rho100_speedup.sh
+#   sbatch scripts/slurm_runs/manual/retest_123_rho100_speedup.sh
 
 set -euo pipefail
 
-if [ -n "${SLURM_SUBMIT_DIR:-}" ] && [ -f "$SLURM_SUBMIT_DIR/scripts/slurm_runs/train_jobs.py" ]; then
+if [ -n "${SLURM_SUBMIT_DIR:-}" ] && [ -f "$SLURM_SUBMIT_DIR/methods/penalty_direct/test.py" ]; then
   PROJECT_DIR="$SLURM_SUBMIT_DIR"
 else
   SUBMIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -79,7 +79,6 @@ python methods/penalty_direct/test.py \
   --test_samples 2000 \
   --train_samples 200000 \
   --test_h5_variants \
-    "${CASE_DIR}/IEEE123Master_test_feasible.h5" \
-    "${CASE_DIR}/IEEE123Master_test_infeasible.h5"
+    "${CASE_DIR}/IEEE123Master_test_feasible.h5"
 
 echo "Done seed=${SEED}"

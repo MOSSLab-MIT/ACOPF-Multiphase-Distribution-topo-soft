@@ -26,9 +26,6 @@ TRAIN_SAMPLES=200000
 EVAL_SAMPLES=2000
 TEST_SAMPLES=2000
 
-# Penalty (fixed rho for entire run)
-RHO=1e5
-
 LOG_EVERY=1
 EVAL_EVERY=1
 
@@ -52,7 +49,6 @@ python methods/penalty_pf/train.py \
     --eval_samples $EVAL_SAMPLES \
     --test_samples $TEST_SAMPLES \
     --learning_rate $LEARNING_RATE \
-    --rho $RHO \
     --save_every 100 \
     --log_every $LOG_EVERY \
     --eval_every $EVAL_EVERY \

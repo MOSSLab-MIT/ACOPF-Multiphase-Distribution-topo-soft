@@ -5,7 +5,6 @@ TRAIN_H5="datagen_topo/datasets/240bus_Master/240bus_Master_training.h5"
 VAL_H5="datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible.h5"
 TEST_H5_VARIANTS=(
     "datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible.h5"
-    "datagen_topo/datasets/240bus_Master/240bus_Master_test_infeasible.h5"
     "datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible_high_load_low_der.h5"
     "datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible_low_load_high_der.h5"
 )
@@ -26,9 +25,6 @@ LEARNING_RATE=0.5e-4
 TRAIN_SAMPLES=200000
 EVAL_SAMPLES=2000
 TEST_SAMPLES=2000
-
-# Penalty (fixed rho for entire run)
-RHO=1e5
 
 LOG_EVERY=1
 EVAL_EVERY=1
@@ -53,7 +49,6 @@ python methods/penalty_pf/train.py \
     --eval_samples $EVAL_SAMPLES \
     --test_samples $TEST_SAMPLES \
     --learning_rate $LEARNING_RATE \
-    --rho $RHO \
     --save_every 100 \
     --log_every $LOG_EVERY \
     --eval_every $EVAL_EVERY \

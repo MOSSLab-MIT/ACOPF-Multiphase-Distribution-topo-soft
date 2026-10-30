@@ -2,13 +2,13 @@
 # Submit parallel Slurm jobs for fixed-reference linear OPF on standard grids.
 #
 # Submit (from repository root):
-#   bash scripts/run_linear_opf_all_grids.sh
-#   bash scripts/run_linear_opf_all_grids.sh 13 906
-#   NUM_SHARDS=8 bash scripts/run_linear_opf_all_grids.sh 8500
+#   bash scripts/slurm_runs/run_linear_opf_all_grids.sh
+#   bash scripts/slurm_runs/run_linear_opf_all_grids.sh 13 906
+#   NUM_SHARDS=8 bash scripts/slurm_runs/run_linear_opf_all_grids.sh 8500
 #
 # Worker mode (invoked by sbatch; do not call directly):
-#   bash scripts/run_linear_opf_all_grids.sh --worker 13 feasible 0 1
-#   bash scripts/run_linear_opf_all_grids.sh --merge 8500 feasible
+#   bash scripts/slurm_runs/run_linear_opf_all_grids.sh --worker 13 feasible 0 1
+#   bash scripts/slurm_runs/run_linear_opf_all_grids.sh --merge 8500 feasible
 #
 # Environment overrides (passed through sbatch --export=ALL):
 #   RESULTS_DIR      default: results/linear_opf
@@ -21,7 +21,7 @@
 set -euo pipefail
 
 SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 RESULTS_DIR="${RESULTS_DIR:-results/linear_opf}"
 TEST_SAMPLES="${TEST_SAMPLES:-2000}"
@@ -122,7 +122,6 @@ list_variant_names() {
   case "$grid_key" in
     13|123|240|906|8500)
       # echo "feasible"
-      echo "infeasible"
       echo "feasible_high_load_low_der"
       echo "feasible_low_load_high_der"
       ;;
@@ -305,7 +304,7 @@ if [[ "${1:-}" == "--worker" ]]; then
     exit 1
   fi
 
-  if [ -n "${SLURM_SUBMIT_DIR:-}" ] && [ -f "$SLURM_SUBMIT_DIR/scripts/run_linear_opf_all_grids.sh" ]; then
+  if [ -n "${SLURM_SUBMIT_DIR:-}" ] && [ -f "$SLURM_SUBMIT_DIR/scripts/slurm_runs/run_linear_opf_all_grids.sh" ]; then
     PROJECT_DIR="$SLURM_SUBMIT_DIR"
   fi
   cd "$PROJECT_DIR"
@@ -320,7 +319,7 @@ if [[ "${1:-}" == "--merge" ]]; then
     exit 1
   fi
 
-  if [ -n "${SLURM_SUBMIT_DIR:-}" ] && [ -f "$SLURM_SUBMIT_DIR/scripts/run_linear_opf_all_grids.sh" ]; then
+  if [ -n "${SLURM_SUBMIT_DIR:-}" ] && [ -f "$SLURM_SUBMIT_DIR/scripts/slurm_runs/run_linear_opf_all_grids.sh" ]; then
     PROJECT_DIR="$SLURM_SUBMIT_DIR"
   fi
   cd "$PROJECT_DIR"
