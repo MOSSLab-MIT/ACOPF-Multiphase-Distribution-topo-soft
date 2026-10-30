@@ -23,6 +23,7 @@ scripts/slurm_runs/
   slurm:        {time: "12:00:00", mem: 32G, partition: ...}   # -> --time=... --mem=...
   args:         {num_layers: 4, hidden_size: 512, ...}          # all methods
   method_args:  {penalty_pf: {epochs: 10}, penalty_direct: {epochs: 20}}  # per family, overrides args
+  val_set:      feasible_validation                             # -> <case_dir>_test_<val_set>.h5 (--val_h5)
   test_sets:    {core: [feasible, ...], full: [feasible, ...]}  # first = reference test set
   ```
 - **Method script** (`<method>.sbatch`): sets `METHOD`, `FAMILY`, the default `GRIDS`
@@ -30,7 +31,7 @@ scripts/slurm_runs/
   - Run from a login node: `common.sh` submits the script for each grid with the grid's seeds
     and Slurm options, job name `<method>_<grid>`, and logs in `logs/training/<method>/`.
   - Inside the job: `common.sh` loads the grid config (`CASE_DIR`, `DATA`, `GRID_ARGS`,
-    `TEST_CORE_H5`, `TEST_FULL_H5`) and sets `SEED` from the array index.
+    `VAL_H5`, `TEST_CORE_H5`, `TEST_FULL_H5`) and sets `SEED` from the array index.
 
 Jobs activate `new_opt` themselves; so does the submit step (for PyYAML). Don't pass a
 method script to `sbatch` yourself; it refuses to run that way.

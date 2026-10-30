@@ -2,7 +2,7 @@
 # Example training script for Penalty PF method on IEEE 123-bus case
 
 TRAIN_H5="datagen_topo/datasets/240bus_Master/240bus_Master_training.h5"
-VAL_H5="datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible.h5"
+VAL_H5="datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible_validation.h5"
 TEST_H5_VARIANTS=(
     "datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible.h5"
     "datagen_topo/datasets/240bus_Master/240bus_Master_test_feasible_high_load_low_der.h5"

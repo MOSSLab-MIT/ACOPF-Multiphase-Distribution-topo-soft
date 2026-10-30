@@ -9,8 +9,8 @@
 #   anything is submitted.
 #   Env: SEEDS     Slurm array spec overriding the config's seeds, e.g. 1 or 1,4 or 1-5
 #        DRY_RUN=1 print the sbatch commands and each seed's training command only
-# Inside a job: "$@" = <grid>. Defines GRID, SEED, CASE_DIR, DATA, GRID_ARGS, TEST_CORE_H5,
-#   TEST_FULL_H5.
+# Inside a job: "$@" = <grid>. Defines GRID, SEED, CASE_DIR, DATA, GRID_ARGS, VAL_H5,
+#   TEST_CORE_H5, TEST_FULL_H5.
 
 if [ -z "${SLURM_ARRAY_TASK_ID:-}" ] && [ "${ENVIRONMENT:-}" = BATCH ]; then
   echo "ERROR: run scripts/slurm_runs/$METHOD.sbatch directly (it calls sbatch itself), not via sbatch" >&2
@@ -65,6 +65,6 @@ fi
 
 GRID="${1:?usage: $METHOD.sbatch <grid> (inside a job)}"
 SEED="$SLURM_ARRAY_TASK_ID"
-# Grid config (configs/$GRID.yaml) -> CASE_DIR, DATA, GRID_ARGS, TEST_CORE_H5, TEST_FULL_H5
+# Grid config (configs/$GRID.yaml) -> CASE_DIR, DATA, GRID_ARGS, VAL_H5, TEST_CORE_H5, TEST_FULL_H5
 GRID_VARS="$(python scripts/slurm_runs/grid_config.py "$GRID" "$FAMILY")"
 eval "$GRID_VARS"

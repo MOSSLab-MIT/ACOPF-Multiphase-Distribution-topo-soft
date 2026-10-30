@@ -4,7 +4,7 @@
 #SBATCH --output=/home/hoangh/orcd/scratch/Projects/ACOPF-Multiphase-Distribution-topo-soft/logs/datagen/datagen-%A_%a.out
 #SBATCH --error=/home/hoangh/orcd/scratch/Projects/ACOPF-Multiphase-Distribution-topo-soft/logs/datagen/datagen-%A_%a.err
 #SBATCH -p pi_donti,mit_preemptable
-#SBATCH --time=4-00:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --cpus-per-task=24
 #SBATCH --mem=64G
 
@@ -16,26 +16,28 @@
 
 JOBS=(
   # "training 13 training_defaults.json"
-  # "testing 13  testing_defaults.json"
-  "testing 13  val_defaults.json"
+  # "testing 13 testing_defaults.json"
+  # "testing 13 val_defaults.json"
+  # "testing 13 testing_high_load_low_der.json"
+  # "testing 13 testing_low_load_high_der.json"
 
   # "training 123 training_defaults.json"
   # "testing 123 testing_defaults.json"
-  "testing 123  val_defaults.json"
+  # "testing 123 val_defaults.json"
   # "testing 123 testing_high_load_low_der.json"
   # "testing 123 testing_low_load_high_der.json"
+
   # "training 240 training_defaults.json"
   # "testing 240 testing_defaults.json"
   # "testing 240 testing_high_load_low_der.json"
-  "testing 240  val_defaults.json"
+  # "testing 240  val_defaults.json"
   # "testing 240 testing_low_load_high_der.json"
-  # "training 906 training_defaults.json"
-  # "testing 906 testing_defaults.json"
-  # "training 8500 training_defaults.json"
-  # "testing 8500 testing_defaults.json"
-  # "testing 8500  val_defaults.json"
-  # "testing 8500 testing_high_load_low_der.json"
-  # "testing 8500 testing_low_load_high_der.json"
+
+  "training 8500 training_defaults.json"
+  "testing 8500 testing_defaults.json"
+  "testing 8500  val_defaults.json"
+  "testing 8500 testing_high_load_low_der.json"
+  "testing 8500 testing_low_load_high_der.json"
 )
 
 set -euo pipefail

@@ -1,5 +1,5 @@
 TRAIN_H5="datagen_topo/datasets/8500_Master/8500_Master_training.h5"
-VAL_H5="datagen_topo/datasets/8500_Master/8500_Master_test_feasible.h5"
+VAL_H5="datagen_topo/datasets/8500_Master/8500_Master_test_feasible_validation.h5"
 TEST_H5_VARIANTS=(
     "datagen_topo/datasets/8500_Master/8500_Master_test_feasible.h5"
     "datagen_topo/datasets/8500_Master/8500_Master_test_feasible_low_load_high_der.h5"

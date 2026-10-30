@@ -4,6 +4,7 @@
 # slurm:        per-grid sbatch options (key: value -> --key=value)
 # args:         training args shared by every method (key: value -> --key value)
 # method_args:  extra args per method family (methods/<family>/train.py); override `args`
+# val_set:      name -> datagen_topo/datasets/<case_dir>/<case_dir>_test_<name>.h5 (--val_h5)
 # test_sets:    names -> datagen_topo/datasets/<case_dir>/<case_dir>_test_<name>.h5
 #               (first entry is the reference test set)
 
@@ -13,7 +14,7 @@ seed: [1, 2, 3]   # one Slurm array task per seed
 slurm:
   time: "12:00:00"
   mem: 32G
-  partition: pi_donti_gpu,mit_preemptable
+  partition: pi_donti_gpu,pi_donti_gpu_preemptable,mit_preemptable
 
 args:
   num_layers: 4
@@ -30,6 +31,8 @@ method_args:
     epochs: 10
   penalty_direct:
     epochs: 20
+
+val_set: feasible_validation
 
 test_sets:
   core: [feasible, feasible_high_load_low_der, feasible_low_load_high_der]

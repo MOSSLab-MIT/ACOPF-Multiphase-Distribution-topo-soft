@@ -6,7 +6,7 @@ seed: [1, 2, 3]   # one Slurm array task per seed
 slurm:
   time: "47:50:00"
   mem: 200G
-  partition: pi_donti_gpu,mit_preemptable,mit_normal_gpu
+  partition: pi_donti_gpu,pi_donti_gpu_preemptable,mit_preemptable
 
 args:
   num_layers: 4
@@ -20,10 +20,12 @@ args:
 
 method_args:
   penalty_pf:
-    epochs: 5
+    epochs: 7
     warmup_epochs: 0
   penalty_direct:
     epochs: 10
+
+val_set: feasible_validation   # no validation set for this grid yet: test set
 
 test_sets:   # no shifted / oor_load test sets for this grid
   core: [feasible, feasible_high_load_low_der, feasible_low_load_high_der]

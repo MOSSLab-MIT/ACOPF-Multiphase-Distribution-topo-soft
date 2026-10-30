@@ -82,8 +82,8 @@ The generator writes **combined HDF5 files** (`*_test_feasible*.h5`, `*_test_inf
 | `--num_scenarios` | `10` | Number of distinct topologies |
 | `--feasible_samples_per_scenario` | `100` | Target feasible OPF samples per scenario |
 | `--max_attempts_multiplier` | `5` | `attempt_limit = feasible_samples_per_scenario × multiplier` |
-| `--seed_base` | `1234` | RNG for topology plan |
-| `--seed_start` | `1` | First profile seed |
+| `--seed_base` | `1234` | RNG for topology plan (topologies only) |
+| `--seed_start` | `2000001` | First profile seed (`randomness.smin`): seeds loads, DER availability, objective weights |
 | `--output_suffix` | config `output_suffix` (`""`) | Appends `_<suffix>` to output filenames |
 | `--save_config` | `true` | Write `network_config.json` (or `network_config_<suffix>.json`) |
 | `--load_l`, `--load_u` | script `config` | Load scale bounds |
@@ -213,6 +213,7 @@ Prefer explicit `--num_scenarios` and `--feasible_samples_per_scenario` for new 
 ## Customizing behavior
 
 - **Training regimes:** default mix is all-base (`training_defaults.json`, weights `1.0/0.0/0.0`). Previous default mix (`0.6/0.05/0.35`) lives in `configs/training_w060_005_035.json` with output suffix `060_005_035`. Load-cap OOR training (all-base load `[0.2, 0.8]`) uses `configs/training_l02_u08.json` with output suffix `l02_u08` (launcher: `cluster/run_datagen.sh`, see `cluster/README.md`).
+- **Disjoint splits:** profile seed `s` gives the same load/DER draws in every split, so each split uses its own seed block: training `smin:smax` (`1:200000`), validation `1000001+` ([`configs/val_defaults.json`](configs/val_defaults.json)), test `2000001+` (all `testing_*.json`; test variants share the block so they are paired). A test run uses at most `num_scenarios × feasible_samples_per_scenario × max_attempts_multiplier + 1` seeds. Keep training `smax < 1000001`. `seed_base` does not separate splits: it only seeds topologies.
 - **Test sampling defaults:** use `--config datagen_topo/gen_scripts/configs/testing_defaults.json` as the editable template.
 - **Soft V / I / θ / substation limits:** the OPF is soft-only. Voltage magnitude, branch current, angle-difference and per-phase substation apparent-power limits get nonnegative slacks with an L1 penalty `ρ_V·Σs_V + ρ_I·Σs_I + ρ_θ·Σs_θ + ρ_sub·Σs_sub` in raw pu² units (DER limits and power balance stay hard). The `penalty` config block (`rho_min`, `rho_max`, order `[ρ_V, ρ_I, ρ_θ, ρ_sub]`; configs use `[1, 1, 1, 100]` / `[100, 100, 100, 200]`, code default `[100, 100, 100, 100]` / `[1000, 1000, 1000, 200]`) sets the per-sample ρ, sampled log-uniformly; `obj` still samples `[w_cost, w_curtail]` uniformly. Legacy 3-entry penalty blocks are rejected. Infeasibility now only arises from power balance (loadability), so `*_test_infeasible.h5` is normally empty and not written. Julia tests: `tests/test_soft_constraints.jl`.
 - **Topology / OPF:** shared code now loads through `datagen_topo/datagen_topo.jl`, with implementation files under `datagen_topo/src/`.

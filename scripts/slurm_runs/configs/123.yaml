@@ -6,7 +6,7 @@ seed: [1, 2, 3]   # one Slurm array task per seed
 slurm:
   time: "12:00:00"
   mem: 32G
-  partition: pi_donti_gpu,mit_preemptable
+  partition: pi_donti_gpu,pi_donti_gpu_preemptable,mit_preemptable
 
 args:
   num_layers: 4
@@ -20,9 +20,11 @@ args:
 
 method_args:
   penalty_pf:
-    epochs: 5
+    epochs: 10
   penalty_direct:
     epochs: 20
+
+val_set: feasible_validation
 
 test_sets:
   core: [feasible, feasible_high_load_low_der, feasible_low_load_high_der]

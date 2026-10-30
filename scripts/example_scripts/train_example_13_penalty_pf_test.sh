@@ -2,7 +2,7 @@
 # Example training script for Penalty PF method on IEEE 13-bus case
 
 TRAIN_H5="datagen_topo/datasets/IEEE13_test/IEEE13_test_training.h5"
-VAL_H5="datagen_topo/datasets/IEEE13_test/IEEE13_test_test_feasible.h5"
+VAL_H5="datagen_topo/datasets/IEEE13_test/IEEE13_test_test_feasible_validation.h5"
 # First entry (bare path) is the reference test set; further entries: name=path.
 TEST_H5_VARIANTS=(
     "datagen_topo/datasets/IEEE13_test/IEEE13_test_test_feasible.h5"

@@ -39,7 +39,7 @@ CMD=(
   --log_every 1
   --woodbury_ir_steps auto
   --woodbury_batch_mode vmap
-  --val_h5 "$DATA/${CASE_DIR}_test_feasible.h5"
+  --val_h5 "$VAL_H5"
   --test_h5_variants "${TEST_FULL_H5[@]}"
 )
 

@@ -23,7 +23,7 @@
   },
   "randomness": {
     "seed_base": 10000,
-    "smin": 1
+    "smin": 1000001
   },
   "scenario": {
     "num_scenarios": 20,

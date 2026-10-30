@@ -69,7 +69,7 @@ const DEFAULT_TESTING_CONFIG = Dict(
     ),
     "randomness" => Dict(
         "seed_base" => 100000,
-        "smin" => 1,
+        "smin" => 2_000_001,
     ),
     "scenario" => Dict(
         "num_scenarios" => 10,

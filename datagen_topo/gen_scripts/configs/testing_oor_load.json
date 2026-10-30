@@ -22,7 +22,7 @@
     "radial_ratio": 0.5
   },
   "randomness": {
-    "smin": 1
+    "smin": 2000001
   },
   "scenario": {
     "num_scenarios": 10,

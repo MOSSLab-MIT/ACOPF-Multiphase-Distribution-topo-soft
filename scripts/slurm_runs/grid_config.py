@@ -4,7 +4,7 @@
     eval "$(python scripts/slurm_runs/grid_config.py <grid> [<method_family>])"
 
 Defines CASE_DIR, DATA, SEED_ARRAY (Slurm array spec of `seed`), SBATCH_OPTS,
-TEST_CORE_H5, TEST_FULL_H5 and, when a method family is given, GRID_ARGS
+VAL_H5, TEST_CORE_H5, TEST_FULL_H5 and, when a method family is given, GRID_ARGS
 (= args merged with method_args[family]).
 """
 
@@ -15,7 +15,7 @@ from pathlib import Path
 import yaml
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
-KEYS = {"case_dir", "seed", "slurm", "args", "method_args", "test_sets"}
+KEYS = {"case_dir", "seed", "slurm", "args", "method_args", "val_set", "test_sets"}
 
 
 def bash_array(name, items):
@@ -61,6 +61,7 @@ def main():
         f"DATA={shlex.quote(data)}",
         f"SEED_ARRAY={','.join(map(str, seeds))}",
         bash_array("SBATCH_OPTS", [f"--{k.replace('_', '-')}={v}" for k, v in cfg["slurm"].items()]),
+        f"VAL_H5={shlex.quote(f'{data}/{case_dir}_test_{cfg['val_set']}.h5')}",
     ]
     for name in ("core", "full"):
         tests = [f"{data}/{case_dir}_test_{t}.h5" for t in cfg["test_sets"][name]]

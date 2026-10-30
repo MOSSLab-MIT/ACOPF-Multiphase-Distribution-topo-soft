@@ -11,7 +11,8 @@
 set -euo pipefail
 METHOD=penalty_pf
 FAMILY=penalty_pf
-GRIDS=(123 240 8500)   # submitted when no grid is given
+# GRIDS=(123 240 8500)   # submitted when no grid is given
+GRIDS=(123 240)
 
 # Repository root (sbatch is run from there, so inside a job it is the submit dir).
 if [ -n "${SLURM_ARRAY_TASK_ID:-}" ]; then cd "${SLURM_SUBMIT_DIR:-$PWD}"; else cd "$(dirname "${BASH_SOURCE[0]}")/../.."; fi
@@ -33,7 +34,7 @@ CMD=(
   --eval_every 1
   --woodbury_ir_steps auto
   --woodbury_batch_mode vmap
-  --val_h5 "$DATA/${CASE_DIR}_test_feasible.h5"
+  --val_h5 "$VAL_H5"
   --test_h5_variants "${TEST_FULL_H5[@]}"
 )
 
