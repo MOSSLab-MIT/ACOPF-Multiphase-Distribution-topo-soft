@@ -45,7 +45,7 @@ from core.grids.power_flow import (
     solve_power_flow_fixed_point_full,
 )
 from core.utils.runtime import clear_gpu_memory, get_gpu_memory_usage
-from core.utils.workflow import prepare_batch_data
+from core.utils.batch import prepare_batch_data
 
 from analysis.differentiation.implicit_solver import (
     make_solve_power_flow_fixed_point_implicit,

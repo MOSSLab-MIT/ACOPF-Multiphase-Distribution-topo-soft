@@ -11,8 +11,8 @@ Supported feeder scales include IEEE **13**, **123**, **240**, **906**, and **85
 
 | Method             | Entry script                      | Idea                                                                                                                 |
 | ------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Penalty PF**     | `methods/penalty_pf/train.py`     | NN → DER projection → AC power flow; fixed penalty on AC inequality violations. Test = same pipeline                 |
-| **Penalty Direct** | `methods/penalty_direct/train.py` | Penalty on jointly predicted DER controls and voltages (no PF solve); adaptive or fixed rho                          |
+| **Penalty PF**     | `methods/penalty_pf/train.py`     | NN → DER projection → AC power flow; soft-OPF cost (V/I/θ/substation penalties). Test = same pipeline                |
+| **Penalty Direct** | `methods/penalty_direct/train.py` | Projected DER controls and predicted voltages; soft-OPF objective plus an adaptive or fixed power-flow equality penalty |
 | **Linear OPF**     | `methods/linear_opf/test.py`      | Fixed-reference linear OPF baseline (CVXPY + Clarabel); test-only, optional sharding                                 |
 
 
@@ -23,8 +23,8 @@ Corresponding test drivers: `methods/penalty_pf/test.py`, `methods/penalty_direc
 **Penalty PF pipeline** (identical at train, eval, and test time)
 
 1. NN predicts DER controls `(pder, qder)`.
-2. Closed-form projection onto the DER device limits (`core/grids/der_projection.py`): `p ≥ pdermin`, per-unit availability cap, apparent-power disk.
-3. AC power flow at the projected controls gives the voltages; cost and voltage/current/angle violations are evaluated there and the violations are penalized in the loss.
+2. Closed-form projection onto the DER device limits (`core/grids/der_projection.py`): active/reactive power bounds, per-unit availability cap, and apparent-power disk.
+3. AC power flow at the projected controls gives the voltages; the soft-OPF cost (economic + `ρ_V, ρ_I, ρ_θ, ρ_sub` penalties on voltage / current / angle / substation limits, as in the Julia labels) is evaluated there and is the loss.
 
 Topology changes use compact `changing_switch_status` in HDF5 (expanded to full branch status via `network_config.json`). `core/topology/` provides Woodbury updates (default) and a stamp reference backend, with batch precompute for training/eval.
 
@@ -81,7 +81,7 @@ julia --project=datagen_topo/FeederFlow.jl -e 'using Pkg; Pkg.instantiate()'
 │   └── datasets/              # Generated HDF5 + network_config.json
 ├── scripts/
 │   ├── example_scripts/       # Ready-made train/test commands per case
-│   └── slurm_runs/            # YAML job matrices + train_jobs.py launcher
+│   └── slurm_runs/            # <method>.sbatch (self-submitting) + per-grid YAML configs
 ├── analysis/                  # Standalone benchmarks (Woodbury, differentiation, …)
 ├── processing_results/        # Paper tables/plots from results/
 ├── tests/                     # Pytest + Julia suite
@@ -153,14 +153,13 @@ python methods/penalty_pf/train.py \
   --val_h5 datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5 \
   --test_h5_variants \
     datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible.h5 \
-    datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_infeasible.h5 \
     feasible_high_load_low_der=datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_high_load_low_der.h5 \
     feasible_low_load_high_der=datagen_topo/datasets/IEEE13Nodeckt/IEEE13Nodeckt_test_feasible_low_load_high_der.h5 \
   --data_json datagen_topo/datasets/IEEE13Nodeckt/network_config.json \
   --case_name IEEE13Nodeckt_penalty_pf \
   --results_dir results_draft \
   --epochs 20 --batch_size 64 --train_samples 100000 --eval_samples 2000 --test_samples 2000 \
-  --hidden_size 512 --num_layers 4 --learning_rate 1e-4 --rho 1e5 \
+  --hidden_size 512 --num_layers 4 --learning_rate 1e-4 \
   --power_flow_solver fixed_point --seed 42
 ```
 
@@ -169,7 +168,7 @@ Checkpoints and logs: `results_draft/IEEE13Nodeckt_penalty_pf/`.
 **CLI notes**
 
 - `--val_h5`: optional in-epoch validation; preferred source for cost normalization when set (else first `--test_h5_variants` entry).
-- `--test_h5_variants`: post-training tests; bare paths for the first two slots map to mandatory feasible / infeasible sets; further entries use `name=path`.
+- `--test_h5_variants`: post-training tests; the first entry is the reference test set and must exist; other entries (bare paths or `name=path`) are skipped with a warning if missing.
 
 ### Other cases
 
@@ -187,21 +186,21 @@ Example shell scripts under `scripts/example_scripts/`:
 | `train_example_13_penalty_pf_test.sh`   | 13-bus Penalty PF retest |
 
 
-Linear OPF across grids: `scripts/run_linear_opf_all_grids.sh`.
+Linear OPF across grids: `scripts/slurm_runs/run_linear_opf_all_grids.sh`.
 
 Grid paths follow `datagen_topo/grid_data/<case>/`; swap the `.dss` path in the Julia commands above.
 
 ### Cluster (Slurm)
 
-YAML job matrices and launcher: [`scripts/slurm_runs/README.md`](scripts/slurm_runs/README.md).
+One sbatch script per method + one YAML config per grid: [`scripts/slurm_runs/README.md`](scripts/slurm_runs/README.md).
 
 ```bash
-python scripts/slurm_runs/train_jobs.py generate \
-  --config scripts/slurm_runs/train_jobs_penalty_pf.yaml
-sbatch scripts/slurm_runs/penalty_pf/submit_small.sh
+scripts/slurm_runs/penalty_pf.sbatch             # grids 123 240 8500, seeds from configs/<grid>.yaml
+scripts/slurm_runs/penalty_pf.sbatch 13          # one grid
+DRY_RUN=1 scripts/slurm_runs/penalty_pf.sbatch   # print sbatch + train commands
 ```
 
-Suites cover Penalty PF / Direct rho sweeps, GCN variants, and regime ablations.
+Suites cover Direct equality-weight sweeps, GCN variants, and regime ablations.
 
 ## Dataset format
 
@@ -250,7 +249,7 @@ Training scripts pass HDF5 paths via `--val_h5` and `--test_h5_variants` (see `c
 
 | Parameter            | Typical     | Notes                                                              |
 | -------------------- | ----------- | ------------------------------------------------------------------ |
-| `rho`                | 1e4–1e6     | Fixed penalty weight on AC inequality violations (Penalty PF)      |
+| `rho_eq_init`        | 10–1000     | Penalty Direct weight on the power-flow equality residual          |
 | `topology_backend`   | `woodbury`  | `woodbury` (default) or `stamp`                                    |
 | `woodbury_ir_steps`  | `auto`      | SMW iterative refinement: `auto` / `0` / `1` / `2`                 |
 | `model_type`         | `mlp`       | `mlp`, `gcn`, or `modified_gcn`                                    |
