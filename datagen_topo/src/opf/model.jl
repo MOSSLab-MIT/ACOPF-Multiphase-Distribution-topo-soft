@@ -2,11 +2,12 @@
     _build_opf_cache(data, optimizer; warm_start, v_slack_local_override)
 
 Internal: assemble the non-convex AC-OPF JuMP model in rectangular coordinates (bus-injection
-nodal balance, DER/substation limits) with SOFT voltage, branch-current and angle-difference limits.
+nodal balance, DER limits) with SOFT voltage, branch-current, angle-difference and per-phase
+substation apparent-power limits.
 
 Soft limits use nonnegative slacks `s` in the constraint's raw units (pu² of the hard form) and an
 L1 penalty `ρ·Σs` in the objective (exact penalty: for ρ above the hard-OPF multiplier the soft optimum
-equals the hard optimum). Power balance, DER and substation limits stay hard.
+equals the hard optimum). Power balance and DER limits stay hard.
 
 Uses scaled Y-bus `Y_scaled` fixed at build time for the current topology. Sample-varying
 loads, DER availability and objective/penalty weights enter via JuMP `Parameter` variables.
@@ -60,6 +61,7 @@ function _build_opf_cache(
     @variable(model, rho_v in Parameter(PENALTY_WEIGHT_DEFAULT))
     @variable(model, rho_i in Parameter(PENALTY_WEIGHT_DEFAULT))
     @variable(model, rho_theta in Parameter(PENALTY_WEIGHT_DEFAULT))
+    @variable(model, rho_sub in Parameter(PENALTY_WEIGHT_DEFAULT))
 
     # Local-pu voltage variables on non-slack nodes.
     @variable(model, vr[1:n_net])
@@ -70,8 +72,9 @@ function _build_opf_cache(
 
     @variable(model, psub)
     @variable(model, qsub)
-    @variable(model, p_sub_k[k=1:n_slk], lower_bound=-data.sub_smax_phase[k], upper_bound=data.sub_smax_phase[k])
-    @variable(model, q_sub_k[k=1:n_slk], lower_bound=-data.sub_smax_phase[k], upper_bound=data.sub_smax_phase[k])
+    # No ±smax boxes on p_sub_k / q_sub_k: they are implied by the hard disk but would keep the soft one hard.
+    @variable(model, p_sub_k[k=1:n_slk])
+    @variable(model, q_sub_k[k=1:n_slk])
 
     # Soft voltage magnitude limits on non-slack nodes (local pu²):
     #   vmin² - s_vmin <= |u|² <= vmax² + s_vmax,   s_vmin, s_vmax >= 0.
@@ -114,7 +117,9 @@ function _build_opf_cache(
     )
     @constraint(model, [k=1:n_slk], p_sub_k[k] == real(v_slack_local[k]) * I_re_slk[k] + imag(v_slack_local[k]) * I_im_slk[k])
     @constraint(model, [k=1:n_slk], q_sub_k[k] == imag(v_slack_local[k]) * I_re_slk[k] - real(v_slack_local[k]) * I_im_slk[k])
-    @constraint(model, [k=1:n_slk], p_sub_k[k]^2 + q_sub_k[k]^2 <= data.sub_smax_phase[k]^2)
+    # Soft per-phase substation apparent-power limit (local pu²): |S_k|² <= smax_k² + s_sub_k, s_sub_k >= 0.
+    @variable(model, s_sub[1:n_slk] >= 0.0)
+    @constraint(model, c_sub[k=1:n_slk], p_sub_k[k]^2 + q_sub_k[k]^2 <= data.sub_smax_phase[k]^2 + s_sub[k])
 
     @constraint(model, psub == sum(p_sub_k))
     @constraint(model, qsub == sum(q_sub_k))
@@ -240,11 +245,12 @@ function _build_opf_cache(
     @expression(model, pen_v, sum(s_vmin) + sum(s_vmax))
     @expression(model, pen_i, sum(s_imax))
     @expression(model, pen_theta, sum(s_ang_pos) + sum(s_ang_neg))
+    @expression(model, pen_sub, sum(s_sub))
 
     # Weighted sum: economic cost (DER + substation quadratic/linear) + curtailment + soft-limit penalties.
     @objective(model, Min,
         w_cost * obj_cost + w_curtail * obj_curtailment +
-        rho_v * pen_v + rho_i * pen_i + rho_theta * pen_theta,
+        rho_v * pen_v + rho_i * pen_i + rho_theta * pen_theta + rho_sub * pen_sub,
     )
 
     return OPFSolveCache(
@@ -256,7 +262,7 @@ function _build_opf_cache(
         [der_pavail_param[g] for g in 1:n_der_unit],
         w_cost,
         w_curtail,
-        [rho_v, rho_i, rho_theta],
+        [rho_v, rho_i, rho_theta, rho_sub],
         [vr[i] for i in 1:n_net],
         [vi[i] for i in 1:n_net],
         u_start,

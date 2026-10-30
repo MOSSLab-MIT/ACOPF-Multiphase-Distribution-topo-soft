@@ -4,8 +4,8 @@
     "wmax": [1.0, 10.0]
   },
   "penalty": {
-    "rho_min": [1, 1, 1],
-    "rho_max": [100, 100, 100]
+    "rho_min": [1, 1, 1, 100],
+    "rho_max": [100, 100, 100, 200]
   },
   "topology": {
     "flip_probability": 0.5,

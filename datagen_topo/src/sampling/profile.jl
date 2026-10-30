@@ -218,16 +218,16 @@ end
 
 DERScaler(data::OPFData) = DERScaler(data, Dict{String, Any}())
 
-# Default soft-limit penalty sampling: ρ_V, ρ_I, ρ_θ ~ log-uniform on [rho_min, rho_max].
+# Default soft-limit penalty sampling: ρ_V, ρ_I, ρ_θ, ρ_sub ~ log-uniform on [rho_min, rho_max].
 const DEFAULT_PENALTY_SAMPLING = Dict{String, Any}(
-    "rho_min" => [100.0, 100.0, 100.0],
-    "rho_max" => [1000.0, 1000.0, 1000.0],
+    "rho_min" => [100.0, 100.0, 100.0, 100.0],
+    "rho_max" => [1000.0, 1000.0, 1000.0, 200.0],
 )
 
 """
     ObjScaler
 
-Sampler for `obj_weights = [w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]`. With `ϵ ~ U(0, 1)` per entry:
+Sampler for `obj_weights = [w_cost, w_curtail, ρ_V, ρ_I, ρ_θ, ρ_sub]`. With `ϵ ~ U(0, 1)` per entry:
 - economic weights (`log_scale = false`): `w = wmin + ϵ (wmax - wmin)`;
 - penalty weights (`log_scale = true`): `log w = log wmin + ϵ (log wmax - log wmin)` (log-uniform),
   since penalty weights are meaningful across orders of magnitude.

@@ -4,7 +4,7 @@
 JuMP model built once per fixed topology (`branch_status_key` snapshot).
 
 Sample-varying loads, DER availability, objective weights and soft-limit penalty weights
-(`rho = [ρ_V, ρ_I, ρ_θ]`) are JuMP `Parameter`s
+(`rho = [ρ_V, ρ_I, ρ_θ, ρ_sub]`) are JuMP `Parameter`s
 updated via [`sync_params!`](@ref) before each [`solve_cached_opf!`](@ref). Voltage warm start
 uses `u_start` from a linear solve or an explicit override at build time.
 """
@@ -39,7 +39,7 @@ end
     sync_params!(cache::OPFSolveCache, data::OPFData)
 
 Push sample-varying JuMP parameters: ``p_load``, ``q_load``, per-unit DER availability, and
-objective weights ``[w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]``. Topology must match the cache snapshot.
+objective weights ``[w_cost, w_curtail, ρ_V, ρ_I, ρ_θ, ρ_sub]``. Topology must match the cache snapshot.
 """
 function sync_params!(cache::OPFSolveCache, data::OPFData)
     assert_topology_matches!(cache, data)

@@ -169,11 +169,11 @@ julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testi
 
 ## HDF5 schema (test / scenario files)
 
-**`input/`:** `seed`, `scenario_index`, `pd`, `qd`, `pder_avai`, `changing_switch_status`, `is_radial`, `obj_weights` (5 columns: `[w_cost, w_curtail, ρ_V, ρ_I, ρ_θ]`)  
+**`input/`:** `seed`, `scenario_index`, `pd`, `qd`, `pder_avai`, `changing_switch_status`, `is_radial`, `obj_weights` (6 columns: `[w_cost, w_curtail, ρ_V, ρ_I, ρ_θ, ρ_sub]`)  
 
 **`primal/`:** `vr`, `vi`, `pder`, `qder`, `psub`, `qsub`, `psub_phase`, `qsub_phase` (OPF solution; scalar `psub`/`qsub` are phase sums)  
 
-**`network_config.json`:** `sub_smax_phase` — per-phase substation apparent-power limits (p.u.), length `n_slk`.
+**`network_config.json`:** `sub_smax_phase` — per-phase substation apparent-power limits (p.u.), length `n_slk` (soft: `|S_k|² ≤ smax_k² + s_sub,k`).
 
 **`meta/`:** Ipopt termination, timings, objectives (`primal_objective_value` is the soft objective, penalties included)  
 
@@ -214,7 +214,7 @@ Prefer explicit `--num_scenarios` and `--feasible_samples_per_scenario` for new 
 
 - **Training regimes:** default mix is all-base (`training_defaults.json`, weights `1.0/0.0/0.0`). Previous default mix (`0.6/0.05/0.35`) lives in `configs/training_w060_005_035.json` with output suffix `060_005_035`. Load-cap OOR training (all-base load `[0.2, 0.8]`) uses `configs/training_l02_u08.json` with output suffix `l02_u08` (launcher: `cluster/run_datagen.sh`, see `cluster/README.md`).
 - **Test sampling defaults:** use `--config datagen_topo/gen_scripts/configs/testing_defaults.json` as the editable template.
-- **Soft V / I / θ limits:** the OPF is soft-only. Voltage magnitude, branch current and angle-difference limits get nonnegative slacks with an L1 penalty `ρ_V·Σs_V + ρ_I·Σs_I + ρ_θ·Σs_θ` in raw pu² units (substation, DER and power balance stay hard). The `penalty` config block (`rho_min`, `rho_max`, default `[1, 1, 1]` / `[100, 100, 100]`) sets the per-sample ρ, sampled log-uniformly; `obj` still samples `[w_cost, w_curtail]` uniformly. Since V limits no longer cause infeasibility, `*_test_infeasible.h5` is normally empty and not written. Julia tests: `tests/test_soft_constraints.jl`.
+- **Soft V / I / θ / substation limits:** the OPF is soft-only. Voltage magnitude, branch current, angle-difference and per-phase substation apparent-power limits get nonnegative slacks with an L1 penalty `ρ_V·Σs_V + ρ_I·Σs_I + ρ_θ·Σs_θ + ρ_sub·Σs_sub` in raw pu² units (DER limits and power balance stay hard). The `penalty` config block (`rho_min`, `rho_max`, order `[ρ_V, ρ_I, ρ_θ, ρ_sub]`; configs use `[1, 1, 1, 100]` / `[100, 100, 100, 200]`, code default `[100, 100, 100, 100]` / `[1000, 1000, 1000, 200]`) sets the per-sample ρ, sampled log-uniformly; `obj` still samples `[w_cost, w_curtail]` uniformly. Legacy 3-entry penalty blocks are rejected. Infeasibility now only arises from power balance (loadability), so `*_test_infeasible.h5` is normally empty and not written. Julia tests: `tests/test_soft_constraints.jl`.
 - **Topology / OPF:** shared code now loads through `datagen_topo/datagen_topo.jl`, with implementation files under `datagen_topo/src/`.
 
 See also the repository [README](../../README.md) and [AGENTS.md](../../AGENTS.md).

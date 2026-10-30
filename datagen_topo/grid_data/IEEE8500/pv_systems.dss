@@ -1,500 +1,1008 @@
-! PV Systems for IEEE 8500-Node Test Feeder
-! 100 PV units: 10 MV + 90 LV
-! Total PV capacity: 2820 kW on 10773 kW nominal load (~26.2% penetration)
-! Placement: 10 three-phase MV (12.47 kV) + 90 single-phase LV (120 V LN)
-! Sizing: ~40% of local load (MV 230 kW; LV 5-15 kW)
-
-! ============================================================
-! THREE-PHASE MV PVSystems (12.47 kV wye)
-! ============================================================
-New PVSystem.PV_M1026808  bus1=M1026808  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus M1026807 — downstream load proxy 1425 kW; PV 230 kW
-
-New PVSystem.PV_M1026807  bus1=M1026807  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus L3254217 — downstream load proxy 1385 kW; PV 230 kW
-
-New PVSystem.PV_L3254217  bus1=L3254217  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus M1026800 — downstream load proxy 1361 kW; PV 230 kW
-
-New PVSystem.PV_M1026800  bus1=M1026800  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus L2822869 — downstream load proxy 1314 kW; PV 230 kW
-
-New PVSystem.PV_L2822869  bus1=L2822869  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus L2841635 — downstream load proxy 1296 kW; PV 230 kW
-
-New PVSystem.PV_L2841635  bus1=L2841635  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus L2991914 — downstream load proxy 1294 kW; PV 230 kW
-
-New PVSystem.PV_L2991914  bus1=L2991914  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus M1026796 — downstream load proxy 1294 kW; PV 230 kW
-
-New PVSystem.PV_M1026796  bus1=M1026796  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus M1026797 — downstream load proxy 1294 kW; PV 230 kW
-
-New PVSystem.PV_M1026797  bus1=M1026797  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus M1047503 — downstream load proxy 1290 kW; PV 230 kW
-
-New PVSystem.PV_M1047503  bus1=M1047503  phases=3  kV=12.47  kVA=276  pmpp=230
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! Bus M1108380 — downstream load proxy 1284 kW; PV 230 kW
-
-! ============================================================
-! SINGLE-PHASE LV PVSystems (120 V line-to-neutral)
-! ============================================================
-New PVSystem.PV_SX2861222A_1  bus1=SX2861222A.1  phases=1  kV=0.120  kVA=7  pmpp=5.3
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3649302A.1 (feeder ph 1) — local load 13.14 kW; PV 5.3 kW
-
-New PVSystem.PV_SX3649302A_1  bus1=SX3649302A.1  phases=1  kV=0.120  kVA=7  pmpp=5.3
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2748129A.2 (feeder ph 1) — local load 12.81 kW; PV 5.1 kW
-
-New PVSystem.PV_SX2748129A_2  bus1=SX2748129A.2  phases=1  kV=0.120  kVA=7  pmpp=5.1
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3177665A.2 (feeder ph 1) — local load 12.50 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3177665A_2  bus1=SX3177665A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3066817A.1 (feeder ph 1) — local load 12.28 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3066817A_1  bus1=SX3066817A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3104129A.2 (feeder ph 1) — local load 12.06 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3104129A_2  bus1=SX3104129A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3207907A.1 (feeder ph 1) — local load 12.00 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3207907A_1  bus1=SX3207907A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3067478A.2 (feeder ph 1) — local load 11.97 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3067478A_2  bus1=SX3067478A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3217056A.1 (feeder ph 1) — local load 11.78 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3217056A_1  bus1=SX3217056A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3086098A.2 (feeder ph 1) — local load 11.76 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3086098A_2  bus1=SX3086098A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3649298A.2 (feeder ph 1) — local load 11.71 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3649298A_2  bus1=SX3649298A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3027671A.2 (feeder ph 1) — local load 11.64 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3027671A_2  bus1=SX3027671A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2748781A.2 (feeder ph 1) — local load 11.47 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2748781A_2  bus1=SX2748781A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2803199A.2 (feeder ph 1) — local load 11.41 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2803199A_2  bus1=SX2803199A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3048962A.2 (feeder ph 1) — local load 11.40 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3048962A_2  bus1=SX3048962A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3727710A.1 (feeder ph 1) — local load 11.38 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3727710A_1  bus1=SX3727710A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3029502A.1 (feeder ph 1) — local load 11.36 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3029502A_1  bus1=SX3029502A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3215385A.2 (feeder ph 1) — local load 11.35 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3215385A_2  bus1=SX3215385A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3091052A.2 (feeder ph 1) — local load 11.25 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3091052A_2  bus1=SX3091052A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2990098A.1 (feeder ph 1) — local load 10.91 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2990098A_1  bus1=SX2990098A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2842379A.2 (feeder ph 1) — local load 10.77 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2842379A_2  bus1=SX2842379A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3198348A.1 (feeder ph 1) — local load 10.74 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3198348A_1  bus1=SX3198348A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2821770A.2 (feeder ph 1) — local load 10.58 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2821770A_2  bus1=SX2821770A.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3729298A.1 (feeder ph 1) — local load 10.50 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3729298A_1  bus1=SX3729298A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3011293A.1 (feeder ph 1) — local load 10.49 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3011293A_1  bus1=SX3011293A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2955074A.1 (feeder ph 1) — local load 10.20 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2955074A_1  bus1=SX2955074A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2935557A.1 (feeder ph 1) — local load 9.95 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2935557A_1  bus1=SX2935557A.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3159037B.1 (feeder ph 2) — local load 13.05 kW; PV 5.2 kW
-
-New PVSystem.PV_SX3159037B_1  bus1=SX3159037B.1  phases=1  kV=0.120  kVA=7  pmpp=5.2
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3029055B.2 (feeder ph 2) — local load 12.96 kW; PV 5.2 kW
-
-New PVSystem.PV_SX3029055B_2  bus1=SX3029055B.2  phases=1  kV=0.120  kVA=7  pmpp=5.2
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3179699B.2 (feeder ph 2) — local load 12.72 kW; PV 5.1 kW
-
-New PVSystem.PV_SX3179699B_2  bus1=SX3179699B.2  phases=1  kV=0.120  kVA=7  pmpp=5.1
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3048887B.1 (feeder ph 2) — local load 12.53 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3048887B_1  bus1=SX3048887B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2897784B.2 (feeder ph 2) — local load 12.28 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2897784B_2  bus1=SX2897784B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3198358B.2 (feeder ph 2) — local load 12.21 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3198358B_2  bus1=SX3198358B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2860491B.2 (feeder ph 2) — local load 11.69 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2860491B_2  bus1=SX2860491B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3254212B.2 (feeder ph 2) — local load 11.58 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3254212B_2  bus1=SX3254212B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2913406B.2 (feeder ph 2) — local load 11.36 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2913406B_2  bus1=SX2913406B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3047289B.1 (feeder ph 2) — local load 11.06 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3047289B_1  bus1=SX3047289B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2673308B.1 (feeder ph 2) — local load 10.77 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2673308B_1  bus1=SX2673308B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3252336B.2 (feeder ph 2) — local load 10.55 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3252336B_2  bus1=SX3252336B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2915542B.1 (feeder ph 2) — local load 10.53 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2915542B_1  bus1=SX2915542B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2936213B.2 (feeder ph 2) — local load 10.44 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2936213B_2  bus1=SX2936213B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3197634B.1 (feeder ph 2) — local load 10.44 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3197634B_1  bus1=SX3197634B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3139598B.1 (feeder ph 2) — local load 10.34 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3139598B_1  bus1=SX3139598B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2935549B.1 (feeder ph 2) — local load 10.11 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2935549B_1  bus1=SX2935549B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3179646B.1 (feeder ph 2) — local load 10.08 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3179646B_1  bus1=SX3179646B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2948732B.1 (feeder ph 2) — local load 9.90 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2948732B_1  bus1=SX2948732B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2860499B.1 (feeder ph 2) — local load 9.85 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2860499B_1  bus1=SX2860499B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3122812B.2 (feeder ph 2) — local load 9.74 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3122812B_2  bus1=SX3122812B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2710546B.2 (feeder ph 2) — local load 9.72 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2710546B_2  bus1=SX2710546B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2954346B.1 (feeder ph 2) — local load 9.71 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2954346B_1  bus1=SX2954346B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2783231B.1 (feeder ph 2) — local load 9.69 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2783231B_1  bus1=SX2783231B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2726974B.2 (feeder ph 2) — local load 9.61 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2726974B_2  bus1=SX2726974B.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2916617B.1 (feeder ph 2) — local load 9.60 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2916617B_1  bus1=SX2916617B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2804258B.1 (feeder ph 2) — local load 9.59 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2804258B_1  bus1=SX2804258B.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2805031C.2 (feeder ph 3) — local load 13.04 kW; PV 5.2 kW
-
-New PVSystem.PV_SX2805031C_2  bus1=SX2805031C.2  phases=1  kV=0.120  kVA=7  pmpp=5.2
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3067507C.2 (feeder ph 3) — local load 12.77 kW; PV 5.1 kW
-
-New PVSystem.PV_SX3067507C_2  bus1=SX3067507C.2  phases=1  kV=0.120  kVA=7  pmpp=5.1
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3150961C.1 (feeder ph 3) — local load 12.67 kW; PV 5.1 kW
-
-New PVSystem.PV_SX3150961C_1  bus1=SX3150961C.1  phases=1  kV=0.120  kVA=7  pmpp=5.1
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2991933C.1 (feeder ph 3) — local load 12.63 kW; PV 5.1 kW
-
-New PVSystem.PV_SX2991933C_1  bus1=SX2991933C.1  phases=1  kV=0.120  kVA=7  pmpp=5.1
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3048222C.1 (feeder ph 3) — local load 12.61 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3048222C_1  bus1=SX3048222C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2915542C.1 (feeder ph 3) — local load 12.53 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2915542C_1  bus1=SX2915542C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3645809C.1 (feeder ph 3) — local load 12.49 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3645809C_1  bus1=SX3645809C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3104118C.1 (feeder ph 3) — local load 12.39 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3104118C_1  bus1=SX3104118C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3179608C.1 (feeder ph 3) — local load 12.28 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3179608C_1  bus1=SX3179608C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3215385C.1 (feeder ph 3) — local load 12.08 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3215385C_1  bus1=SX3215385C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3118855C.2 (feeder ph 3) — local load 11.98 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3118855C_2  bus1=SX3118855C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2690868C.1 (feeder ph 3) — local load 11.75 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2690868C_1  bus1=SX2690868C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2841619C.1 (feeder ph 3) — local load 11.52 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2841619C_1  bus1=SX2841619C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2814529C.2 (feeder ph 3) — local load 11.39 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2814529C_2  bus1=SX2814529C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3141399C.1 (feeder ph 3) — local load 11.27 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3141399C_1  bus1=SX3141399C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3189188C.1 (feeder ph 3) — local load 11.12 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3189188C_1  bus1=SX3189188C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2766718C.2 (feeder ph 3) — local load 11.08 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2766718C_2  bus1=SX2766718C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3160872C.1 (feeder ph 3) — local load 10.98 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3160872C_1  bus1=SX3160872C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3048968C.2 (feeder ph 3) — local load 10.77 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3048968C_2  bus1=SX3048968C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3179637C.1 (feeder ph 3) — local load 10.69 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3179637C_1  bus1=SX3179637C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3645812C.1 (feeder ph 3) — local load 10.63 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3645812C_1  bus1=SX3645812C.1  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2897554C.2 (feeder ph 3) — local load 10.47 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2897554C_2  bus1=SX2897554C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3122819C.2 (feeder ph 3) — local load 10.43 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3122819C_2  bus1=SX3122819C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2933120C.2 (feeder ph 3) — local load 10.24 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2933120C_2  bus1=SX2933120C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3085393C.2 (feeder ph 3) — local load 10.14 kW; PV 5.0 kW
-
-New PVSystem.PV_SX3085393C_2  bus1=SX3085393C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2786204C.2 (feeder ph 3) — local load 10.10 kW; PV 5.0 kW
-
-New PVSystem.PV_SX2786204C_2  bus1=SX2786204C.2  phases=1  kV=0.120  kVA=6  pmpp=5.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-
-! SX3234149C.1 (feeder ph 1) — replaces removed MV; phase load ~50.85 kW; PV 15.0 kW
-New PVSystem.PV_SX3234149C_1  bus1=SX3234149C.1  phases=1  kV=0.120  kVA=18  pmpp=15.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3234149C.2 (feeder ph 2) — replaces removed MV; phase load ~50.85 kW; PV 15.0 kW
-New PVSystem.PV_SX3234149C_2  bus1=SX3234149C.2  phases=1  kV=0.120  kVA=18  pmpp=15.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3234149B.1 (feeder ph 1) — replaces removed MV; phase load ~48.63 kW; PV 15.0 kW
-New PVSystem.PV_SX3234149B_1  bus1=SX3234149B.1  phases=1  kV=0.120  kVA=18  pmpp=15.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3234149B.2 (feeder ph 2) — replaces removed MV; phase load ~48.63 kW; PV 15.0 kW
-New PVSystem.PV_SX3234149B_2  bus1=SX3234149B.2  phases=1  kV=0.120  kVA=18  pmpp=15.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3234149A.1 (feeder ph 1) — replaces removed MV; phase load ~44.34 kW; PV 15.0 kW
-New PVSystem.PV_SX3234149A_1  bus1=SX3234149A.1  phases=1  kV=0.120  kVA=18  pmpp=15.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX3234149A.2 (feeder ph 2) — replaces removed MV; phase load ~44.34 kW; PV 15.0 kW
-New PVSystem.PV_SX3234149A_2  bus1=SX3234149A.2  phases=1  kV=0.120  kVA=18  pmpp=15.0
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2691959B.1 (feeder ph 1) — replaces removed MV; phase load ~19.45 kW; PV 7.8 kW
-New PVSystem.PV_SX2691959B_1  bus1=SX2691959B.1  phases=1  kV=0.120  kVA=9  pmpp=7.8
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2691959B.2 (feeder ph 2) — replaces removed MV; phase load ~19.45 kW; PV 7.8 kW
-New PVSystem.PV_SX2691959B_2  bus1=SX2691959B.2  phases=1  kV=0.120  kVA=9  pmpp=7.8
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2767340C.1 (feeder ph 1) — replaces removed MV; phase load ~15.26 kW; PV 6.1 kW
-New PVSystem.PV_SX2767340C_1  bus1=SX2767340C.1  phases=1  kV=0.120  kVA=7  pmpp=6.1
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
-
-! SX2767340C.2 (feeder ph 2) — replaces removed MV; phase load ~15.26 kW; PV 6.1 kW
-New PVSystem.PV_SX2767340C_2  bus1=SX2767340C.2  phases=1  kV=0.120  kVA=7  pmpp=6.1
-~ irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1
+! PV Systems for 8500_Master
+! Generated by datagen_topo/gen_scripts/generate_pv_systems.jl
+!   args: 8500_Master.dss 1000 --penetration 0.7 --mv_frac 0.05 --mv_share 0.3
+! 1000 PV units: 950 on load buses (of 1177), 50 three-phase on no-load MV buses (of 647 candidates)
+! Total PV pmpp: 7541.2 kW on 10773.2 kW nominal load (70.0% penetration)
+!   MV units: 2262.4 kW total; load-bus units: 5278.9 kW total (0.61 x their local load)
+! Entries are listed in feeder (DFS-from-substation) order.
+
+New PVSystem.PV_l2801909  bus1=l2801909.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3217057a  bus1=sx3217057a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3217056a  bus1=sx3217056a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx2936270a  bus1=sx2936270a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_m1209790  bus1=m1209790.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2936268c  bus1=sx2936268c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2861223b  bus1=sx2861223b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_m1186052  bus1=m1186052.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3234149a  bus1=sx3234149a.1.2  phases=2  kV=0.208  kVA=54.512  pmpp=54.512  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 88.68 kW
+New PVSystem.PV_sx3234149b  bus1=sx3234149b.1.2  phases=2  kV=0.208  kVA=59.786  pmpp=59.786  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 97.26 kW
+New PVSystem.PV_sx3139366a  bus1=sx3139366a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3123509c  bus1=sx3123509c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_l3011293  bus1=l3011293.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3011293a  bus1=sx3011293a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx3011293c  bus1=sx3011293c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx3142099b  bus1=sx3142099b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3086075b  bus1=sx3086075b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2748840b  bus1=sx2748840b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3179674b  bus1=sx3179674b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2936276b  bus1=sx2936276b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx3086079b  bus1=sx3086079b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_m1166376  bus1=m1166376.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2805034a  bus1=sx2805034a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2955078a  bus1=sx2955078a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_196-31070  bus1=196-31070.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3030200c  bus1=sx3030200c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2711225c  bus1=sx2711225c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3048962a  bus1=sx3048962a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3160861c  bus1=sx3160861c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3160862c  bus1=sx3160862c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3552667c  bus1=sx3552667c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_m1125944  bus1=m1125944.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2917255c  bus1=sx2917255c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3104796c  bus1=sx3104796c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2861197c  bus1=sx2861197c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_m1125976  bus1=m1125976.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3179607b  bus1=sx3179607b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3216988b  bus1=sx3216988b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2955005b  bus1=sx2955005b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_l3179650  bus1=l3179650.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_n1142104  bus1=n1142104.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3195321a  bus1=sx3195321a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2748781a  bus1=sx2748781a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2823545a  bus1=sx2823545a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3101782a  bus1=sx3101782a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2823544a  bus1=sx2823544a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2767342a  bus1=sx2767342a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3011229a  bus1=sx3011229a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3235946a  bus1=sx3235946a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3065665a  bus1=sx3065665a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3027122a  bus1=sx3027122a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3141394b  bus1=sx3141394b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2936213b  bus1=sx2936213b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_m1108535  bus1=m1108535.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3157718a  bus1=sx3157718a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2804277c  bus1=sx2804277c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3197625c  bus1=sx3197625c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2785511a  bus1=sx2785511a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3157167a  bus1=sx3157167a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2973148a  bus1=sx2973148a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2916602a  bus1=sx2916602a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_l3118855  bus1=l3118855.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_n1134477  bus1=n1134477.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_n1136366  bus1=n1136366.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2916620b  bus1=sx2916620b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2916620a  bus1=sx2916620a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3254231a  bus1=sx3254231a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3066804a  bus1=sx3066804a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2973150a  bus1=sx2973150a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3254230a  bus1=sx3254230a.1.2  phases=2  kV=0.208  kVA=1.088  pmpp=1.088  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 1.77 kW
+New PVSystem.PV_sx2897793a  bus1=sx2897793a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2785538a  bus1=sx2785538a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2897792a  bus1=sx2897792a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_m1047574  bus1=m1047574.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3141401a  bus1=sx3141401a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3178979c  bus1=sx3178979c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_n1136663  bus1=n1136663.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2954353a  bus1=sx2954353a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2685809a  bus1=sx2685809a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2973160b  bus1=sx2973160b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3029506b  bus1=sx3029506b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_l3103822  bus1=l3103822.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3645810c  bus1=sx3645810c.1.2  phases=2  kV=0.208  kVA=18.761  pmpp=18.761  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 30.52 kW
+New PVSystem.PV_sx3645809c  bus1=sx3645809c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx3645812c  bus1=sx3645812c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3649305a  bus1=sx3649305a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3649302a  bus1=sx3649302a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3649301a  bus1=sx3649301a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3649300a  bus1=sx3649300a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3649306a  bus1=sx3649306a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3649298a  bus1=sx3649298a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3649297a  bus1=sx3649297a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_m1026858  bus1=m1026858.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2729413a  bus1=sx2729413a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3197618a  bus1=sx3197618a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3141389a  bus1=sx3141389a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3270814a  bus1=sx3270814a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2691936a  bus1=sx2691936a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3216336a  bus1=sx3216336a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3216337a  bus1=sx3216337a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2954348a  bus1=sx2954348a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3235249a  bus1=sx3235249a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2916599a  bus1=sx2916599a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3120376a  bus1=sx3120376a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2916598a  bus1=sx2916598a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2954357a  bus1=sx2954357a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2691973a  bus1=sx2691973a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2841639a  bus1=sx2841639a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2973165a  bus1=sx2973165a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_p827525  bus1=p827525.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2685805a  bus1=sx2685805a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3122818c  bus1=sx3122818c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3177881c  bus1=sx3177881c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_m1026829  bus1=m1026829.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2766730b  bus1=sx2766730b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2859391b  bus1=sx2859391b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2673322b  bus1=sx2673322b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2689691a  bus1=sx2689691a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3178982a  bus1=sx3178982a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3047058a  bus1=sx3047058a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3065696a  bus1=sx3065696a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2766747a  bus1=sx2766747a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2858163a  bus1=sx2858163a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2973169a  bus1=sx2973169a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3178976a  bus1=sx3178976a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3029500a  bus1=sx3029500a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3141412a  bus1=sx3141412a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3066821a  bus1=sx3066821a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3156034a  bus1=sx3156034a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2841623a  bus1=sx2841623a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3010563a  bus1=sx3010563a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2673323c  bus1=sx2673323c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3048222c  bus1=sx3048222c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3122837c  bus1=sx3122837c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2991933c  bus1=sx2991933c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx2822858b  bus1=sx2822858b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2860478b  bus1=sx2860478b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2691939b  bus1=sx2691939b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2766715b  bus1=sx2766715b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2860479b  bus1=sx2860479b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2729401b  bus1=sx2729401b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3178969b  bus1=sx3178969b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2804245b  bus1=sx2804245b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3216338b  bus1=sx3216338b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3231269b  bus1=sx3231269b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2948732b  bus1=sx2948732b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2911069b  bus1=sx2911069b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2991901b  bus1=sx2991901b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2673326b  bus1=sx2673326b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2801896b  bus1=sx2801896b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2748139b  bus1=sx2748139b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2991927b  bus1=sx2991927b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2841624b  bus1=sx2841624b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2729409b  bus1=sx2729409b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3029510b  bus1=sx3029510b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3160108b  bus1=sx3160108b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2954338b  bus1=sx2954338b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2822857b  bus1=sx2822857b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3104114b  bus1=sx3104114b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3254234b  bus1=sx3254234b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2729430b  bus1=sx2729430b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2710542b  bus1=sx2710542b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2876814a  bus1=sx2876814a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3160102b  bus1=sx3160102b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3122817c  bus1=sx3122817c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3085398b  bus1=sx3085398b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_196-29518  bus1=196-29518.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3008232b  bus1=sx3008232b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2764399b  bus1=sx2764399b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2954347b  bus1=sx2954347b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3104124b  bus1=sx3104124b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3632979a  bus1=sx3632979a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3235247a  bus1=sx3235247a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2673312a  bus1=sx2673312a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2710516a  bus1=sx2710516a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2748152b  bus1=sx2748152b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_m1026997  bus1=m1026997.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3122815b  bus1=sx3122815b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2916607c  bus1=sx2916607c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3235241c  bus1=sx3235241c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3066829c  bus1=sx3066829c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2841645c  bus1=sx2841645c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3235268c  bus1=sx3235268c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2748126c  bus1=sx2748126c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3104118c  bus1=sx3104118c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2879089c  bus1=sx2879089c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2766746c  bus1=sx2766746c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3010564c  bus1=sx3010564c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3235248c  bus1=sx3235248c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3027132a  bus1=sx3027132a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3101787a  bus1=sx3101787a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3139103a  bus1=sx3139103a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3195327a  bus1=sx3195327a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3008248a  bus1=sx3008248a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2858175a  bus1=sx2858175a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2989571a  bus1=sx2989571a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3082993a  bus1=sx3082993a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3177894a  bus1=sx3177894a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3120504a  bus1=sx3120504a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3120503a  bus1=sx3120503a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2970811a  bus1=sx2970811a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2876812a  bus1=sx2876812a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3140238a  bus1=sx3140238a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3251808a  bus1=sx3251808a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2726983a  bus1=sx2726983a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3215340a  bus1=sx3215340a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2785543b  bus1=sx2785543b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3010580b  bus1=sx3010580b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2766744b  bus1=sx2766744b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3254213b  bus1=sx3254213b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2785522b  bus1=sx2785522b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2860506b  bus1=sx2860506b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2804257b  bus1=sx2804257b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2673313b  bus1=sx2673313b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2916608c  bus1=sx2916608c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2729434b  bus1=sx2729434b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3216361b  bus1=sx3216361b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3160103c  bus1=sx3160103c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3122816b  bus1=sx3122816b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2766720a  bus1=sx2766720a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2729408b  bus1=sx2729408b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2991909a  bus1=sx2991909a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2710536a  bus1=sx2710536a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2935557a  bus1=sx2935557a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2673311a  bus1=sx2673311a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2766748a  bus1=sx2766748a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3120484c  bus1=sx3120484c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2745799c  bus1=sx2745799c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2820528c  bus1=sx2820528c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2952014a  bus1=sx2952014a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3010585a  bus1=sx3010585a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2895461a  bus1=sx2895461a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3195751a  bus1=sx3195751a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2821010a  bus1=sx2821010a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3120502a  bus1=sx3120502a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2914324a  bus1=sx2914324a.1.2  phases=2  kV=0.208  kVA=1.088  pmpp=1.088  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 1.77 kW
+New PVSystem.PV_sx2785546a  bus1=sx2785546a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3122847a  bus1=sx3122847a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2857591a  bus1=sx2857591a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3141403a  bus1=sx3141403a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2879087a  bus1=sx2879087a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2952013a  bus1=sx2952013a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2785531a  bus1=sx2785531a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2876813a  bus1=sx2876813a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3197646b  bus1=sx3197646b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2785529c  bus1=sx2785529c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3216345b  bus1=sx3216345b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2879070b  bus1=sx2879070b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3122848c  bus1=sx3122848c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3197661c  bus1=sx3197661c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2785521c  bus1=sx2785521c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3103822c  bus1=sx3103822c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_m1047572  bus1=m1047572.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3253995c  bus1=sx3253995c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3104123c  bus1=sx3104123c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2710511a  bus1=sx2710511a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_l2822866  bus1=l2822866.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3178972c  bus1=sx3178972c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx2954345c  bus1=sx2954345c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3176656a  bus1=sx3176656a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_m1047737  bus1=m1047737.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3178973a  bus1=sx3178973a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2991908a  bus1=sx2991908a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2860501b  bus1=sx2860501b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3216344b  bus1=sx3216344b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx3010562b  bus1=sx3010562b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3048203b  bus1=sx3048203b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3197660b  bus1=sx3197660b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3066830b  bus1=sx3066830b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2989432b  bus1=sx2989432b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2691943b  bus1=sx2691943b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3448661b  bus1=sx3448661b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3178974b  bus1=sx3178974b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2954346b  bus1=sx2954346b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3065750b  bus1=sx3065750b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3234185b  bus1=sx3234185b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3159037b  bus1=sx3159037b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2748124b  bus1=sx2748124b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2726975b  bus1=sx2726975b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2710513b  bus1=sx2710513b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2710512b  bus1=sx2710512b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3235246b  bus1=sx3235246b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2897800b  bus1=sx2897800b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx3215549b  bus1=sx3215549b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3160117b  bus1=sx3160117b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3157710b  bus1=sx3157710b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2710514b  bus1=sx2710514b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3178975b  bus1=sx3178975b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3141397b  bus1=sx3141397b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2860483b  bus1=sx2860483b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2879066b  bus1=sx2879066b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2673343b  bus1=sx2673343b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3085390b  bus1=sx3085390b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3160100b  bus1=sx3160100b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2804248b  bus1=sx2804248b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2973149b  bus1=sx2973149b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2785512b  bus1=sx2785512b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3048199b  bus1=sx3048199b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3254203b  bus1=sx3254203b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2822860b  bus1=sx2822860b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2710508b  bus1=sx2710508b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3197624b  bus1=sx3197624b.1.2  phases=2  kV=0.208  kVA=1.199  pmpp=1.199  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 1.95 kW
+New PVSystem.PV_sx3122810b  bus1=sx3122810b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2897765b  bus1=sx2897765b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2935553b  bus1=sx2935553b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3048207b  bus1=sx3048207b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2729427b  bus1=sx2729427b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3066811b  bus1=sx3066811b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2973152b  bus1=sx2973152b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2879068b  bus1=sx2879068b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2860484b  bus1=sx2860484b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3197633a  bus1=sx3197633a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2973154a  bus1=sx2973154a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2879067a  bus1=sx2879067a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3178971a  bus1=sx3178971a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2804254a  bus1=sx2804254a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3066812a  bus1=sx3066812a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2876796a  bus1=sx2876796a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2876797a  bus1=sx2876797a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3784018a  bus1=sx3784018a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3122814c  bus1=sx3122814c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2841621c  bus1=sx2841621c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2804255b  bus1=sx2804255b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2895449c  bus1=sx2895449c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3197631a  bus1=sx3197631a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2897773a  bus1=sx2897773a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2935555a  bus1=sx2935555a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2935554a  bus1=sx2935554a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3159645a  bus1=sx3159645a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2929261a  bus1=sx2929261a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2822866b  bus1=sx2822866b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2973153a  bus1=sx2973153a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3216123a  bus1=sx3216123a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2729206c  bus1=sx2729206c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2897554c  bus1=sx2897554c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx2766499c  bus1=sx2766499c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx2878848c  bus1=sx2878848c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3066815c  bus1=sx3066815c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2858166a  bus1=sx2858166a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_m1047515  bus1=m1047515.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3197640c  bus1=sx3197640c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3157708c  bus1=sx3157708c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_m1026800  bus1=m1026800.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2822870c  bus1=sx2822870c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2766724c  bus1=sx2766724c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3197647a  bus1=sx3197647a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2729429a  bus1=sx2729429a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_m1026760  bus1=m1026760.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2973157a  bus1=sx2973157a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3091052a  bus1=sx3091052a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2748132a  bus1=sx2748132a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3254216a  bus1=sx3254216a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3216348a  bus1=sx3216348a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2691947a  bus1=sx2691947a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3082992a  bus1=sx3082992a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2710544a  bus1=sx2710544a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2841648a  bus1=sx2841648a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2916234a  bus1=sx2916234a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2879075a  bus1=sx2879075a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3178978a  bus1=sx3178978a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3141398a  bus1=sx3141398a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2879074a  bus1=sx2879074a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2710517a  bus1=sx2710517a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2673317a  bus1=sx2673317a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3197639a  bus1=sx3197639a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3160106a  bus1=sx3160106a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2954355a  bus1=sx2954355a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3122827a  bus1=sx3122827a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3189188c  bus1=sx3189188c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_n1140825  bus1=n1140825.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2814529b  bus1=sx2814529b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx2814529c  bus1=sx2814529c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx2814529a  bus1=sx2814529a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx2916610b  bus1=sx2916610b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_l3048221  bus1=l3048221.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3141411c  bus1=sx3141411c.1.2  phases=2  kV=0.208  kVA=18.761  pmpp=18.761  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 30.52 kW
+New PVSystem.PV_sx2879092c  bus1=sx2879092c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2710518a  bus1=sx2710518a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3172805a  bus1=sx3172805a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2841631c  bus1=sx2841631c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3216350a  bus1=sx3216350a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3141402c  bus1=sx3141402c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3197642c  bus1=sx3197642c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2691952a  bus1=sx2691952a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2879078a  bus1=sx2879078a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3066817a  bus1=sx3066817a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx3066816a  bus1=sx3066816a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2879081a  bus1=sx2879081a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3085403a  bus1=sx3085403a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2860493a  bus1=sx2860493a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2860504a  bus1=sx2860504a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3122822a  bus1=sx3122822a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2822868a  bus1=sx2822868a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2785530a  bus1=sx2785530a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2710532c  bus1=sx2710532c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2973166c  bus1=sx2973166c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_n1140823  bus1=n1140823.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3226771a  bus1=sx3226771a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3207907c  bus1=sx3207907c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx3207907b  bus1=sx3207907b.1.2  phases=2  kV=0.208  kVA=17.937  pmpp=17.937  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 29.18 kW
+New PVSystem.PV_sx3207907a  bus1=sx3207907a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx2851933b  bus1=sx2851933b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2851933a  bus1=sx2851933a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3189189b  bus1=sx3189189b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2973167b  bus1=sx2973167b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2729414a  bus1=sx2729414a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2729414b  bus1=sx2729414b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3235258c  bus1=sx3235258c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3235258a  bus1=sx3235258a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3235258b  bus1=sx3235258b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2973161a  bus1=sx2973161a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3197641a  bus1=sx3197641a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3254217c  bus1=sx3254217c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2729410c  bus1=sx2729410c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2841635a  bus1=sx2841635a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2991914c  bus1=sx2991914c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_l2822872  bus1=l2822872.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3177665a  bus1=sx3177665a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3254204a  bus1=sx3254204a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3254209c  bus1=sx3254209c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3235245c  bus1=sx3235245c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2766716c  bus1=sx2766716c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3104119a  bus1=sx3104119a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2897767c  bus1=sx2897767c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2954344c  bus1=sx2954344c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2745806c  bus1=sx2745806c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3104117c  bus1=sx3104117c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2673303c  bus1=sx2673303c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2748125c  bus1=sx2748125c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3066809c  bus1=sx3066809c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2785517c  bus1=sx2785517c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3066808c  bus1=sx3066808c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_l2673308  bus1=l2673308.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3141395c  bus1=sx3141395c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3778577c  bus1=sx3778577c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2897769c  bus1=sx2897769c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3066810c  bus1=sx3066810c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_q14411  bus1=q14411.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2973178b  bus1=sx2973178b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2897807b  bus1=sx2897807b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3029518b  bus1=sx3029518b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2841616a  bus1=sx2841616a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3122812b  bus1=sx3122812b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_l2822877  bus1=l2822877.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_l3159448  bus1=l3159448.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2862616c  bus1=sx2862616c.1.2  phases=2  kV=0.208  kVA=18.761  pmpp=18.761  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 30.52 kW
+New PVSystem.PV_sx3101194c  bus1=sx3101194c.1.2  phases=2  kV=0.208  kVA=18.761  pmpp=18.761  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 30.52 kW
+New PVSystem.PV_sx2951995c  bus1=sx2951995c.1.2  phases=2  kV=0.208  kVA=18.761  pmpp=18.761  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 30.52 kW
+New PVSystem.PV_sx2763811c  bus1=sx2763811c.1.2  phases=2  kV=0.208  kVA=18.761  pmpp=18.761  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 30.52 kW
+New PVSystem.PV_sx3232301c  bus1=sx3232301c.1.2  phases=2  kV=0.208  kVA=18.761  pmpp=18.761  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 30.52 kW
+New PVSystem.PV_sx2970258c  bus1=sx2970258c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2915534a  bus1=sx2915534a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2690868c  bus1=sx2690868c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx3047073c  bus1=sx3047073c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2803194c  bus1=sx2803194c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3159448a  bus1=sx3159448a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3235243c  bus1=sx3235243c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3125349c  bus1=sx3125349c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3181545c  bus1=sx3181545c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2804258b  bus1=sx2804258b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3235250b  bus1=sx3235250b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2913406b  bus1=sx2913406b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2691948b  bus1=sx2691948b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2973180b  bus1=sx2973180b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2991916b  bus1=sx2991916b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2673320b  bus1=sx2673320b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2991915b  bus1=sx2991915b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2841634b  bus1=sx2841634b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx3029183b  bus1=sx3029183b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3216349b  bus1=sx3216349b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3160104b  bus1=sx3160104b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3214112b  bus1=sx3214112b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3254214b  bus1=sx3254214b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3029520b  bus1=sx3029520b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3139086b  bus1=sx3139086b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2785547b  bus1=sx2785547b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3046854b  bus1=sx3046854b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx3029504b  bus1=sx3029504b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2766722b  bus1=sx2766722b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3197635b  bus1=sx3197635b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2879072b  bus1=sx2879072b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2991910b  bus1=sx2991910b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2879061b  bus1=sx2879061b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2822867b  bus1=sx2822867b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2897774b  bus1=sx2897774b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2691949b  bus1=sx2691949b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3197636b  bus1=sx3197636b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3235252b  bus1=sx3235252b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3029501b  bus1=sx3029501b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2973156b  bus1=sx2973156b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2822877b  bus1=sx2822877b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3066805a  bus1=sx3066805a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3160101a  bus1=sx3160101a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2785513a  bus1=sx2785513a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3235244a  bus1=sx3235244a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2785514a  bus1=sx2785514a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2897801a  bus1=sx2897801a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2841618a  bus1=sx2841618a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2766741a  bus1=sx2766741a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2991905a  bus1=sx2991905a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3122811a  bus1=sx3122811a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2935549b  bus1=sx2935549b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2766749b  bus1=sx2766749b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2876798b  bus1=sx2876798b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2897805a  bus1=sx2897805a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3160123a  bus1=sx3160123a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2879063b  bus1=sx2879063b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3048227a  bus1=sx3048227a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3010561a  bus1=sx3010561a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3216367b  bus1=sx3216367b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2991939b  bus1=sx2991939b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3010560b  bus1=sx3010560b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3122821b  bus1=sx3122821b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2726973a  bus1=sx2726973a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3727712a  bus1=sx3727712a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3727710a  bus1=sx3727710a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3727709a  bus1=sx3727709a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3728043a  bus1=sx3728043a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3728042a  bus1=sx3728042a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3728040a  bus1=sx3728040a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3728039a  bus1=sx3728039a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3728038a  bus1=sx3728038a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3728037a  bus1=sx3728037a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3727708a  bus1=sx3727708a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3729298a  bus1=sx3729298a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3729297a  bus1=sx3729297a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2822872b  bus1=sx2822872b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3104136b  bus1=sx3104136b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2820531b  bus1=sx2820531b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2897777c  bus1=sx2897777c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3010568a  bus1=sx3010568a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2673318c  bus1=sx2673318c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3104129a  bus1=sx3104129a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2841632b  bus1=sx2841632b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2748157a  bus1=sx2748157a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2785537a  bus1=sx2785537a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3197654a  bus1=sx3197654a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2691967b  bus1=sx2691967b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2766738c  bus1=sx2766738c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2860499b  bus1=sx2860499b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx2935567b  bus1=sx2935567b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3160115b  bus1=sx3160115b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx2785536b  bus1=sx2785536b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3178988b  bus1=sx3178988b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2710530b  bus1=sx2710530b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2822873b  bus1=sx2822873b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx3254229b  bus1=sx3254229b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3176660b  bus1=sx3176660b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2691966b  bus1=sx2691966b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx3235273b  bus1=sx3235273b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3122835b  bus1=sx3122835b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2916617b  bus1=sx2916617b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3102793b  bus1=sx3102793b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2916618b  bus1=sx2916618b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2726974b  bus1=sx2726974b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3197653b  bus1=sx3197653b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2785535b  bus1=sx2785535b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx3254228b  bus1=sx3254228b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2954361b  bus1=sx2954361b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2935547b  bus1=sx2935547b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2897789b  bus1=sx2897789b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2804269b  bus1=sx2804269b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3160113b  bus1=sx3160113b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2916619b  bus1=sx2916619b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2801902b  bus1=sx2801902b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2804270b  bus1=sx2804270b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3082983b  bus1=sx3082983b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2673331b  bus1=sx2673331b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx2841641b  bus1=sx2841641b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2804272b  bus1=sx2804272b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2783231b  bus1=sx2783231b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2935566c  bus1=sx2935566c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2897790c  bus1=sx2897790c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2729423c  bus1=sx2729423c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_m1069556  bus1=m1069556.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3160114a  bus1=sx3160114a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3251854a  bus1=sx3251854a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2748143a  bus1=sx2748143a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3197652a  bus1=sx3197652a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3104144a  bus1=sx3104144a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2785534b  bus1=sx2785534b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2691965b  bus1=sx2691965b.1.2  phases=2  kV=0.208  kVA=1.199  pmpp=1.199  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 1.95 kW
+New PVSystem.PV_sx2748144a  bus1=sx2748144a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3066814b  bus1=sx3066814b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx3231255c  bus1=sx3231255c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3118855c  bus1=sx3118855c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3141393c  bus1=sx3141393c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3160098a  bus1=sx3160098a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2730107c  bus1=sx2730107c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3179608c  bus1=sx3179608c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3086002c  bus1=sx3086002c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2842330c  bus1=sx2842330c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2692600c  bus1=sx2692600c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2955006c  bus1=sx2955006c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2692633c  bus1=sx2692633c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2674027b  bus1=sx2674027b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2955047a  bus1=sx2955047a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3104830c  bus1=sx3104830c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3142049c  bus1=sx3142049c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2936214a  bus1=sx2936214a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2730106c  bus1=sx2730106c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3067447a  bus1=sx3067447a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2936212a  bus1=sx2936212a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2933135a  bus1=sx2933135a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3179650b  bus1=sx3179650b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2973791a  bus1=sx2973791a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx2859403a  bus1=sx2859403a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2730149c  bus1=sx2730149c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2802481a  bus1=sx2802481a.1.2  phases=2  kV=0.208  kVA=16.351  pmpp=16.351  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 26.60 kW
+New PVSystem.PV_sx3027671a  bus1=sx3027671a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2990098a  bus1=sx2990098a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx2821087a  bus1=sx2821087a.1.2  phases=2  kV=0.208  kVA=16.351  pmpp=16.351  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 26.60 kW
+New PVSystem.PV_l2952003  bus1=l2952003.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2728247c  bus1=sx2728247c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2728247b  bus1=sx2728247b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2728247a  bus1=sx2728247a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2990826b  bus1=sx2990826b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2990826a  bus1=sx2990826a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2896685a  bus1=sx2896685a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2896685b  bus1=sx2896685b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2896685c  bus1=sx2896685c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_p850072  bus1=p850072.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2915542b  bus1=sx2915542b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx2915542a  bus1=sx2915542a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx3215203c  bus1=sx3215203c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx3215203a  bus1=sx3215203a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx3215203b  bus1=sx3215203b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx2803199a  bus1=sx2803199a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx2803199c  bus1=sx2803199c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx2803199b  bus1=sx2803199b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx2952003b  bus1=sx2952003b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3233413b  bus1=sx3233413b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx3252336b  bus1=sx3252336b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2802480b  bus1=sx2802480b.1.2  phases=2  kV=0.208  kVA=17.937  pmpp=17.937  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 29.18 kW
+New PVSystem.PV_sx3027670b  bus1=sx3027670b.1.2  phases=2  kV=0.208  kVA=17.937  pmpp=17.937  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 29.18 kW
+New PVSystem.PV_sx2708744b  bus1=sx2708744b.1.2  phases=2  kV=0.208  kVA=17.937  pmpp=17.937  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 29.18 kW
+New PVSystem.PV_sx2989566b  bus1=sx2989566b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3067478a  bus1=sx3067478a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2898457a  bus1=sx2898457a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3160793c  bus1=sx3160793c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2767340c  bus1=sx2767340c.1.2  phases=2  kV=0.208  kVA=18.761  pmpp=18.761  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 30.52 kW
+New PVSystem.PV_sx2767340a  bus1=sx2767340a.1.2  phases=2  kV=0.208  kVA=16.351  pmpp=16.351  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 26.60 kW
+New PVSystem.PV_sx3150961c  bus1=sx3150961c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3254870c  bus1=sx3254870c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2767341c  bus1=sx2767341c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3029055b  bus1=sx3029055b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2798067b  bus1=sx2798067b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx3254869b  bus1=sx3254869b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3214069c  bus1=sx3214069c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2842329c  bus1=sx2842329c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2936211c  bus1=sx2936211c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3236004c  bus1=sx3236004c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3251799a  bus1=sx3251799a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3160872c  bus1=sx3160872c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2955077c  bus1=sx2955077c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_l3081380  bus1=l3081380.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3067507c  bus1=sx3067507c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3217052c  bus1=sx3217052c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3086074c  bus1=sx3086074c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3217053c  bus1=sx3217053c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2767408c  bus1=sx2767408c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_p829965  bus1=p829965.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2917330a  bus1=sx2917330a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2992657a  bus1=sx2992657a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2879794a  bus1=sx2879794a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3217064b  bus1=sx3217064b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2767409b  bus1=sx2767409b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3160868b  bus1=sx3160868b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2917359a  bus1=sx2917359a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2936271a  bus1=sx2936271a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2842379a  bus1=sx2842379a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_l2917328  bus1=l2917328.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2674051a  bus1=sx2674051a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2989565a  bus1=sx2989565a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2898526c  bus1=sx2898526c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_l3011298  bus1=l3011298.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2841628a  bus1=sx2841628a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_l3160107  bus1=l3160107.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3195318b  bus1=sx3195318b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2879752b  bus1=sx2879752b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3142078b  bus1=sx3142078b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2805036b  bus1=sx2805036b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2786273b  bus1=sx2786273b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2729405b  bus1=sx2729405b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2785516b  bus1=sx2785516b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3048196b  bus1=sx3048196b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2691946b  bus1=sx2691946b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2973158c  bus1=sx2973158c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2916609c  bus1=sx2916609c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2691950c  bus1=sx2691950c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2897775c  bus1=sx2897775c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2785524c  bus1=sx2785524c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2691945c  bus1=sx2691945c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3010567c  bus1=sx3010567c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3085400c  bus1=sx3085400c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2860486c  bus1=sx2860486c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2954351c  bus1=sx2954351c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3122819c  bus1=sx3122819c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3254215c  bus1=sx3254215c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3085399c  bus1=sx3085399c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2748133c  bus1=sx2748133c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3235266c  bus1=sx3235266c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2841626c  bus1=sx2841626c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2841625c  bus1=sx2841625c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2954350c  bus1=sx2954350c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3235251c  bus1=sx3235251c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3160105c  bus1=sx3160105c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2879073c  bus1=sx2879073c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3104126c  bus1=sx3104126c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3029503c  bus1=sx3029503c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2785525c  bus1=sx2785525c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3263051c  bus1=sx3263051c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2727795c  bus1=sx2727795c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2879076c  bus1=sx2879076c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2691951c  bus1=sx2691951c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2841629c  bus1=sx2841629c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2841630c  bus1=sx2841630c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3066801c  bus1=sx3066801c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2766717c  bus1=sx2766717c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2785518c  bus1=sx2785518c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2724120c  bus1=sx2724120c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2973144c  bus1=sx2973144c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2879055c  bus1=sx2879055c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3626914c  bus1=sx3626914c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2785523c  bus1=sx2785523c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3216347c  bus1=sx3216347c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_l3195356  bus1=l3195356.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2860487c  bus1=sx2860487c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2879064a  bus1=sx2879064a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_m1069154  bus1=m1069154.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx3104120b  bus1=sx3104120b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2804251a  bus1=sx2804251a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3254220c  bus1=sx3254220c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3254219c  bus1=sx3254219c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_l2860491  bus1=l2860491.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2691953a  bus1=sx2691953a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3029499a  bus1=sx3029499a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3066819a  bus1=sx3066819a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2897772a  bus1=sx2897772a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2710519a  bus1=sx2710519a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2954354a  bus1=sx2954354a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3010569a  bus1=sx3010569a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3104133a  bus1=sx3104133a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2748158a  bus1=sx2748158a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_e182748  bus1=e182748.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2766750c  bus1=sx2766750c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_m1026357  bus1=m1026357.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx2729412a  bus1=sx2729412a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2785526b  bus1=sx2785526b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3029507b  bus1=sx3029507b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3197643b  bus1=sx3197643b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3122823b  bus1=sx3122823b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2879079b  bus1=sx2879079b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3048201b  bus1=sx3048201b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3216339b  bus1=sx3216339b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3048200b  bus1=sx3048200b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2954339b  bus1=sx2954339b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3104115b  bus1=sx3104115b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2801895b  bus1=sx2801895b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3029495b  bus1=sx3029495b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3085389b  bus1=sx3085389b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2710537b  bus1=sx2710537b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3141390b  bus1=sx3141390b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2673300b  bus1=sx2673300b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2822859b  bus1=sx2822859b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2991902b  bus1=sx2991902b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2897764b  bus1=sx2897764b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2860488b  bus1=sx2860488b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2804260b  bus1=sx2804260b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2973163b  bus1=sx2973163b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2763072b  bus1=sx2763072b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2991917b  bus1=sx2991917b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2841636b  bus1=sx2841636b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3104135a  bus1=sx3104135a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2766726b  bus1=sx2766726b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2804259a  bus1=sx2804259a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2973162b  bus1=sx2973162b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2748135a  bus1=sx2748135a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2991920a  bus1=sx2991920a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2860489a  bus1=sx2860489a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3122824a  bus1=sx3122824a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3104132a  bus1=sx3104132a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3195310a  bus1=sx3195310a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3048214a  bus1=sx3048214a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2935559a  bus1=sx2935559a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3085402a  bus1=sx3085402a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2973164a  bus1=sx2973164a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2897778a  bus1=sx2897778a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3104131a  bus1=sx3104131a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2991919a  bus1=sx2991919a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3010570a  bus1=sx3010570a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3235275b  bus1=sx3235275b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2804261c  bus1=sx2804261c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2897779c  bus1=sx2897779c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3178997c  bus1=sx3178997c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3122849b  bus1=sx3122849b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2763153a  bus1=sx2763153a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3027116a  bus1=sx3027116a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3254205c  bus1=sx3254205c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2841637c  bus1=sx2841637c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2991943c  bus1=sx2991943c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3048230c  bus1=sx3048230c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_p827580  bus1=p827580.1.2.3  phases=3  kV=12.47  kVA=45.247  pmpp=45.247  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! MV no-load bus
+New PVSystem.PV_sx_293471a  bus1=sx_293471a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx_293471c  bus1=sx_293471c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3254238b  bus1=sx3254238b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2673346c  bus1=sx2673346c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3216370c  bus1=sx3216370c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3216370b  bus1=sx3216370b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx3216370a  bus1=sx3216370a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2785527a  bus1=sx2785527a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3235255b  bus1=sx3235255b.1.2  phases=2  kV=0.208  kVA=1.199  pmpp=1.199  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 1.95 kW
+New PVSystem.PV_sx2897780b  bus1=sx2897780b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2860491b  bus1=sx2860491b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2729411a  bus1=sx2729411a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3197644a  bus1=sx3197644a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2897781a  bus1=sx2897781a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3122826a  bus1=sx3122826a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3197645a  bus1=sx3197645a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2991923a  bus1=sx2991923a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3104134c  bus1=sx3104134c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2860490a  bus1=sx2860490a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2785528b  bus1=sx2785528b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3254212b  bus1=sx3254212b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2748130b  bus1=sx2748130b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3139598b  bus1=sx3139598b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx3119793b  bus1=sx3119793b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3254211b  bus1=sx3254211b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx0247160b  bus1=sx0247160b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2691959b  bus1=sx2691959b.1.2  phases=2  kV=0.208  kVA=23.912  pmpp=23.912  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 38.90 kW
+New PVSystem.PV_sx2897784b  bus1=sx2897784b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx3048231b  bus1=sx3048231b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx2766732b  bus1=sx2766732b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx0247162b  bus1=sx0247162b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2689678b  bus1=sx2689678b.1.2  phases=2  kV=0.208  kVA=1.199  pmpp=1.199  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 1.95 kW
+New PVSystem.PV_sx3197629b  bus1=sx3197629b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2691942b  bus1=sx2691942b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2729407b  bus1=sx2729407b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2785520b  bus1=sx2785520b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx3178981b  bus1=sx3178981b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3066818b  bus1=sx3066818b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3122813a  bus1=sx3122813a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3085396a  bus1=sx3085396a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2710520a  bus1=sx2710520a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2860492c  bus1=sx2860492c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2841638c  bus1=sx2841638c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3235256a  bus1=sx3235256a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3254210c  bus1=sx3254210c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3197628c  bus1=sx3197628c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2710510c  bus1=sx2710510c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3048206a  bus1=sx3048206a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3010556a  bus1=sx3010556a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2748146a  bus1=sx2748146a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3104113a  bus1=sx3104113a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3104121a  bus1=sx3104121a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2673310a  bus1=sx2673310a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2804283a  bus1=sx2804283a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3104122a  bus1=sx3104122a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2785519a  bus1=sx2785519a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2748129a  bus1=sx2748129a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2804253a  bus1=sx2804253a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3195315a  bus1=sx3195315a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2991913a  bus1=sx2991913a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3235253a  bus1=sx3235253a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3197637c  bus1=sx3197637c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2991911c  bus1=sx2991911c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3048208a  bus1=sx3048208a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3029502a  bus1=sx3029502a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx3160107a  bus1=sx3160107a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3215385b  bus1=sx3215385b.1.2  phases=2  kV=0.208  kVA=11.956  pmpp=11.956  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 19.45 kW
+New PVSystem.PV_sx3215385a  bus1=sx3215385a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3215385c  bus1=sx3215385c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3047289c  bus1=sx3047289c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx3047289a  bus1=sx3047289a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx2879054a  bus1=sx2879054a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2991906a  bus1=sx2991906a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx2766721a  bus1=sx2766721a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3104128a  bus1=sx3104128a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2991912a  bus1=sx2991912a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3141400a  bus1=sx3141400a.1.2  phases=2  kV=0.208  kVA=2.182  pmpp=2.182  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.55 kW
+New PVSystem.PV_sx3029498c  bus1=sx3029498c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2688693c  bus1=sx2688693c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2804249c  bus1=sx2804249c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3179678b  bus1=sx3179678b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2936279c  bus1=sx2936279c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3198355b  bus1=sx3198355b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2711234b  bus1=sx2711234b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2897771b  bus1=sx2897771b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3104859b  bus1=sx3104859b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3236011b  bus1=sx3236011b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2879773a  bus1=sx2879773a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3066806c  bus1=sx3066806c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2822862c  bus1=sx2822862c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2710509c  bus1=sx2710509c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2935550c  bus1=sx2935550c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3085393c  bus1=sx3085393c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2897770c  bus1=sx2897770c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3216343c  bus1=sx3216343c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3029497c  bus1=sx3029497c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3085392c  bus1=sx3085392c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2897806c  bus1=sx2897806c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3104155c  bus1=sx3104155c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2804282c  bus1=sx2804282c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2673307c  bus1=sx2673307c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2673306c  bus1=sx2673306c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2785515c  bus1=sx2785515c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2822863c  bus1=sx2822863c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2897768c  bus1=sx2897768c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2729406c  bus1=sx2729406c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2935551c  bus1=sx2935551c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2748128c  bus1=sx2748128c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3197627c  bus1=sx3197627c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3066807c  bus1=sx3066807c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2991640c  bus1=sx2991640c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2991940c  bus1=sx2991940c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3048228c  bus1=sx3048228c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3048205c  bus1=sx3048205c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2674052c  bus1=sx2674052c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3198356c  bus1=sx3198356c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3048968c  bus1=sx3048968c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2804250c  bus1=sx2804250c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3085394c  bus1=sx3085394c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2916605c  bus1=sx2916605c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2916606c  bus1=sx2916606c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2822865c  bus1=sx2822865c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2935552c  bus1=sx2935552c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3045895c  bus1=sx3045895c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2767414c  bus1=sx2767414c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2875754c  bus1=sx2875754c.1.2  phases=2  kV=0.208  kVA=12.503  pmpp=12.503  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 20.34 kW
+New PVSystem.PV_sx2917336c  bus1=sx2917336c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3160878c  bus1=sx3160878c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3179682c  bus1=sx3179682c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2955081a  bus1=sx2955081a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2861218c  bus1=sx2861218c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2917328b  bus1=sx2917328b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2879753b  bus1=sx2879753b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx3142079b  bus1=sx3142079b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx2917310b  bus1=sx2917310b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3142098b  bus1=sx3142098b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2711224b  bus1=sx2711224b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx3068944b  bus1=sx3068944b.1.2  phases=2  kV=0.208  kVA=8.969  pmpp=8.969  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 14.59 kW
+New PVSystem.PV_sx2767407b  bus1=sx2767407b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2879767b  bus1=sx2879767b.1.2  phases=2  kV=0.208  kVA=2.391  pmpp=2.391  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 3.89 kW
+New PVSystem.PV_sx2805031c  bus1=sx2805031c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2730163c  bus1=sx2730163c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3030199c  bus1=sx3030199c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2955074a  bus1=sx2955074a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx3160864b  bus1=sx3160864b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3254915b  bus1=sx3254915b.1.2  phases=2  kV=0.208  kVA=1.199  pmpp=1.199  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 1.95 kW
+New PVSystem.PV_sx2861219b  bus1=sx2861219b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2711226b  bus1=sx2711226b.1.2  phases=2  kV=0.208  kVA=5.981  pmpp=5.981  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 9.73 kW
+New PVSystem.PV_sx2692655c  bus1=sx2692655c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3160865a  bus1=sx3160865a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx3081380a  bus1=sx3081380a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2955076a  bus1=sx2955076a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2692660a  bus1=sx2692660a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx3179673c  bus1=sx3179673c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3030203c  bus1=sx3030203c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3160871c  bus1=sx3160871c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2842384c  bus1=sx2842384c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2917333a  bus1=sx2917333a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2786266a  bus1=sx2786266a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx3104856a  bus1=sx3104856a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2730187a  bus1=sx2730187a.1.2  phases=2  kV=0.208  kVA=8.176  pmpp=8.176  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 13.30 kW
+New PVSystem.PV_sx2692661a  bus1=sx2692661a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2898522a  bus1=sx2898522a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2839305a  bus1=sx2839305a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2973833b  bus1=sx2973833b.1.2  phases=2  kV=0.208  kVA=3.590  pmpp=3.590  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.84 kW
+New PVSystem.PV_sx3086098a  bus1=sx3086098a.1.2  phases=2  kV=0.208  kVA=10.905  pmpp=10.905  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 17.74 kW
+New PVSystem.PV_sx3048946c  bus1=sx3048946c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3198347c  bus1=sx3198347c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2898515c  bus1=sx2898515c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3048966c  bus1=sx3048966c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3030204a  bus1=sx3030204a.1.2  phases=2  kV=0.208  kVA=5.452  pmpp=5.452  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 8.87 kW
+New PVSystem.PV_sx2823611a  bus1=sx2823611a.1.2  phases=2  kV=0.208  kVA=3.270  pmpp=3.270  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 5.32 kW
+New PVSystem.PV_sx2992556c  bus1=sx2992556c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2763407c  bus1=sx2763407c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2937757c  bus1=sx2937757c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3253570c  bus1=sx3253570c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3027124c  bus1=sx3027124c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2745811c  bus1=sx2745811c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3176661c  bus1=sx3176661c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx3048937c  bus1=sx3048937c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2804957c  bus1=sx2804957c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2767343c  bus1=sx2767343c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2891575c  bus1=sx2891575c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3048888c  bus1=sx3048888c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3064514c  bus1=sx3064514c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2861158c  bus1=sx2861158c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2952007c  bus1=sx2952007c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3048890c  bus1=sx3048890c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx3179637c  bus1=sx3179637c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx3254873c  bus1=sx3254873c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx3142050c  bus1=sx3142050c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2861157c  bus1=sx2861157c.1.2  phases=2  kV=0.208  kVA=6.252  pmpp=6.252  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 10.17 kW
+New PVSystem.PV_sx2936216c  bus1=sx2936216c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
+New PVSystem.PV_sx2786204c  bus1=sx2786204c.1.2  phases=2  kV=0.208  kVA=9.380  pmpp=9.380  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 15.26 kW
+New PVSystem.PV_sx2730108c  bus1=sx2730108c.1.2  phases=2  kV=0.208  kVA=3.750  pmpp=3.750  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 6.10 kW
+New PVSystem.PV_sx2823592a  bus1=sx2823592a.1.2  phases=2  kV=0.208  kVA=1.088  pmpp=1.088  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 1.77 kW
+New PVSystem.PV_sx2801909c  bus1=sx2801909c.1.2  phases=2  kV=0.208  kVA=2.502  pmpp=2.502  irradiance=1.0  pf=1.0  %cutin=0.1  %cutout=0.1  ! local load 4.07 kW
