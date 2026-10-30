@@ -25,7 +25,7 @@ import numpy as np
 import pytest
 
 from conftest import CASE_ROOTS
-from core.grids.data import (
+from core.grids.network import (
     _complex_array,
     _idx_array_0,
     _pad_complex_matrices,

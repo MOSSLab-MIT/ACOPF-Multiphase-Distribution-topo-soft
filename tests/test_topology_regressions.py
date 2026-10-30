@@ -123,12 +123,15 @@ def test_woodbury_precompute_matches_stamp_host():
 
 @pytest.mark.skipif(CASE is None, reason="IEEE13 case not available")
 def test_violation_respects_topo_y_0row():
-    """``calc_ineq_violation`` must honor the ``Y_0row`` argument (substation term)."""
-    import jax
+    """The soft substation penalty must honor the ``Y_0row`` argument; hard violation must not use it.
+
+    The substation limit is soft: its Y-dependence lives in ``calc_soft_penalties`` (``pen_sub``), while
+    ``calc_ineq_violation`` covers only DER limits and is therefore independent of ``Y_0row``.
+    """
     import jax.numpy as jnp
 
-    from core.grids.metrics import calc_substation_power_per_phase
-    from core.utils.workflow import prepare_batch_data
+    from core.grids.metrics import calc_soft_penalties, calc_substation_power_per_phase
+    from core.utils.batch import prepare_batch_data
 
     paths = case_paths(CASE)
     data = OPFData(str(paths["train"]), str(paths["test_feasible"]), str(paths["json"]))
@@ -151,30 +154,27 @@ def test_violation_respects_topo_y_0row():
     Y_pert = topo.Y_0row * jnp.asarray(1.1 + 0.0j, dtype=jnp.complex128)
     Y_huge = topo.Y_0row * jnp.asarray(1000.0 + 0.0j, dtype=jnp.complex128)
 
-    # Substation power in the constraint stack is Y-dependent.
+    # Substation power is Y-dependent.
     ssub_topo = jnp.abs(calc_substation_power_per_phase(net, v_full, topo.Y_0row))
     ssub_pert = jnp.abs(calc_substation_power_per_phase(net, v_full, Y_pert))
     assert float(jnp.max(jnp.abs(ssub_topo - ssub_pert))) > 1e-12
 
-    vio_topo = calc_ineq_violation(
-        net, p, q, batch.pder_avai, v_full, Y_0row=topo.Y_0row
-    )
-    vio_huge = calc_ineq_violation(
-        net, p, q, batch.pder_avai, v_full, Y_0row=Y_huge
-    )
-    vio_implicit = calc_ineq_violation(net, p, q, batch.pder_avai, v_full, Y_0row=None)
-    vio_base = calc_ineq_violation(
-        net, p, q, batch.pder_avai, v_full, Y_0row=Y_base
+    # pen_sub follows the Y_0row passed in; V / I / θ penalties do not depend on it.
+    pen_topo = np.asarray(calc_soft_penalties(net, v_full, topo.Y_0row))
+    pen_huge = np.asarray(calc_soft_penalties(net, v_full, Y_huge))
+    assert float(np.max(pen_huge[:, 3] - pen_topo[:, 3])) > 1e-6
+    np.testing.assert_array_equal(pen_huge[:, :3], pen_topo[:, :3])
+    # A 2-D (unbatched) Y_0row is broadcast over the batch.
+    np.testing.assert_array_equal(
+        np.asarray(calc_soft_penalties(net, v_full, y_0row_base)),
+        np.asarray(calc_soft_penalties(net, v_full, Y_base)),
     )
 
-    assert float(jnp.max(jnp.abs(vio_huge - vio_topo))) > 1e-6
-    np.testing.assert_allclose(
-        np.asarray(vio_implicit),
-        np.asarray(vio_base),
-        atol=0.0,
-        rtol=0.0,
-        err_msg="Y_0row=None must match explicit base slack-row broadcast",
-    )
+    vio_topo = calc_ineq_violation(net, p, q, batch.pder_avai, v_full, Y_0row=topo.Y_0row)
+    vio_huge = calc_ineq_violation(net, p, q, batch.pder_avai, v_full, Y_0row=Y_huge)
+    vio_implicit = calc_ineq_violation(net, p, q, batch.pder_avai, v_full, Y_0row=None)
+    np.testing.assert_array_equal(np.asarray(vio_huge), np.asarray(vio_topo))
+    np.testing.assert_array_equal(np.asarray(vio_implicit), np.asarray(vio_topo))
 
 
 # ---------------------------------------------------------------------------

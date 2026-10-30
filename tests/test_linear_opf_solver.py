@@ -11,10 +11,11 @@ jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
 
-from conftest import load_h5_sample
+from conftest import DATASET_ROOT, load_h5_sample
 from core.grids.data import OPFData
 from core.grids.linear_opf_solver import (
     RHO_I,
+    RHO_SUB,
     RHO_THETA,
     RHO_V,
     LinearizationPowerFlowError,
@@ -63,7 +64,7 @@ class LinearOPFSolution(NamedTuple):
 
 
 def _case_root(case: str = CASE) -> Path:
-    return Path(__file__).resolve().parents[1] / "datagen_topo" / "datasets" / case
+    return DATASET_ROOT / case
 
 
 def _load_data(case: str = CASE) -> OPFData:
@@ -342,7 +343,7 @@ def _linear_rows(cache, pder, qder):
 
 
 def test_soft_row_layout_partition_and_scales():
-    """Substation rows hard; V / angle / branch rows soft with squared-unit scales 2b (angle: 1)."""
+    """All network rows soft (V / angle / substation / branch) with squared-unit scales 2b (angle: 1)."""
     sample = _load_sample(0)
     net = sample.data.net
     cache = build_linear_opf_cache(net, sample.topo, dict(sample.data.config))
@@ -350,10 +351,7 @@ def test_soft_row_layout_partition_and_scales():
     layout = constraint_row_layout(net)
     lb, ub = (np.asarray(b) for b in constraint_bounds(net))
 
-    sub_rows = np.arange(lb.size)[layout["sl_sub"]]
-    np.testing.assert_array_equal(np.sort(rows.hard_up), sub_rows)
-    assert rows.hard_lo.size == 0  # substation rows have no finite lower bound
-    assert np.intersect1d(rows.soft_up, sub_rows).size == 0
+    assert rows.hard_up.size == 0 and rows.hard_lo.size == 0
     # Every finite bound is covered exactly once.
     assert rows.hard_up.size + rows.soft_up.size == np.isfinite(ub).sum()
     assert rows.hard_lo.size + rows.soft_lo.size == np.isfinite(lb).sum()
@@ -366,6 +364,7 @@ def test_soft_row_layout_partition_and_scales():
         (RHO_V, layout["sl_v"], 2.0 * ub[layout["sl_v"]]),
         (RHO_THETA, layout["sl_angle"], np.ones(ub[layout["sl_angle"]].shape)),
         (RHO_I, layout["sl_branch"], 2.0 * ub[layout["sl_branch"]]),
+        (RHO_SUB, layout["sl_sub"], 2.0 * np.asarray(net.sub_smax_phase)),
     ):
         family = np.arange(lb.size)[sl]
         sel = np.isin(rows.soft_up, family)

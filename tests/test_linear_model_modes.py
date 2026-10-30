@@ -2,6 +2,7 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 
+from conftest import DATASET_ROOT
 from core.topology.utils import make_topology_data
 
 
@@ -13,7 +14,7 @@ def _load_ieee13_point():
     from core.grids.data import OPFData
     from core.topology.batch import precompute_topology
 
-    case_root = Path(__file__).resolve().parents[1] / "datagen_topo" / "datasets" / "IEEE13Nodeckt"
+    case_root = DATASET_ROOT / "IEEE13Nodeckt"
     data = OPFData(
         str(case_root / "IEEE13Nodeckt_training.h5"),
         str(case_root / "IEEE13Nodeckt_test_feasible.h5"),

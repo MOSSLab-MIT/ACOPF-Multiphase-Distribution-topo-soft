@@ -1,6 +1,8 @@
 import numpy as np
 import jax.numpy as jnp
+import pytest
 
+from core.grids.metrics import ac_constraint_violation_vector
 from methods.penalty_pf import trainer as penalty_pf_trainer
 from methods.penalty_direct import trainer as penalty_direct_trainer
 
@@ -11,6 +13,9 @@ class _DummyData:
         self.n_total = 4
         self.n_net = self.n_total - 1
         self.pdermin = jnp.asarray([0.0, 0.0, 0.0], dtype=jnp.float64)
+        self.pdermax = jnp.asarray([5.0, 5.0, 5.0], dtype=jnp.float64)
+        self.qdermin = jnp.asarray([-5.0, -5.0, -5.0], dtype=jnp.float64)
+        self.qdermax = jnp.asarray([5.0, 5.0, 5.0], dtype=jnp.float64)
         self.sdermax = jnp.asarray([5.0, 5.0, 5.0], dtype=jnp.float64)
         # Unit 0 has phases [0, 1], unit 1 has phase [2].
         self.der_unit_to_phase = jnp.asarray([[0, 1], [2, 0]], dtype=jnp.int32)
@@ -101,10 +106,34 @@ def test_both_penalty_projections_enforce_unit_availability_with_even_scaling():
             phase_ids = groups[unit_idx][mask[unit_idx]]
             if phase_ids.size <= 1:
                 continue
-            raw = p_raw[b, phase_ids]
+            # Common scaling preserves ratios after enforcing per-phase bounds.
+            raw = np.clip(p_raw[b, phase_ids], 0.0, np.asarray(data.pdermax)[phase_ids])
             out = p_penalty_pf[b, phase_ids]
             active = raw > 1e-10
             if np.count_nonzero(active) <= 1:
                 continue
             ratios = out[active] / raw[active]
             assert np.max(ratios) - np.min(ratios) <= 1e-12
+
+
+@pytest.mark.parametrize("method", ["penalty_pf", "penalty_direct"])
+def test_training_projection_enforces_all_der_constraints(method):
+    data = _DummyData()
+    data.pdermax = jnp.asarray([0.8, 2.5, 3.0])
+    data.sdermax = jnp.asarray([1.0, 2.0, 3.0])
+    data.qdermin = jnp.asarray([-0.3, -0.4, -0.5])
+    data.qdermax = jnp.asarray([0.2, 0.6, 0.7])
+    x = jnp.asarray([[100.0, 0.0, -1.0, 20.0, -20.0, 20.0]])
+    caps = jnp.asarray([[2.0, 3.0]])
+    if method == "penalty_pf":
+        x_out = penalty_pf_trainer._project_predictions(x, caps, data)
+    else:
+        voltages = jnp.asarray([[1.0, 0.98, 1.02, 0.0, 0.01, -0.01]])
+        full_out = penalty_direct_trainer._project_predictions(
+            data, jnp.concatenate([x, voltages], axis=1), caps
+        )
+        np.testing.assert_array_equal(full_out[:, 6:], voltages)
+        x_out = full_out[:, :6]
+    violations = ac_constraint_violation_vector(data, x_out[0], None, None, caps[0])
+    assert np.all(np.asarray(violations) <= 1e-12)
+    np.testing.assert_allclose(x_out, [[0.8, 0.0, 0.0, 0.2, -0.4, 0.7]], atol=1e-12, rtol=0)

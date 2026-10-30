@@ -30,7 +30,7 @@ CASES = ["IEEE13Nodeckt", "IEEE123Master"]
 def _load_batch(case_name: str, n: int = 5):
     """Load data and prepare a batch for testing."""
     from core.grids.data import OPFData
-    from core.utils.workflow import prepare_batch_data
+    from core.utils.batch import prepare_batch_data
     from core.topology.utils import Y_LL_L0_from_scaled
 
     paths = case_paths(case_name)

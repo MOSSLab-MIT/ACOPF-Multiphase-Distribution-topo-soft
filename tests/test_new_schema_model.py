@@ -4,6 +4,7 @@ import jax
 import jax.numpy as jnp
 
 from conftest import (
+    DATASET_ROOT,
     expand_compact_status,
     load_case_config,
     load_case_matrices,
@@ -22,7 +23,7 @@ def _load_data(case_name: str):
     from pathlib import Path
     from core.grids.data import OPFData
 
-    case_root = Path(__file__).resolve().parents[1] / "datagen_topo" / "datasets" / case_name
+    case_root = DATASET_ROOT / case_name
     return OPFData(
         str(case_root / f"{case_name}_training.h5"),
         str(case_root / f"{case_name}_test_feasible.h5"),
@@ -62,7 +63,7 @@ def _reference_cost(cfg, psub, pder, pder_avai, obj_weights):
 
 
 def _reference_soft_penalties(cfg, sample):
-    """Julia slack sums [pen_v, pen_i, pen_theta] (model.jl, raw pu²) from the JSON config."""
+    """Julia slack sums [pen_v, pen_i, pen_theta, pen_sub] (model.jl, raw pu²) from the JSON config."""
     n_net = int(cfg["n_net"])
     v_local = local_voltage_vector(cfg, sample["primal"]["vr"], sample["primal"]["vi"])
 
@@ -99,30 +100,25 @@ def _reference_soft_penalties(cfg, sample):
                 if valid[c]:
                     current += y_series[r, c] * (v_system[int(from_idx[c])] - v_system[int(to_idx[c])])
             pen_i += max(abs(current) ** 2 - branch_imax[line_idx] ** 2, 0.0)
-    return np.array([pen_v, pen_i, pen_theta])
+
+    # Substation: S_k = u_slk,k conj(Y_scaled[n_net + k, :] u) on the sample topology.
+    y_scaled = stamp_switch_topology(cfg, sample["input"]["changing_switch_status"])
+    sub_smax_phase = np.asarray(cfg["sub_smax_phase"], dtype=np.float64)
+    pen_sub = 0.0
+    for k in range(int(cfg["n_slk"])):
+        s_k = v_local[n_net + k] * np.conjugate(y_scaled[n_net + k, :] @ v_local)
+        pen_sub += max(abs(s_k) ** 2 - sub_smax_phase[k] ** 2, 0.0)
+    return np.array([pen_v, pen_i, pen_theta, pen_sub])
 
 
 def _reference_violation(cfg, data, sample):
-    """Max HARD violation (substation, DER unit availability, DER box, DER capacity).
+    """Max HARD violation (DER unit availability, DER box, DER capacity).
 
-    Voltage / angle / branch-current limits are soft and priced in the cost instead.
+    Voltage / angle / branch-current / substation limits are soft and priced in the cost instead.
     """
-    n_net = int(cfg["n_net"])
-    n_slk = int(cfg["n_slk"])
-
     pder = np.asarray(sample["primal"]["pder"], dtype=np.float64)
     qder = np.asarray(sample["primal"]["qder"], dtype=np.float64)
     pder_avai = np.asarray(sample["input"]["pder_avai"], dtype=np.float64)
-
-    v_local = local_voltage_vector(cfg, sample["primal"]["vr"], sample["primal"]["vi"])
-    v_slack_local = v_local[n_net:]
-    y_scaled = stamp_switch_topology(cfg, sample["input"]["branch_status"])
-    sub_smax_phase = np.asarray(cfg["sub_smax_phase"], dtype=np.float64)
-    sub_vio = 0.0
-    for k in range(n_slk):
-        row = y_scaled[n_net + k, :]
-        s_k = v_slack_local[k] * np.conjugate(row @ v_local)
-        sub_vio = max(sub_vio, abs(s_k) - sub_smax_phase[k], 0.0)
 
     unit_vio = 0.0
     for g, phase_ids in enumerate(cfg["der_unit_to_phase"]):
@@ -138,7 +134,7 @@ def _reference_violation(cfg, data, sample):
     q_vio = np.max(np.maximum(qmin - qder, 0.0) + np.maximum(qder - qmax, 0.0))
     s_vio = np.max(np.maximum(pder**2 + qder**2 - smax**2, 0.0))
 
-    return max(sub_vio, unit_vio, p_vio, q_vio, s_vio)
+    return max(unit_vio, p_vio, q_vio, s_vio)
 
 
 @pytest.mark.parametrize("case_name", CASES)
@@ -159,7 +155,9 @@ def test_calc_cost_matches_soft_julia_objective(case_name, index):
 
     pen = _reference_soft_penalties(cfg, sample)
     expected = _reference_cost(cfg, psub, pder, pder_avai, obj_weights) + obj_weights[:, 2:] @ pen
-    actual = np.asarray(calc_cost(data, psub, pder, pder_avai, obj_weights, v_full))
+    n_net = int(cfg["n_net"])
+    y_0row = stamp_switch_topology(cfg, sample["input"]["changing_switch_status"])[n_net:, :][None]
+    actual = np.asarray(calc_cost(data, psub, pder, pder_avai, obj_weights, v_full, y_0row))
 
     np.testing.assert_allclose(actual, expected, atol=1e-10, rtol=1e-10)
     assert actual.shape == (1,)

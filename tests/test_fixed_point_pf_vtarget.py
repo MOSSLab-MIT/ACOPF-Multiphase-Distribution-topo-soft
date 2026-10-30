@@ -16,7 +16,7 @@ from conftest import case_paths
 
 def _load_data_and_batch(case_name: str, n: int | None = 2):
     from core.grids.data import OPFData
-    from core.utils.workflow import prepare_batch_data
+    from core.utils.batch import prepare_batch_data
     from core.topology.utils import Y_LL_L0_from_scaled
 
     paths = case_paths(case_name)

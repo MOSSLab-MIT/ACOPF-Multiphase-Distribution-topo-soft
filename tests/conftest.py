@@ -17,7 +17,8 @@ except RuntimeError:
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DATASET_ROOT = ROOT / "datagen_topo" / "datasets"
+# ACOPF_DATASET_ROOT points the tests at an alternative datasets/ tree (e.g. freshly regenerated data).
+DATASET_ROOT = Path(os.environ.get("ACOPF_DATASET_ROOT", ROOT / "datagen_topo" / "datasets"))
 CASE_ROOTS = {
     "IEEE13Nodeckt": DATASET_ROOT / "IEEE13Nodeckt",
     "IEEE123Master": DATASET_ROOT / "IEEE123Master",

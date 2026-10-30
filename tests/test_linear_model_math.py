@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from conftest import load_h5_sample
+from conftest import DATASET_ROOT, load_h5_sample
 import core.grids.linear_model as linear_model
 from core.grids.data import OPFData
 from core.grids.power_flow import power_flow_residual, solve_power_flow_fixed_point as solve_power_flow
@@ -26,7 +26,7 @@ DIRECTION_SEEDS = [0, 1]
 
 
 def _case_root(case_name: str) -> Path:
-    return Path(__file__).resolve().parents[1] / "datagen_topo" / "datasets" / case_name
+    return DATASET_ROOT / case_name
 
 
 def _load_data(case_name: str) -> OPFData:

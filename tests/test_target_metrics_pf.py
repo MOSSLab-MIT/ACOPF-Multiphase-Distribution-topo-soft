@@ -26,7 +26,7 @@ from core.grids.metrics import (
 )
 from core.grids.metrics import with_slack_voltage
 from core.topology.batch import precompute_topology
-from core.utils.workflow import prepare_batch_data
+from core.utils.batch import prepare_batch_data
 
 
 def _load_batch(case_name: str, split: str, n_samples: int = 8):

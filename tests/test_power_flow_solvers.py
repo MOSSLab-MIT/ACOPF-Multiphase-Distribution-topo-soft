@@ -15,7 +15,7 @@ CASES = ["IEEE13Nodeckt"]
 
 def _load_data_and_batch(case_name: str, n: int = 2):
     from core.grids.data import OPFData
-    from core.utils.workflow import prepare_batch_data
+    from core.utils.batch import prepare_batch_data
 
     paths = case_paths(case_name)
     data = OPFData(str(paths["train"]), str(paths["test_feasible"]), str(paths["json"]))

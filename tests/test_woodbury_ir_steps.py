@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from conftest import CASE_ROOTS, case_paths
+from conftest import CASE_ROOTS, DATASET_ROOT, case_paths
 from core.topology.woodbury import (
     WoodburyTopologyBackend,
     WoodburyStatic,
@@ -44,7 +44,6 @@ from core.topology.slim import _stamp_Y_LL_slim_bl
 
 from test_topology_woodbury_jax import _load_net_numpy, _load_compact_status_matrix, _build_status_suite
 
-DATASET_ROOT = ROOT / "datagen_topo" / "datasets"
 
 _ALL_IR_CASES = ["IEEE13Nodeckt", "IEEE123Master", "240bus_Master", "906bus_Master"]
 IR_TEST_CASES = [

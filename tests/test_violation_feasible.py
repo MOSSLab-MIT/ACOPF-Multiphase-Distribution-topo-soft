@@ -29,7 +29,8 @@ try:
 except RuntimeError:
     pass
 
-from core.grids.data import OPFData, map_to_node
+from core.grids.data import OPFData
+from core.grids.network import map_to_node
 from core.grids.der_projection import unit_active_power_violation_batch
 from core.grids.metrics import (
     calc_ineq_violation,
@@ -42,7 +43,7 @@ from core.grids.metrics import (
 from core.grids.power_flow import solve_power_flow_fixed_point as solve_power_flow, power_flow_residual
 
 # ── Dataset paths ──
-DATASET_ROOT = ROOT / "datagen_topo" / "datasets"
+from conftest import DATASET_ROOT
 
 CASES = {
     "IEEE13Nodeckt": {
