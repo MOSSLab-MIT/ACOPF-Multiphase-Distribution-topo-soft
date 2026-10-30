@@ -2,8 +2,8 @@
 """
 Training script for OPF Neural Network with penalty_direct method.
 
-NN predicts DER setpoints and voltages jointly; penalties are applied directly
-on AC violations at the predicted (pder, qder, vr, vi).
+NN predicts DER setpoints and voltages jointly. DER controls are projected;
+training minimizes the normalized soft-OPF objective plus a power-flow equality penalty.
 """
 import os
 import sys
@@ -31,7 +31,7 @@ configure_tensorflow_for_data_loading()
 
 from core.utils.cli import add_test_dataset_cli_args, print_banner
 from core.grids.power_flow import PowerFlowSolver
-from core.nn.model import create_train_state_full
+from core.nn.state import create_train_state_full
 from core.utils.checkpoint import build_training_summary, save_checkpoint, save_results
 from core.utils.datasets import (
     load_opf_data,
@@ -39,7 +39,8 @@ from core.utils.datasets import (
     resolve_and_validate_test_paths,
     resolve_and_validate_val_h5,
 )
-from core.utils.runtime import create_lr_schedule, get_gpu_memory_usage, merge_peak_gpu_memory, print_gpu_memory_usage
+from core.utils.runtime import get_gpu_memory_usage, merge_peak_gpu_memory, print_gpu_memory_usage
+from core.utils.schedule import create_lr_schedule
 from core.utils.types import OPFDataBuildOptions, VariantTestSpec
 from core.utils.workflow import (
     compute_training_normalization,
@@ -89,8 +90,7 @@ def parse_args():
     parser.add_argument("--test_samples", type=int, default=None, help="Number of testing samples")
 
     # Penalty (adaptive)
-    parser.add_argument("--rho_eq_init", type=float, default=1e-3, help="Initial penalty weight")
-    parser.add_argument("--rho_ineq_init", type=float, default=1e-3, help="Initial penalty weight")
+    parser.add_argument("--rho_eq_init", type=float, default=1e-3, help="Initial power-flow equality penalty weight")
     parser.add_argument("--rho_rate", type=float, default=1.0, help="Penalty rate multiplier")
     parser.add_argument("--violation_threshold", type=float, default=1e-3, help="Violation threshold for decay")
     parser.add_argument("--rho_decay_rate", type=float, default=0.9, help="Penalty decay rate")
@@ -165,9 +165,7 @@ def main():
 
     input_stat, cost_norm_stats = compute_training_normalization(
         train_dataset,
-        eval_dataset,
         data,
-        batch_size=args.batch_size,
         val_h5_path=val_h5_path,
         eval_samples=args.eval_samples,
     )
@@ -219,7 +217,6 @@ def main():
     peak_memory_across_training = {}
 
     rho_eq = args.rho_eq_init
-    rho_ineq = args.rho_ineq_init
 
     if val_h5_path is None:
         print("No --val_h5 provided; skipping in-epoch validation.")
@@ -240,12 +237,11 @@ def main():
                 .as_numpy_iterator()
             )
 
-        state, train_metrics, rho_eq, rho_ineq = train_epoch_penalty_direct(
+        state, train_metrics, rho_eq = train_epoch_penalty_direct(
             state,
             train_loader,
             data,
             rho_eq,
-            rho_ineq,
             args.rho_rate,
             args.violation_threshold,
             args.rho_decay_rate,
@@ -255,12 +251,11 @@ def main():
         epoch_time = time.time() - epoch_start
 
         train_metrics["rho_eq"] = rho_eq
-        train_metrics["rho_ineq"] = rho_ineq
 
         if epoch % args.log_every == 0:
             print(
                 f"\nEpoch {epoch}/{args.epochs} ({epoch_time:.2f}s) | "
-                f"Rho_eq: {rho_eq:.2e} | Rho_ineq: {rho_ineq:.2e}"
+                f"Rho_eq: {rho_eq:.2e}"
             )
             print(
                 f"  Train - Loss: {train_metrics['loss']:.6f} | Cost: {train_metrics['cost']:.6f} | "
@@ -270,7 +265,7 @@ def main():
 
             if eval_loader is not None:
                 eval_metrics = eval_epoch_penalty_direct(
-                    state, eval_loader, data, rho_eq, rho_ineq, cost_scale=cost_scale
+                    state, eval_loader, data, rho_eq, cost_scale=cost_scale
                 )
                 last_eval_results = eval_metrics.copy()
 

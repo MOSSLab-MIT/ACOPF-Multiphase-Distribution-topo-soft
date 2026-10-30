@@ -24,7 +24,7 @@ jax.config.update("jax_enable_x64", True)
 
 from core.utils.cli import add_test_dataset_cli_args, print_banner
 from core.grids.power_flow import PowerFlowSolver
-from core.nn.model import create_train_state
+from core.nn.state import create_train_state
 from core.utils.checkpoint import (
     load_checkpoint_config,
     resolve_checkpoint_model_spec,

@@ -13,13 +13,13 @@ from core.grids.metrics import (
     accumulate_soft_penalty_sums,
     calc_ac_metrics_pf,
     compute_ac_metrics_from_voltage,
+    compute_optimality_metrics,
     substation_power_from_voltage,
     with_slack_voltage,
 )
 from core.grids.power_flow import get_power_flow_batch_fn
 from core.topology.batch import precompute_topology
-from core.utils.loss import compute_optimality_metrics
-from core.utils.workflow import prepare_batch_data
+from core.utils.batch import prepare_batch_data
 from methods.linear_opf.solver import solve_linear_opf_batch
 
 # Env-gated per-stage RSS logging for OOM diagnosis (e.g. 8500-bus SLURM runs).

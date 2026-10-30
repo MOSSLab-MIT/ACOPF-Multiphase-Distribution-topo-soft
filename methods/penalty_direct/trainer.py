@@ -1,10 +1,10 @@
 """Penalty direct: NN predicts DER setpoints and voltages jointly.
 
 Loss at the predicted ``(pder, qder, vr, vi)``:
-``cost + rho_eq * eq_violation_sq + rho_ineq * ineq_violation_sq`` where ``cost`` is the soft-OPF
-objective (economic + per-sample ``ρ_V, ρ_I, ρ_θ`` L1 penalties on voltage / branch-current / angle
-limits, matching the Julia labels) and ``ineq_violation_sq`` covers only the hard constraints
-(substation; DER limits are enforced by projection).
+``mean(normalized_cost) + rho_eq * mean(eq_violation_sq)`` where ``cost`` is the soft-OPF
+objective (economic + per-sample ``ρ_V, ρ_I, ρ_θ, ρ_sub`` L1 penalties on voltage / branch-current /
+angle / substation limits, matching the Julia labels). DER limits are enforced by projection;
+their violations are reported as diagnostics only.
 """
 
 import time
@@ -15,20 +15,21 @@ import jax.numpy as jnp
 import numpy as np
 import optax
 
-from core.grids.data import OPFData, NetworkParams
+from core.grids.data import OPFData
+from core.grids.network import NetworkParams
 from core.nn.input import nn_features_for_apply
 from core.grids.der_projection import project_der_controls_batch
 from core.utils.loss import normalize_cost_for_loss
-from core.utils.loss import compute_optimality_metrics
 from core.grids.metrics import (
     accumulate_soft_penalty_sums,
     calc_ac_metrics_pf,
     calc_soft_penalties,
     compute_ac_metrics_from_voltage,
+    compute_optimality_metrics,
 )
-from core.nn.model import update_model
+from core.nn.state import update_model
 from core.topology.batch import precompute_topology
-from core.utils.workflow import prepare_batch_data
+from core.utils.batch import prepare_batch_data
 from core.utils.types import TopologyData
 from core.utils.runtime import get_gpu_memory_usage
 
@@ -100,7 +101,7 @@ def calc_batch_quantities(
 
 @partial(jax.jit, static_argnums=(4,))
 def compute_penalty_direct_loss(
-    params, state, inputs_batch, targets_batch, session: OPFData, rho_eq, rho_ineq, topo: TopologyData,
+    params, state, inputs_batch, targets_batch, session: OPFData, rho_eq, topo: TopologyData,
     cost_scale=None,
 ):
     net = session.net
@@ -126,11 +127,7 @@ def compute_penalty_direct_loss(
     )
 
     cost_for_loss = normalize_cost_for_loss(cost, cost_scale)
-    loss = (
-        cost_for_loss.mean()
-        + rho_eq * eq_violation_sq.mean()
-        + rho_ineq * ineq_violation_sq.mean()
-    )
+    loss = cost_for_loss.mean() + rho_eq * eq_violation_sq.mean()
 
     metrics = {
         "loss": loss,
@@ -156,11 +153,11 @@ def compute_penalty_direct_loss(
 
 
 @partial(jax.jit, static_argnums=(3,))
-def train_step_penalty_direct(state, inputs_batch, targets_batch, session: OPFData, rho_eq, rho_ineq, topo: TopologyData,
+def train_step_penalty_direct(state, inputs_batch, targets_batch, session: OPFData, rho_eq, topo: TopologyData,
                           cost_scale=None):
     def loss_fn(params):
         loss, metrics, _ = compute_penalty_direct_loss(
-            params, state, inputs_batch, targets_batch, session, rho_eq, rho_ineq, topo,
+            params, state, inputs_batch, targets_batch, session, rho_eq, topo,
             cost_scale=cost_scale,
         )
         return loss, metrics
@@ -177,7 +174,7 @@ def train_step_penalty_direct(state, inputs_batch, targets_batch, session: OPFDa
 
 
 def train_epoch_penalty_direct(
-    state, train_loader, data, rho_eq, rho_ineq, rho_rate, violation_threshold, decay_rate, rho_max,
+    state, train_loader, data, rho_eq, rho_rate, violation_threshold, decay_rate, rho_max,
     cost_scale=None,
 ):
     """Run one training epoch; sync metrics once at epoch end."""
@@ -191,24 +188,17 @@ def train_epoch_penalty_direct(
         targets_batch = jnp.zeros((inputs_batch.shape[0], 1))
 
         state, _, metrics = train_step_penalty_direct(
-            state, inputs_batch, targets_batch, data, rho_eq, rho_ineq, topo,
+            state, inputs_batch, targets_batch, data, rho_eq, topo,
             cost_scale=cost_scale,
         )
 
         eq_violation_val = float(metrics["eq_violation"])
-        ineq_violation_val = float(metrics["ineq_violation"])
         eq_violation_sq_val = float(metrics["eq_violation_sq"])
-        ineq_violation_sq_val = float(metrics["ineq_violation_sq"])
         if eq_violation_val > violation_threshold:
             rho_eq = rho_eq + rho_rate * eq_violation_sq_val
             rho_eq = min(rho_eq, rho_max)
         else:
             rho_eq *= decay_rate
-        if ineq_violation_val > violation_threshold:
-            rho_ineq = rho_ineq + rho_rate * ineq_violation_sq_val
-            rho_ineq = min(rho_ineq, rho_max)
-        else:
-            rho_ineq *= decay_rate
 
         for k in _TRAIN_METRIC_SUM_KEYS:
             metrics_sum[k] = metrics_sum[k] + metrics[k]
@@ -220,10 +210,10 @@ def train_epoch_penalty_direct(
     inv = 1.0 / float(num_batches)
     avg_metrics = {k: float(metrics_sum[k] * inv) for k in _TRAIN_METRIC_SUM_KEYS}
     avg_metrics["max_violation"] = float(metrics_sum["max_violation"])
-    return state, avg_metrics, rho_eq, rho_ineq
+    return state, avg_metrics, rho_eq
 
 
-def eval_epoch_penalty_direct(state, eval_loader, data, rho_eq, rho_ineq, cost_scale=None):
+def eval_epoch_penalty_direct(state, eval_loader, data, rho_eq, cost_scale=None):
     net = data.net
     metrics_sum = {
         "loss": 0.0,
@@ -257,7 +247,7 @@ def eval_epoch_penalty_direct(state, eval_loader, data, rho_eq, rho_ineq, cost_s
         targets_batch = jnp.asarray(targets_np)
 
         loss, metrics, internals = compute_penalty_direct_loss(
-            state.params, state, inputs_batch, targets_batch, data, rho_eq, rho_ineq, topo,
+            state.params, state, inputs_batch, targets_batch, data, rho_eq, topo,
             cost_scale=cost_scale,
         )
 
@@ -426,7 +416,7 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         ) = calc_batch_quantities(
             net, batch.s_load, x_pred, batch.pder_avai, batch.obj_weights, topo
         )
-        pen_pred = calc_soft_penalties(net, v_final)
+        pen_pred = calc_soft_penalties(net, v_final, topo.Y_0row)
         del v_final, s_der
         target_metrics = calc_ac_metrics_pf(
             net,

@@ -5,11 +5,11 @@ Pipeline (identical at train, eval, and test time):
 NN → project DER controls to their device-feasible set → AC power flow →
 ``compute_ac_metrics_from_voltage`` (cost, violations).
 
-Training loss: ``loss = cost + rho * ineq_violation_sq`` where ``cost`` is the soft-OPF objective
-(economic cost + curtailment + per-sample ``ρ_V, ρ_I, ρ_θ`` L1 penalties on voltage / branch-current /
-angle limits, matching the Julia labels) and ``ineq_violation_sq`` covers only the constraints that
-stay hard (substation; DER limits are enforced by projection). Equality (power-flow) constraints are
-satisfied by construction because voltages come from the PF solve. Topology via
+Training loss: the mean normalized soft-OPF objective
+(economic cost + curtailment + per-sample ``ρ_V, ρ_I, ρ_θ, ρ_sub`` L1 penalties on voltage /
+branch-current / angle / substation limits, matching the Julia labels). DER limits are enforced by
+projection and reported as diagnostics. Equality (power-flow) constraints are enforced through
+the PF solve, subject to convergence and numerical tolerance. Topology via
 ``precompute_topology`` + ``TopologyData``.
 """
 
@@ -21,22 +21,22 @@ import jax.numpy as jnp
 import numpy as np
 import optax
 
-from core.grids.data import NetworkParams
+from core.grids.network import NetworkParams
 from core.nn.input import nn_features_for_apply
 from core.grids.der_projection import project_der_controls_from_x_batch
 from core.utils.loss import normalize_cost_for_loss
-from core.utils.loss import compute_optimality_metrics
 from core.grids.metrics import (
     accumulate_soft_penalty_sums,
     calc_ac_metrics_pf,
     calc_soft_penalties,
     compute_ac_metrics_from_voltage,
+    compute_optimality_metrics,
 )
 from core.grids.metrics import with_slack_voltage
 from core.grids.power_flow import get_power_flow_batch_fn
-from core.nn.model import update_model
+from core.nn.state import update_model
 from core.topology.batch import precompute_topology
-from core.utils.workflow import prepare_batch_data
+from core.utils.batch import prepare_batch_data
 from core.utils.types import TopologyData
 from core.utils.runtime import get_gpu_memory_usage
 
@@ -76,7 +76,7 @@ def calc_batch_quantities(
         s_load_batch: Load power (batch, n_bus-1)
         x_pred: Current DER setpoints [p_der; q_der] (batch, 2*n_der)
         pder_avai: DER availability (batch, n_der)
-        obj_weights: Objective weights [w_cost, w_curtail, rho_v, rho_i, rho_theta] (batch, 5)
+        obj_weights: Objective weights [w_cost, w_curtail, rho_v, rho_i, rho_theta, rho_sub] (batch, 6)
         num_der: Number of DERs
         topo: Precomputed topology matrices (required when topology varies)
         v_init: Optional pre-computed voltage to skip PF solve
@@ -86,7 +86,7 @@ def calc_batch_quantities(
         s_der: DER setpoints (batch, n_der)
         cost: Objective cost (batch,)
         violation: Total max constraint violation (batch,)
-        ineq_violation_sq: Mean-square inequality penalty (batch,)
+        ineq_violation_sq: Mean-square DER violation diagnostic (batch,)
     """
     pder = x_pred[:, :num_der]
     qder = x_pred[:, num_der:]
@@ -128,10 +128,10 @@ def calc_batch_quantities(
 
 @partial(jax.jit, static_argnums=(4,))
 def compute_penalty_pf_loss(
-    params, state, inputs_batch, targets_batch, session, rho, topo: TopologyData,
+    params, state, inputs_batch, targets_batch, session, topo: TopologyData,
     cost_scale=None,
 ):
-    """Penalty loss: soft-OPF cost + rho * hard ineq_violation_sq (``session`` = OPFData)."""
+    """Mean normalized soft-OPF cost; DER violations are diagnostics only."""
     net = session.net
     batch = prepare_batch_data(inputs_batch, targets_batch, session, topo=topo)
 
@@ -153,9 +153,8 @@ def compute_penalty_pf_loss(
     )
     )
 
-    # rho_scaled = rho / float(net.n_total + net.n_branch)
     cost_for_loss = normalize_cost_for_loss(cost, cost_scale)
-    loss = cost_for_loss.mean() + rho * ineq_violation_sq.mean()
+    loss = cost_for_loss.mean()
 
     metrics = {
         'loss': loss,
@@ -181,7 +180,7 @@ def compute_penalty_pf_loss(
 
 
 @partial(jax.jit, static_argnums=(3,))
-def train_step_penalty_pf(state, inputs_batch, targets_batch, session, rho, topo: TopologyData,
+def train_step_penalty_pf(state, inputs_batch, targets_batch, session, topo: TopologyData,
                           cost_scale=None):
     """One Optax step: ``value_and_grad`` on ``compute_penalty_pf_loss``.
 
@@ -189,7 +188,7 @@ def train_step_penalty_pf(state, inputs_batch, targets_batch, session, rho, topo
     """
     def loss_fn(params):
         loss, metrics, _ = compute_penalty_pf_loss(
-            params, state, inputs_batch, targets_batch, session, rho, topo,
+            params, state, inputs_batch, targets_batch, session, topo,
             cost_scale=cost_scale,
         )
         return loss, metrics
@@ -214,8 +213,8 @@ def train_step_penalty_pf(state, inputs_batch, targets_batch, session, rho, topo
     return state, loss, metrics
 
 
-def train_epoch_penalty_pf(state, train_loader, data, rho, cost_scale=None):
-    """Run one training epoch with fixed ``rho``; sync metrics once at epoch end."""
+def train_epoch_penalty_pf(state, train_loader, data, cost_scale=None):
+    """Run one training epoch; sync metrics once at epoch end."""
     metrics_sum = {k: jnp.asarray(0.0) for k in _TRAIN_METRIC_SUM_KEYS}
     metrics_sum["max_violation"] = jnp.asarray(0.0)
     num_batches = 0
@@ -226,7 +225,7 @@ def train_epoch_penalty_pf(state, train_loader, data, rho, cost_scale=None):
         targets_batch = jnp.zeros((inputs_batch.shape[0], 1))
 
         state, _, metrics = train_step_penalty_pf(
-            state, inputs_batch, targets_batch, data, rho, topo, cost_scale=cost_scale
+            state, inputs_batch, targets_batch, data, topo, cost_scale=cost_scale
         )
 
         for k in _TRAIN_METRIC_SUM_KEYS:
@@ -242,7 +241,7 @@ def train_epoch_penalty_pf(state, train_loader, data, rho, cost_scale=None):
     return state, avg_metrics
 
 
-def eval_epoch_penalty_pf(state, eval_loader, data, rho, cost_scale=None):
+def eval_epoch_penalty_pf(state, eval_loader, data, cost_scale=None):
     """Run evaluation epoch."""
     # Use full data object, not just data.net
     metrics_sum = {
@@ -271,7 +270,7 @@ def eval_epoch_penalty_pf(state, eval_loader, data, rho, cost_scale=None):
     for inputs_batch, targets_batch in eval_loader:
         topo = precompute_topology(data, inputs_batch)
         loss, metrics, internals = compute_penalty_pf_loss(
-            state.params, state, inputs_batch, targets_batch, data, rho, topo,
+            state.params, state, inputs_batch, targets_batch, data, topo,
             cost_scale=cost_scale,
         )
 
@@ -498,7 +497,10 @@ def test_penalty_pf_fn(state, data, batch_size, test_samples):
         cost_target = target_metrics.cost
         violation_target = target_metrics.violation
         accumulate_soft_penalty_sums(
-            penalty_sums, batch.obj_weights, calc_soft_penalties(net, v_pred), target_metrics.soft_penalty
+            penalty_sums,
+            batch.obj_weights,
+            calc_soft_penalties(net, v_pred, topo.Y_0row),
+            target_metrics.soft_penalty,
         )
         cost_error, abs_cost_error, optimality_gap = compute_optimality_metrics(
             cost, cost_target

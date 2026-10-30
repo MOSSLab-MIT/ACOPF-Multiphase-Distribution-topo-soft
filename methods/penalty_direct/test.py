@@ -22,7 +22,7 @@ configure_tensorflow_for_data_loading()
 
 from core.utils.cli import add_test_dataset_cli_args, print_banner
 from core.grids.power_flow import PowerFlowSolver
-from core.nn.model import create_train_state_full
+from core.nn.state import create_train_state_full
 from core.utils.checkpoint import resolve_checkpoint_model_spec, restore_checkpoint_state
 from core.utils.datasets import prepare_checkpoint_test_data, resolve_and_validate_test_paths
 from core.utils.types import OPFDataBuildOptions, VariantTestSpec

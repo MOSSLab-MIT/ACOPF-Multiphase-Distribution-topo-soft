@@ -3,8 +3,8 @@
 Training script for OPF Neural Network with the penalty_pf method.
 
 NN predicts DER setpoints, which are projected to the DER feasible set and fed
-to an AC power-flow solve; training uses a fixed penalty rho on AC inequality
-violations. Testing runs exactly the same pipeline (no post-processing).
+to an AC power-flow solve; training minimizes the normalized soft-OPF objective.
+Testing runs exactly the same pipeline (no post-processing).
 """
 import os
 import sys
@@ -32,13 +32,9 @@ jax.config.update("jax_enable_x64", True)
 
 import warnings
 
-from core.utils.cli import (
-    add_test_dataset_cli_args,
-    print_banner,
-    print_training_schedule_summary,
-)
+from core.utils.cli import add_test_dataset_cli_args, print_banner
 from core.grids.power_flow import PowerFlowSolver
-from core.nn.model import create_train_state
+from core.nn.state import create_train_state
 from core.utils.checkpoint import build_training_summary, save_checkpoint, save_results
 from core.utils.datasets import (
     load_opf_data,
@@ -46,7 +42,8 @@ from core.utils.datasets import (
     resolve_and_validate_test_paths,
     resolve_and_validate_val_h5,
 )
-from core.utils.runtime import create_lr_schedule, get_gpu_memory_usage, merge_peak_gpu_memory, print_gpu_memory_usage
+from core.utils.runtime import get_gpu_memory_usage, merge_peak_gpu_memory, print_gpu_memory_usage
+from core.utils.schedule import create_lr_schedule, print_training_schedule_summary
 from core.utils.types import OPFDataBuildOptions, VariantTestSpec
 from core.utils.workflow import (
     compute_training_normalization,
@@ -85,7 +82,6 @@ def parse_args():
     )
     parser.add_argument("--hidden_size", type=int, default=512, help="Hidden layer size")
     parser.add_argument("--num_layers", type=int, default=4, help="Number of layers")
-    parser.add_argument("--include_topo_nn_input", action=argparse.BooleanOptionalAction, default=True, help="Include changing_switch_status in MLP input (default: True). Use --no-include_topo_nn_input for ablation.")
 
     # Training
     parser.add_argument("--epochs", type=int, default=100, help="Number of epochs")
@@ -103,9 +99,6 @@ def parse_args():
     # Testing
     parser.add_argument("--test_batch_sizes", type=int, nargs="+", default=[1], help="Batch sizes for post-training testing")
     parser.add_argument("--test_samples", type=int, default=None, help="Number of testing samples")
-
-    # Penalty
-    parser.add_argument("--rho", type=float, default=1e-3, help="Fixed penalty weight rho")
 
     # Logging / checkpointing
     parser.add_argument("--case_name", type=str, default="penalty_pf", help="Case name")
@@ -158,7 +151,6 @@ def main():
     build = OPFDataBuildOptions(
         topology_backend=args.topology_backend,
         power_flow_solver=args.power_flow_solver,
-        include_topo_nn_input=args.include_topo_nn_input,
         woodbury_ir_steps=args.woodbury_ir_steps,
         woodbury_batch_mode=args.woodbury_batch_mode,
     )
@@ -182,9 +174,7 @@ def main():
 
     input_stat, cost_norm_stats = compute_training_normalization(
         train_dataset,
-        eval_dataset,
         data,
-        batch_size=args.batch_size,
         val_h5_path=val_h5_path,
         eval_samples=args.eval_samples,
     )
@@ -201,7 +191,6 @@ def main():
     print(
         f"  Input dimension: din={din} (compact={data.use_compact_nn}, "
         f"din_full={data.nn_layout.din_full}) "
-        f"| include_topo_nn_input={data.include_topo_nn_input} "
         f"| Output dimension: {dout}\n"
     )
 
@@ -212,7 +201,6 @@ def main():
         epochs=args.epochs,
         steps_per_epoch=steps_per_epoch,
         min_lr_ratio=args.min_lr_ratio,
-        rho=args.rho,
     )
     lr_schedule = create_lr_schedule(
         args.learning_rate,
@@ -250,7 +238,6 @@ def main():
     last_eval_results = None
     peak_memory_across_training = {}
 
-    rho = args.rho
     eval_every = args.eval_every if args.eval_every is not None else args.log_every
 
     if val_h5_path is None:
@@ -266,14 +253,12 @@ def main():
         )
 
         state, train_metrics = train_epoch_penalty_pf(
-            state, train_loader, data, rho, cost_scale=cost_scale
+            state, train_loader, data, cost_scale=cost_scale
         )
         epoch_time = time.time() - epoch_start
 
-        train_metrics["rho"] = rho
-
         if epoch % args.log_every == 0:
-            print(f"\nEpoch {epoch}/{args.epochs} ({epoch_time:.2f}s) | Rho: {rho:.2e}")
+            print(f"\nEpoch {epoch}/{args.epochs} ({epoch_time:.2f}s)")
             print(
                 f"  Train - Loss: {train_metrics['loss']:.6f} | Cost: {train_metrics['cost']:.6f} | "
                 f"Vio: {train_metrics['violation']:.6e} | Max Vio: {train_metrics['max_violation']:.6e} | "
@@ -287,7 +272,7 @@ def main():
                 .as_numpy_iterator()
             )
             eval_metrics = eval_epoch_penalty_pf(
-                state, eval_loader, data, rho, cost_scale=cost_scale
+                state, eval_loader, data, cost_scale=cost_scale
             )
             last_eval_results = eval_metrics.copy()
 
