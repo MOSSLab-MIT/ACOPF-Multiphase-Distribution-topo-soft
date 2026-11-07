@@ -3,7 +3,7 @@
     "noise_type": "ScaledUniform",
     "l": 0.7,
     "u": 1.0,
-    "sigma": 0.1
+    "sigma": 0.3
   },
   "obj": {
     "wmin": [0.5, 0.5],
@@ -15,7 +15,8 @@
   },
   "der": {
     "frac_l": 0.0,
-    "frac_u": 0.3
+    "frac_u": 0.3,
+    "sigma": 0.5
   },
   "topology": {
     "flip_probability": 0.5,

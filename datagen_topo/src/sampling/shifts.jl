@@ -15,20 +15,45 @@ function _relative_shift_noise(rng::AbstractRNG, n::Int, mu::Real, sigma::Real, 
     return mu .+ sigma .* randn(rng, n)
 end
 
+function _clamp_to_reference(x::Real, ref::Real, cap_ratio::Real)
+    limit = cap_ratio * ref
+    return clamp(x, min(zero(limit), limit), max(zero(limit), limit))
+end
+
 """
-    apply_shift!(pd, qd, pder_avai, seed, shift_cfg)
+    shift_load_cap_ratio(load_cfg) -> Float64
+
+Largest load multiplier the base sampler can draw, `u·(1+σ)`. Shifted loads are capped here, so the
+cap only acts on what the shift pushes beyond the base range. Unbounded samplers have no such value.
+"""
+function shift_load_cap_ratio(load_cfg::AbstractDict)
+    noise_type = get(load_cfg, "noise_type", "")
+    noise_type == "ScaledUniform" ||
+        error("Shifted datasets need a bounded load sampler (ScaledUniform); got noise_type='$noise_type'.")
+    return Float64(load_cfg["u"]) * (1 + maximum(load_cfg["sigma"]))
+end
+
+"""
+    apply_shift!(pd, qd, pder_avai, seed, shift_cfg; pd_ref, qd_ref, der_rated, load_cap_ratio)
 
 Apply distributional shift in-place to load and DER availability samples.
 
 `shift_cfg` keys: `enabled`, `noise_type` (`gaussian` | `additive`), `sigma_rel`,
 `der_sigma`, `mu_rel`, `der_mu`, `scale_factor`, `random_sign` (default `true`).
+
+Each load stays between `0` and `load_cap_ratio` times its reference (either sign, since some
+reference reactive loads are negative), and DER availability stays in `[0, der_rated]`.
 """
 function apply_shift!(
     pd::Vector,
     qd::Vector,
     pder_avai::Vector,
     seed::Int,
-    shift_cfg::Dict,
+    shift_cfg::Dict;
+    pd_ref::AbstractVector,
+    qd_ref::AbstractVector,
+    der_rated::AbstractVector,
+    load_cap_ratio::Real,
 )
     if !get(shift_cfg, "enabled", false)
         return nothing
@@ -60,8 +85,8 @@ function apply_shift!(
         qd .*= sf
     end
 
-    pd .= clamp.(pd, 0.0, 1.5) # clamp load to 0.0-1.5
-    qd .= clamp.(qd, 0.0, 1.5) # clamp reactive load to 0.0-1.5
-    pder_avai .= clamp.(pder_avai, 0.0, 1.0) # clamp DER availability to 0.0-1.0
+    pd .= _clamp_to_reference.(pd, pd_ref, load_cap_ratio)
+    qd .= _clamp_to_reference.(qd, qd_ref, load_cap_ratio)
+    pder_avai .= clamp.(pder_avai, 0.0, der_rated)
     return nothing
 end

@@ -52,7 +52,7 @@ const DEFAULT_TESTING_CONFIG = Dict(
         "noise_type" => "ScaledUniform",
         "l" => 0.2,
         "u" => 1.5,
-        "sigma" => 0.10,
+        "sigma" => 0.30,
     ),
     "obj" => Dict{String, Any}(
         "wmin" => [0.5, 0.5],
@@ -62,6 +62,7 @@ const DEFAULT_TESTING_CONFIG = Dict(
     "der" => Dict(
         "frac_l" => 0.0,
         "frac_u" => 1.0,
+        "sigma" => DEFAULT_DER_SIGMA,
     ),
     "topology" => Dict{String, Any}(
         "flip_probability" => 0.5,
@@ -178,7 +179,11 @@ function generate_testing_dataset!(args::Vector{String}=String[]; datagen_dir::A
         variant_label = output_suffix == "" ? "shifted" : "shifted_" * output_suffix
         infeasible_filename = case_name * "_test_infeasible_shifted" * suffix * ".h5"
         feasible_filename = case_name * "_test_feasible_shifted" * suffix * ".h5"
-        transform_profile! = (pd, qd, pder_avai, seed) -> apply_shift!(pd, qd, pder_avai, seed, config["shift"])
+        load_cap_ratio = shift_load_cap_ratio(config["load"])
+        transform_profile! = (pd, qd, pder_avai, seed) -> apply_shift!(
+            pd, qd, pder_avai, seed, config["shift"];
+            pd_ref=ls.pd_ref, qd_ref=ls.qd_ref, der_rated=ds.rated, load_cap_ratio=load_cap_ratio,
+        )
     else
         variant_label = output_suffix == "" ? "base" : "base_" * output_suffix
         infeasible_filename = case_name * "_test_infeasible" * suffix * ".h5"
@@ -192,7 +197,7 @@ function generate_testing_dataset!(args::Vector{String}=String[]; datagen_dir::A
     if variant == "shifted"
         @info "shift enabled=$(config["shift"]["enabled"]), noise_type=$(config["shift"]["noise_type"]), mu_rel=$(config["shift"]["mu_rel"]), sigma_rel=$(config["shift"]["sigma_rel"]), der_mu=$(config["shift"]["der_mu"]), der_sigma=$(config["shift"]["der_sigma"]), random_sign=$(config["shift"]["random_sign"])"
     end
-    @info "Load scale [$(config["load"]["l"]), $(config["load"]["u"])], DER availability fraction [$(config["der"]["frac_l"]), $(config["der"]["frac_u"])]"
+    @info "Load scale [$(config["load"]["l"]), $(config["load"]["u"])], load sigma $(config["load"]["sigma"]), DER availability factor [$(config["der"]["frac_l"]), $(config["der"]["frac_u"])], DER sigma $(get(config["der"], "sigma", DEFAULT_DER_SIGMA))"
     @info "Topology radial_ratio=$(config["topology"]["radial_ratio"]), flip_probability=$(config["topology"]["flip_probability"])"
 
     summary = run_scenario_generation!(;

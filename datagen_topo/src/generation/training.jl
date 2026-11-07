@@ -21,7 +21,7 @@ const DEFAULT_FLOAT_PRECISION = Float64
 
 const REGIME_LOAD_DEFAULTS = Dict(
     "noise_type" => "ScaledUniform",
-    "sigma" => 0.10,
+    "sigma" => 0.30,
 )
 
 const TRAINING_REGIMES = [
@@ -29,19 +29,19 @@ const TRAINING_REGIMES = [
         "name" => "base",
         "weight" => 1.0,
         "load" => Dict("l" => 0.2, "u" => 1.5),
-        "der" => Dict("frac_l" => 0.0, "frac_u" => 1.0),
+        "der" => Dict("frac_l" => 0.0, "frac_u" => 1.0, "sigma" => DEFAULT_DER_SIGMA),
     ),
     Dict(
         "name" => "high_load_low_der",
         "weight" => 0.0,
         "load" => Dict("l" => 0.7, "u" => 1.0),
-        "der" => Dict("frac_l" => 0.0, "frac_u" => 0.3),
+        "der" => Dict("frac_l" => 0.0, "frac_u" => 0.3, "sigma" => DEFAULT_DER_SIGMA),
     ),
     Dict(
         "name" => "low_load_high_der",
         "weight" => 0.0,
         "load" => Dict("l" => 0.2, "u" => 0.5),
-        "der" => Dict("frac_l" => 0.6, "frac_u" => 1.0),
+        "der" => Dict("frac_l" => 0.6, "frac_u" => 1.0, "sigma" => DEFAULT_DER_SIGMA),
     ),
 ]
 
@@ -122,7 +122,7 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
     for (idx, regime) in enumerate(regimes)
         load = regime["load"]
         der = regime["der"]
-        @info "Regime $(regime["name"])" index=idx target_weight=regime["weight"] count=regime_counts[idx] load_l=load["l"] load_u=load["u"] der_frac_l=der["frac_l"] der_frac_u=der["frac_u"]
+        @info "Regime $(regime["name"])" index=idx target_weight=regime["weight"] count=regime_counts[idx] load_l=load["l"] load_u=load["u"] der_frac_l=der["frac_l"] der_frac_u=der["frac_u"] der_sigma=der["sigma"] load_sigma=load["sigma"]
     end
 
     n_net = network.n_net

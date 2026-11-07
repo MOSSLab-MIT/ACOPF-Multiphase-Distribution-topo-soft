@@ -55,7 +55,7 @@ only when those keys exist (testing scripts); training uses `apply_regime_cli_ov
 function apply_common_sampling_flags!(config::Dict, flags::Dict{String, String})
     if haskey(config, "load")
         if !haskey(config, "der")
-            config["der"] = Dict{String, Any}("frac_l" => 0.0, "frac_u" => 1.0)
+            config["der"] = Dict{String, Any}("frac_l" => 0.0, "frac_u" => 1.0, "sigma" => DEFAULT_DER_SIGMA)
         end
         apply_load_der_cli_flags!(config["load"], config["der"], flags)
     end
@@ -171,9 +171,7 @@ function validate_regimes!(regimes::Vector{<:Dict}, load_defaults::Dict)
         regime["load"] = merge(copy(load_defaults), load_partial)
         _validate_load_bounds!(regime["load"])
 
-        der_partial = get(regime, "der", Dict{String, Any}())
-        frac_l, frac_u = _parse_der_frac_bounds(der_partial)
-        regime["der"] = Dict{String, Any}("frac_l" => frac_l, "frac_u" => frac_u)
+        regime["der"] = normalize_der_options(get(regime, "der", Dict{String, Any}()))
     end
     any_positive || error("At least one training regime must have weight > 0.")
     return regimes
@@ -190,8 +188,7 @@ function apply_regime_cli_overrides!(regimes::Vector{<:Dict}, flags::Dict{String
         for regime in regimes
             apply_load_der_cli_flags!(regime["load"], regime["der"], flags)
             _validate_load_bounds!(regime["load"])
-            frac_l, frac_u = _parse_der_frac_bounds(regime["der"])
-            regime["der"] = Dict{String, Any}("frac_l" => frac_l, "frac_u" => frac_u)
+            regime["der"] = normalize_der_options(regime["der"])
         end
     end
     return regimes

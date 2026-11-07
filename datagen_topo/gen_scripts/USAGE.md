@@ -21,6 +21,24 @@ Grids live under `datagen_topo/grid_data/` (e.g. `13_bus/IEEE13Nodeckt.dss`, `12
 
 ---
 
+## Load and DER sampling
+
+Training, validation and test data all use the same two samplers. Each sample draws one feeder-wide factor plus per-element noise:
+
+```text
+load:  pd_i = α·η_i·pd_ref_i           α ~ U[l, u]              η_i ~ U[1-σ, 1+σ], σ = load.sigma (configs: 0.3)
+       qd_i = α·η'_i·qd_ref_i          (same α, independent η')
+DER:   avail_i = min(α_d·η_i, 1)·rated_i   α_d ~ U[frac_l, frac_u]   η_i ~ U[1-σ, 1+σ], σ = der.sigma (configs: 0.5)
+```
+
+- `load.l/u` and `der.frac_l/frac_u` bound the feeder-wide factor, not each element. A load can reach `u·(1+σ)`; a DER unit can exceed `frac_u` by up to `(1+σ)`, and only its rating clips it.
+- Clipping lowers the feeder-wide DER total at high `α_d`: at `α_d = 1` the expected total is `(1 - σ/4)` of rated, or `0.875` for `σ = 0.5`.
+- Per-element variation around the feeder-wide level is `σ/√3`, about 17% for load and 29% for DER.
+
+Datasets generated before this sampler (independent uniform DER draws per unit, load `σ = 0.1`) have different distributions. Archive old datasets and results before regenerating: file names are unchanged, so new files overwrite old ones and results reuse the same case names.
+
+---
+
 ## Training data
 
 ### What it does
@@ -36,7 +54,7 @@ Grids live under `datagen_topo/grid_data/` (e.g. `13_bus/IEEE13Nodeckt.dss`, `12
 |------|---------|
 | `--smin`, `--smax` | Inclusive seed range (default `1:1000` in script config) |
 | `--load_l`, `--load_u` | Override load scale bounds on **all** regimes |
-| `--der_frac_l`, `--der_frac_u` | Override DER availability fractions on **all** regimes |
+| `--der_frac_l`, `--der_frac_u` | Override the feeder-wide DER factor bounds on **all** regimes |
 | `--flip_probability`, `--radial_ratio` | Topology sampler |
 | `--floating_point_type` | `float32` or `float64` (default `float64`) |
 | `--config` | Optional JSON config; see [`configs/training_defaults.json`](configs/training_defaults.json) |
@@ -87,7 +105,7 @@ The generator writes **combined HDF5 files** (`*_test_feasible*.h5`, `*_test_inf
 | `--output_suffix` | config `output_suffix` (`""`) | Appends `_<suffix>` to output filenames |
 | `--save_config` | `true` | Write `network_config.json` (or `network_config_<suffix>.json`) |
 | `--load_l`, `--load_u` | script `config` | Load scale bounds |
-| `--der_frac_l`, `--der_frac_u` | script `config` | DER availability fraction bounds |
+| `--der_frac_l`, `--der_frac_u` | script `config` | Bounds of the feeder-wide DER factor `α` (see [Load and DER sampling](#load-and-der-sampling)) |
 | `--flip_probability`, `--radial_ratio` | script `config` | Topology sampling |
 | `--floating_point_type` | `float64` | Export precision |
 | `--shift_mu`, `--shift_der_mu` | script `config` | Shifted variant only: shift magnitude on loads / DER (see `random_sign`) |
@@ -155,6 +173,8 @@ julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testi
   --variant shifted --num_scenarios 10 --feasible_samples_per_scenario 100 \
   --max_attempts_multiplier 5 --shift_mu 0.1 --shift_der_mu 0.2
 ```
+
+After the shift, each load is clamped between `0` and `u·(1+σ)` times its reference (`1.95×` for standard configs, either sign), and DER availability is clamped to `[0, rated]`. Unshifted base samples are never clipped by these caps.
 
 **Legacy signed-Gaussian shift** (no forced random sign):
 

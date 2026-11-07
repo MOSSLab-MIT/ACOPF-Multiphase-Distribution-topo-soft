@@ -80,11 +80,12 @@ function ScaledUniform(l::Float64, u::Float64, σs::Vector{Float64})
     l <= u || error("Invalid bounds: l > u")
     all(σs .>= 0) || error("Invalid input: σs must be non-negative")
 
-    # Uniform distribution
-    d_α = Uniform(l, u)
-    
+    # Bounds are validated above. `check_args=false` admits the degenerate l == u and σ == 0, which
+    # `Uniform` otherwise rejects; draws are unchanged for non-degenerate ranges.
+    d_α = Uniform(l, u; check_args=false)
+
     # Load-level uniform distributions
-    d_η = Distributions.product_distribution([Uniform(1 - σ, 1 + σ) for σ in σs])
+    d_η = Distributions.product_distribution([Uniform(1 - σ, 1 + σ; check_args=false) for σ in σs])
 
     return Glocal(d_α, d_η)
 end
@@ -179,19 +180,31 @@ function LoadScaler(data::OPFData, options::Dict)
 end
 
 
-struct DERScaler
-    d::Vector{Uniform{Float64}}  # distribution of multiplicative noise
-    der_pavail_min::Vector{Float64}  # minimum available active DER power
-    der_pavail_max::Vector{Float64}  # maximum available active DER power
+# Per-unit spread of DER availability around the feeder-wide factor (see `DERScaler`).
+const DEFAULT_DER_SIGMA = 0.5
+
+"""
+    DERScaler{D}
+
+Samples correlated per-unit DER availability
+```math
+\\tilde{p}_{i} = \\min(\\alpha \\eta_{i}, 1) \\bar{p}_{i}, \\quad
+\\alpha \\sim U[l, u], \\quad \\eta_{i} \\sim U[1-\\sigma, 1+\\sigma],
+```
+where `α` is one feeder-wide factor per sample and ``\\bar{p}_{i}`` is the rated availability.
+
+`frac_l`/`frac_u` bound `α`, not each unit: a unit can exceed `frac_u` by up to `(1+σ)`, and only
+the physical rating clips. `d` is `nothing` for a feeder without DER units.
+"""
+struct DERScaler{D}
+    d::D  # distribution of the multiplicative factor α×η
+    rated::Vector{Float64}  # rated availability, snapshotted: `_set_DERs!` overwrites the network's copy
 end
 
 function Random.rand(rng::AbstractRNG, ds::DERScaler)
-    D = length(ds.der_pavail_min)
-    ϵ = rand.(rng, ds.d)  # sample multiplicative noise
-
-    pder = ϵ .* (ds.der_pavail_max - ds.der_pavail_min ) + ds.der_pavail_min
-
-    return pder
+    isempty(ds.rated) && return Float64[]
+    ϵ = rand(rng, ds.d)
+    return min.(ϵ, 1.0) .* ds.rated
 end
 
 function _parse_der_frac_bounds(options::Dict)
@@ -206,14 +219,28 @@ function _parse_der_frac_bounds(options::Dict)
     return frac_l, frac_u
 end
 
+function _parse_der_sigma(options::Dict)
+    σ = Float64(get(options, "sigma", DEFAULT_DER_SIGMA))
+    isfinite(σ) && 0.0 <= σ <= 1.0 || error("Invalid der sigma=$σ: must be in [0, 1]")
+    return σ
+end
+
+"""
+    normalize_der_options(options) -> Dict
+
+Validated DER sampling options with exactly the keys `frac_l`, `frac_u`, `sigma`.
+"""
+function normalize_der_options(options::Dict)
+    frac_l, frac_u = _parse_der_frac_bounds(options)
+    return Dict{String, Any}("frac_l" => frac_l, "frac_u" => frac_u, "sigma" => _parse_der_sigma(options))
+end
+
 function DERScaler(data::OPFData, options::Dict)
     D = data.n_der_unit
     frac_l, frac_u = _parse_der_frac_bounds(options)
-    ref = data.der_pavail_ref
-    der_pavail_min = frac_l .* ref
-    der_pavail_max = frac_u .* ref
-    d = [Uniform(0.0, 1.0) for _ in 1:D]
-    return DERScaler(d, der_pavail_min, der_pavail_max)
+    σ = _parse_der_sigma(options)
+    d = D == 0 ? nothing : ScaledUniform(frac_l, frac_u, fill(σ, D))
+    return DERScaler(d, copy(data.der_pavail_ref))
 end
 
 DERScaler(data::OPFData) = DERScaler(data, Dict{String, Any}())
