@@ -12,18 +12,18 @@ set -euo pipefail
 METHOD=penalty_pf
 FAMILY=penalty_pf
 # GRIDS=(123 240 8500)   # submitted when no grid is given
-GRIDS=(123 240)
+GRIDS=(8500)
 
 # Repository root (sbatch is run from there, so inside a job it is the submit dir).
 if [ -n "${SLURM_ARRAY_TASK_ID:-}" ]; then cd "${SLURM_SUBMIT_DIR:-$PWD}"; else cd "$(dirname "${BASH_SOURCE[0]}")/../.."; fi
 source scripts/slurm_runs/common.sh   # outside a job: submits one array job per grid, exits
 
-CASE_NAME="${CASE_DIR}_penalty_pf"
+CASE_NAME="${CASE_DIR}_penalty_pf${TRAIN_TAG}"
 RESULTS_DIR=results/penalty_pf
 
 CMD=(
   python methods/penalty_pf/train.py
-  --train_h5 "$DATA/${CASE_DIR}_training.h5"
+  --train_h5 "$TRAIN_H5"
   --data_json "$DATA/network_config.json"
   --case_name "$CASE_NAME"
   --results_dir "$RESULTS_DIR"

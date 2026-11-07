@@ -14,6 +14,7 @@
 #   060_020_020  W3: 0.6/0.2/0.2
 #   l02_u08      OOR load cap: base load scale [0.2, 0.8]
 # W0 baseline (unsuffixed training set) is the regular penalty_pf run.
+# TRAIN_SUFFIX picks the training set here; `train_set` in configs/<grid>.yaml is ignored.
 
 set -euo pipefail
 METHOD=penalty_pf_regime_ablation

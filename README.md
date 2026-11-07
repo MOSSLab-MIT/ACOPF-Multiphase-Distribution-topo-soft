@@ -167,7 +167,8 @@ Checkpoints and logs: `results_draft/IEEE13Nodeckt_penalty_pf/`.
 
 **CLI notes**
 
-- `--val_h5`: optional in-epoch validation; preferred source for cost normalization when set (else first `--test_h5_variants` entry).
+- `--val_h5`: optional in-epoch validation.
+- `--cost_scale`: fixed divisor of the objective in the training loss (default `1.0`, i.e. unscaled). Per-grid values live in `scripts/slurm_runs/configs/<grid>.yaml`.
 - `--test_h5_variants`: post-training tests; the first entry is the reference test set and must exist; other entries (bare paths or `name=path`) are skipped with a warning if missing.
 
 ### Other cases

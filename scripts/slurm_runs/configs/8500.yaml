@@ -12,21 +12,27 @@ args:
   num_layers: 4
   hidden_size: 2048
   learning_rate: 5.0e-6
-  batch_size: 4
+  batch_size: 16
   power_flow_solver: fixed_point
   train_samples: 200000
   eval_samples: 2000
   test_samples: 2000
+  cost_scale: 1.0   # training loss uses cost / cost_scale
+  # cost_scale: 39.3595 (no validation set yet: p95 of feasible test objective, first 2000 samples)
+
 
 method_args:
   penalty_pf:
-    epochs: 7
+    epochs: 10
     warmup_epochs: 0
   penalty_direct:
     epochs: 10
 
+train_set: training_060_020_020
 val_set: feasible_validation   # no validation set for this grid yet: test set
 
-test_sets:   # no shifted / oor_load test sets for this grid
+test_sets:   # no oor_load test set for this grid
   core: [feasible, feasible_high_load_low_der, feasible_low_load_high_der]
-  full: [feasible, feasible_high_load_low_der, feasible_low_load_high_der]
+  full: [feasible, feasible_high_load_low_der, feasible_low_load_high_der,
+         feasible_shifted_m01_std01, feasible_shifted_m02_std02, feasible_shifted_m03_std03,
+         feasible_shifted_m04_std04, feasible_shifted_m05_std05]

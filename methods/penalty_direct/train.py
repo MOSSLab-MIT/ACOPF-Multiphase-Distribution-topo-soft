@@ -3,7 +3,8 @@
 Training script for OPF Neural Network with penalty_direct method.
 
 NN predicts DER setpoints and voltages jointly. DER controls are projected;
-training minimizes the normalized soft-OPF objective plus a power-flow equality penalty.
+training minimizes the soft-OPF objective divided by ``--cost_scale`` plus a
+power-flow equality penalty.
 """
 import os
 import sys
@@ -29,7 +30,7 @@ from flax import nnx
 
 configure_tensorflow_for_data_loading()
 
-from core.utils.cli import add_test_dataset_cli_args, print_banner
+from core.utils.cli import add_cost_scale_cli_arg, add_test_dataset_cli_args, print_banner
 from core.grids.power_flow import PowerFlowSolver
 from core.nn.state import create_train_state_full
 from core.utils.checkpoint import build_training_summary, save_checkpoint, save_results
@@ -83,6 +84,7 @@ def parse_args():
         default=0.5,
         help="Minimum LR as a fraction of peak LR (cosine decay end value)",
     )
+    add_cost_scale_cli_arg(parser)
     parser.add_argument("--grad_norm_stop_threshold", type=float, default=1e-4, help="Early stop threshold")
 
     # Testing
@@ -163,15 +165,10 @@ def main():
         val_h5_path=val_h5_path,
     )
 
-    input_stat, cost_norm_stats = compute_training_normalization(
-        train_dataset,
-        data,
-        val_h5_path=val_h5_path,
-        eval_samples=args.eval_samples,
-    )
+    input_stat = compute_training_normalization(train_dataset, data)
     args.input_stat = input_stat
-    args.cost_norm_stats = cost_norm_stats
-    cost_scale = cost_norm_stats.cost_scale_jax()
+    cost_scale = args.cost_scale
+    print(f"  Loss cost scale (--cost_scale): {cost_scale:.6g}")
 
     din = data.nn_layout.din_compact
     dout = 2 * data.net.n_der_phase + 2 * data.net.n_net

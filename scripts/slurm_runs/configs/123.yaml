@@ -17,6 +17,8 @@ args:
   train_samples: 200000
   eval_samples: 2000
   test_samples: 2000
+  cost_scale: 1.0   # training loss uses cost / cost_scale
+  # cost_scale: 67.4724 (p95 of feasible_validation objective, first 2000 samples)
 
 method_args:
   penalty_pf:
@@ -24,10 +26,11 @@ method_args:
   penalty_direct:
     epochs: 20
 
+train_set: training_060_020_020
 val_set: feasible_validation
 
 test_sets:
   core: [feasible, feasible_high_load_low_der, feasible_low_load_high_der]
   full: [feasible, feasible_high_load_low_der, feasible_low_load_high_der,
          feasible_shifted_m01_std01, feasible_shifted_m02_std02, feasible_shifted_m03_std03,
-         feasible_shifted_m04_std04, feasible_shifted_m05_std05, feasible_oor_load]
+         feasible_shifted_m04_std04, feasible_shifted_m05_std05]

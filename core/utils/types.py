@@ -34,29 +34,6 @@ class TopologyData(NamedTuple):
 
 
 @dataclass(frozen=True)
-class CostNormStats:
-    """Eval-oracle target cost statistics for loss scaling."""
-
-    cost_max: float
-    cost_p95: float
-    mode: str
-    cost_scale: float
-    n_samples: int
-
-    def to_dict(self) -> dict:
-        return {
-            "cost_max": self.cost_max,
-            "cost_p95": self.cost_p95,
-            "mode": self.mode,
-            "cost_scale": self.cost_scale,
-            "n_samples": self.n_samples,
-        }
-
-    def cost_scale_jax(self, dtype=jnp.float64) -> jnp.ndarray:
-        return jnp.asarray(self.cost_scale, dtype=dtype)
-
-
-@dataclass(frozen=True)
 class OPFDataBuildOptions:
     topology_backend: str = "woodbury"
     power_flow_solver: str = "fixed_point"

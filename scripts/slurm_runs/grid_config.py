@@ -4,10 +4,13 @@
     eval "$(python scripts/slurm_runs/grid_config.py <grid> [<method_family>])"
 
 Defines CASE_DIR, DATA, SEED_ARRAY (Slurm array spec of `seed`), SBATCH_OPTS,
-VAL_H5, TEST_CORE_H5, TEST_FULL_H5 and, when a method family is given, GRID_ARGS
+TRAIN_H5, TRAIN_TAG ("" for `training`, "_<suffix>" for `training_<suffix>`; goes in the
+results case name so training sets never share checkpoints), VAL_H5, TEST_CORE_H5,
+TEST_FULL_H5 and, when a method family is given, GRID_ARGS
 (= args merged with method_args[family]).
 """
 
+import re
 import shlex
 import sys
 from pathlib import Path
@@ -15,7 +18,7 @@ from pathlib import Path
 import yaml
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
-KEYS = {"case_dir", "seed", "slurm", "args", "method_args", "val_set", "test_sets"}
+KEYS = {"case_dir", "seed", "slurm", "args", "method_args", "train_set", "val_set", "test_sets"}
 
 
 def bash_array(name, items):
@@ -54,6 +57,12 @@ def main():
     if not valid or len(set(seeds)) != len(seeds):
         sys.exit(f"ERROR: {path}: seed must be a non-empty list of distinct non-negative ints, got {seeds!r}")
 
+    train_set = cfg["train_set"]
+    match = isinstance(train_set, str) and re.fullmatch(r"training(?:_([\w.-]+))?", train_set)
+    if not match:
+        sys.exit(f"ERROR: {path}: train_set must be training or training_<suffix>, got {train_set!r}")
+    train_tag = f"_{match[1]}" if match[1] else ""
+
     case_dir = cfg["case_dir"]
     data = f"datagen_topo/datasets/{case_dir}"
     lines = [
@@ -61,6 +70,8 @@ def main():
         f"DATA={shlex.quote(data)}",
         f"SEED_ARRAY={','.join(map(str, seeds))}",
         bash_array("SBATCH_OPTS", [f"--{k.replace('_', '-')}={v}" for k, v in cfg["slurm"].items()]),
+        f"TRAIN_H5={shlex.quote(f'{data}/{case_dir}_{train_set}.h5')}",
+        f"TRAIN_TAG={shlex.quote(train_tag)}",
         f"VAL_H5={shlex.quote(f'{data}/{case_dir}_test_{cfg['val_set']}.h5')}",
     ]
     for name in ("core", "full"):

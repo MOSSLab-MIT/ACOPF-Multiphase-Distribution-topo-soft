@@ -84,7 +84,7 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
         joinpath("grid_data", "13_bus", "IEEE13Nodeckt.dss"),
     )
     smin, smax = resolve_training_seed_range(positional, flags, config)
-    output_suffix = get(flags, "output_suffix", "")
+    output_suffix = get(flags, "output_suffix", string(get(config_raw, "output_suffix", "")))
 
     apply_common_sampling_flags!(config, flags)
     config["topology"]["case_path"] = grid_dir

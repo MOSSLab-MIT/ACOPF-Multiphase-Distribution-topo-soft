@@ -20,7 +20,6 @@ NUM_LAYERS=4
 LEARNING_RATE=0.5e-5     #5e-6 before using layernorm
 
 # Training and testing sample size
-# Cost norm reads meta/primal_objective_value from --val_h5 (no topology precompute).
 TRAIN_SAMPLES=200000
 EVAL_SAMPLES=100
 TEST_SAMPLES=2000

@@ -1,12 +1,13 @@
 """Argparse helpers for method train/test entry scripts."""
 
 import argparse
+import math
 import re
 from typing import Tuple
 
 _TEST_DATASET_NAME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
 
-_BANNER_SKIP_KEYS = frozenset({"input_stat", "cost_norm_stats"})
+_BANNER_SKIP_KEYS = frozenset({"input_stat"})
 
 
 def print_banner(title: str, args) -> None:
@@ -42,6 +43,30 @@ def parse_test_dataset_arg(value: str) -> Tuple[str, str]:
     return name, path
 
 
+def positive_float(value: str) -> float:
+    """Argparse type for a finite float > 0."""
+    try:
+        x = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"expected a float, got {value!r}") from None
+    if not math.isfinite(x) or x <= 0.0:
+        raise argparse.ArgumentTypeError(f"expected a finite float > 0, got {value!r}")
+    return x
+
+
+def add_cost_scale_cli_arg(parser: argparse.ArgumentParser) -> None:
+    """Register ``--cost_scale``: training loss uses ``cost / cost_scale``."""
+    parser.add_argument(
+        "--cost_scale",
+        type=positive_float,
+        default=1.0,
+        help=(
+            "Fixed divisor of the OPF objective in the training loss "
+            "(loss cost term = cost / cost_scale). Default 1.0 (unscaled)."
+        ),
+    )
+
+
 def add_test_dataset_cli_args(parser: argparse.ArgumentParser) -> None:
     """Register shared test-dataset CLI flags on ``parser``."""
     parser.add_argument(
@@ -49,9 +74,8 @@ def add_test_dataset_cli_args(parser: argparse.ArgumentParser) -> None:
         type=str,
         default=None,
         help=(
-            "Validation HDF5 for in-epoch eval. Cost normalization uses this file "
-            "when set; otherwise the reference test HDF5 (first --test_h5_variants "
-            "entry). If omitted, in-epoch validation is skipped."
+            "Validation HDF5 for in-epoch eval. If omitted, in-epoch validation "
+            "is skipped."
         ),
     )
     parser.add_argument(

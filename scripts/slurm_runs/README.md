@@ -23,6 +23,7 @@ scripts/slurm_runs/
   slurm:        {time: "12:00:00", mem: 32G, partition: ...}   # -> --time=... --mem=...
   args:         {num_layers: 4, hidden_size: 512, ...}          # all methods
   method_args:  {penalty_pf: {epochs: 10}, penalty_direct: {epochs: 20}}  # per family, overrides args
+  train_set:    training                                        # -> <case_dir>_<train_set>.h5 (--train_h5)
   val_set:      feasible_validation                             # -> <case_dir>_test_<val_set>.h5 (--val_h5)
   test_sets:    {core: [feasible, ...], full: [feasible, ...]}  # first = reference test set
   ```
@@ -31,7 +32,7 @@ scripts/slurm_runs/
   - Run from a login node: `common.sh` submits the script for each grid with the grid's seeds
     and Slurm options, job name `<method>_<grid>`, and logs in `logs/training/<method>/`.
   - Inside the job: `common.sh` loads the grid config (`CASE_DIR`, `DATA`, `GRID_ARGS`,
-    `VAL_H5`, `TEST_CORE_H5`, `TEST_FULL_H5`) and sets `SEED` from the array index.
+    `TRAIN_H5`, `TRAIN_TAG`, `VAL_H5`, `TEST_CORE_H5`, `TEST_FULL_H5`) and sets `SEED` from the array index.
 
 Jobs activate `new_opt` themselves; so does the submit step (for PyYAML). Don't pass a
 method script to `sbatch` yourself; it refuses to run that way.
@@ -80,5 +81,11 @@ Options:
 - **New method / ablation**: copy the closest `<method>.sbatch` to `<new>.sbatch`, set
   `METHOD=<new>`, and change its args, `CASE_NAME` and `RESULTS_DIR`. Distinct settings
   need distinct `CASE_NAME`s so checkpoints never collide.
+- **Change a grid's training set**: set `train_set: training_<suffix>` in `configs/<grid>.yaml`
+  to use `<case_dir>_training_<suffix>.h5`. `_<suffix>` is appended to `CASE_NAME`, so results
+  go to e.g. `results/penalty_pf/IEEE123Master_penalty_pf_l02_u08/` and the `training`
+  checkpoints stay intact. `penalty_pf_test.sbatch` follows the same key, so keep `train_set`
+  as it was at training time when testing. `penalty_pf_regime_ablation.sbatch` ignores this
+  key and uses `TRAIN_SUFFIX`.
 - **Change a grid's hyperparameter**: edit `args` in `configs/<grid>.yaml` (every method)
   or `method_args.<family>` (one method family only).

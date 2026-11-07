@@ -33,8 +33,8 @@
   "shift": {
     "enabled": true,
     "noise_type": "gaussian",
-    "sigma_rel": 0.2,
-    "der_sigma": 0.2,
+    "sigma_rel": 0.5,
+    "der_sigma": 0.5,
     "mu_rel": 0.5,
     "der_mu": 0.5,
     "scale_factor": 1.0,

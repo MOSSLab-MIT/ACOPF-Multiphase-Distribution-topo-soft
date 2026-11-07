@@ -80,21 +80,6 @@ def resolve_and_validate_val_h5(
     return path
 
 
-def resolve_cost_norm_h5_path(
-    data: OPFData,
-    *,
-    val_h5_path: Optional[str] = None,
-) -> str:
-    """Return the HDF5 used for cost normalization.
-
-    Uses ``--val_h5`` when set; otherwise falls back to the reference test HDF5
-    bound on ``data`` (first ``--test_h5_variants`` entry).
-    """
-    if val_h5_path is not None:
-        return val_h5_path
-    return data.test_h5_path
-
-
 def _resolve_dataset_name(path: str) -> str:
     """Infer a dataset key from ``*_test_<name>.h5`` stems, else use the file stem."""
     match = _TEST_H5_STEM_RE.match(Path(path).stem)

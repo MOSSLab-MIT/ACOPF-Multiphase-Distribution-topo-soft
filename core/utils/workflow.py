@@ -11,10 +11,9 @@ import jax.numpy as jnp
 from core.grids.data import OPFData
 from core.nn.input import compute_input_stats
 from core.utils.checkpoint import to_json_serializable
-from core.utils.datasets import primary_test_dataset, resolve_cost_norm_h5_path
-from core.utils.loss import compute_cost_norm_stats_from_eval
+from core.utils.datasets import primary_test_dataset
 from core.utils.runtime import clear_gpu_memory
-from core.utils.types import CostNormStats, TestH5Paths, VariantTestSpec
+from core.utils.types import TestH5Paths, VariantTestSpec
 
 
 def make_results_root(results_dir: str, case_name: str, seed: int) -> Path:
@@ -63,42 +62,14 @@ def compute_training_normalization(
     train_dataset: Any,
     data: OPFData,
     *,
-    mode: str = "robust",
-    val_h5_path: Optional[str] = None,
-    eval_samples: Optional[int] = None,
     verbose: bool = True,
-) -> Tuple[Tuple[jnp.ndarray, jnp.ndarray], CostNormStats]:
+) -> Tuple[jnp.ndarray, jnp.ndarray]:
+    """Return NN input normalization ``(mean, std)`` from the training set."""
     if verbose:
         print("Computing input statistics...")
-    input_stat = compute_input_stats(
+    return compute_input_stats(
         train_dataset, data, use_compact=getattr(data, "use_compact_nn", True)
     )
-
-    cost_norm_h5_path = resolve_cost_norm_h5_path(data, val_h5_path=val_h5_path)
-    if verbose:
-        if val_h5_path is None:
-            print(
-                "No --val_h5; computing cost normalization from reference test HDF5: "
-                f"{cost_norm_h5_path}"
-            )
-        else:
-            print("Computing cost normalization stats from validation set...")
-    cost_norm_stats = compute_cost_norm_stats_from_eval(
-        data,
-        mode=mode,
-        samples=eval_samples,
-        h5_path=cost_norm_h5_path,
-    )
-    if verbose:
-        print(
-            f"  cost_norm_mode={cost_norm_stats.mode} | "
-            f"cost_max={cost_norm_stats.cost_max:.6g} | "
-            f"cost_p95={cost_norm_stats.cost_p95:.6g} | "
-            f"cost_scale={cost_norm_stats.cost_scale:.6g} | "
-            f"n_samples={cost_norm_stats.n_samples}"
-        )
-
-    return input_stat, cost_norm_stats
 
 
 def create_train_results_layout(

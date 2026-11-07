@@ -46,7 +46,7 @@ Datasets generated before this sampler (independent uniform DER draws per unit, 
 - Samples `smin:smax` seeds (one column per seed).
 - Mixes **load/DER regimes** defined by script defaults or `--config configs/training_defaults.json` (default mix: base `1.0`, high_load_low_der `0.0`, low_load_high_der `0.0`); schedule is round-robin by allocated counts.
 - Per sample: random connected topology (`TopologySampler`), `changing_switch_status`, loads, DER availability, objective weights.
-- Writes **inputs only** to `<case>_training.h5`. Generate or reuse `network_config.json` separately for Python loaders.
+- Writes **inputs only** to `<case>_training.h5`, or `<case>_training_<suffix>.h5` when `output_suffix` is set in the JSON config or CLI. Generate or reuse `network_config.json` separately for Python loaders.
 
 ### CLI
 
@@ -58,6 +58,7 @@ Datasets generated before this sampler (independent uniform DER draws per unit, 
 | `--flip_probability`, `--radial_ratio` | Topology sampler |
 | `--floating_point_type` | `float32` or `float64` (default `float64`) |
 | `--config` | Optional JSON config; see [`configs/training_defaults.json`](configs/training_defaults.json) |
+| `--output_suffix` | Append `_<suffix>` to the output filename; overrides config `output_suffix` (default `""`). `training_w060_020_020.json` sets `060_020_020`. |
 
 Positional: `[grid.dss]` or legacy `[grid.dss smin smax]` (overridden by `--smin` / `--smax` when set).
 

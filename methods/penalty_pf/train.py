@@ -3,7 +3,7 @@
 Training script for OPF Neural Network with the penalty_pf method.
 
 NN predicts DER setpoints, which are projected to the DER feasible set and fed
-to an AC power-flow solve; training minimizes the normalized soft-OPF objective.
+to an AC power-flow solve; training minimizes the soft-OPF objective divided by ``--cost_scale``.
 Testing runs exactly the same pipeline (no post-processing).
 """
 import os
@@ -32,7 +32,7 @@ jax.config.update("jax_enable_x64", True)
 
 import warnings
 
-from core.utils.cli import add_test_dataset_cli_args, print_banner
+from core.utils.cli import add_cost_scale_cli_arg, add_test_dataset_cli_args, print_banner
 from core.grids.power_flow import PowerFlowSolver
 from core.nn.state import create_train_state
 from core.utils.checkpoint import build_training_summary, save_checkpoint, save_results
@@ -94,6 +94,7 @@ def parse_args():
         default=0.5,
         help="Minimum LR as a fraction of peak LR (cosine decay end value)",
     )
+    add_cost_scale_cli_arg(parser)
     parser.add_argument("--grad_norm_stop_threshold", type=float, default=1e-4, help="Early stop threshold")
 
     # Testing
@@ -172,15 +173,10 @@ def main():
     if args.model_type != "mlp":
         data.use_compact_nn = False
 
-    input_stat, cost_norm_stats = compute_training_normalization(
-        train_dataset,
-        data,
-        val_h5_path=val_h5_path,
-        eval_samples=args.eval_samples,
-    )
+    input_stat = compute_training_normalization(train_dataset, data)
     args.input_stat = input_stat
-    args.cost_norm_stats = cost_norm_stats
-    cost_scale = cost_norm_stats.cost_scale_jax()
+    cost_scale = args.cost_scale
+    print(f"  Loss cost scale (--cost_scale): {cost_scale:.6g}")
 
     din = (
         data.nn_layout.din_compact

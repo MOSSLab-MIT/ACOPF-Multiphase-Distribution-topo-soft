@@ -5,7 +5,7 @@ Pipeline (identical at train, eval, and test time):
 NN → project DER controls to their device-feasible set → AC power flow →
 ``compute_ac_metrics_from_voltage`` (cost, violations).
 
-Training loss: the mean normalized soft-OPF objective
+Training loss: the mean soft-OPF objective divided by ``cost_scale``
 (economic cost + curtailment + per-sample ``ρ_V, ρ_I, ρ_θ, ρ_sub`` L1 penalties on voltage /
 branch-current / angle / substation limits, matching the Julia labels). DER limits are enforced by
 projection and reported as diagnostics. Equality (power-flow) constraints are enforced through
@@ -131,7 +131,7 @@ def compute_penalty_pf_loss(
     params, state, inputs_batch, targets_batch, session, topo: TopologyData,
     cost_scale=None,
 ):
-    """Mean normalized soft-OPF cost; DER violations are diagnostics only."""
+    """Mean soft-OPF cost / ``cost_scale``; DER violations are diagnostics only."""
     net = session.net
     batch = prepare_batch_data(inputs_batch, targets_batch, session, topo=topo)
 

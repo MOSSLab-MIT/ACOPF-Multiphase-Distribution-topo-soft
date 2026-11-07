@@ -54,12 +54,12 @@ def _loss(state, feeder, method, scale, params=None):
 
 
 @pytest.mark.parametrize("method", ["pf", "direct"])
-@pytest.mark.parametrize("scale", [None, 2.0])
+@pytest.mark.parametrize("scale", [None, 1.0, 2.0])
 def test_training_loss_matches_physical_objective_and_retains_diagnostics(feeder_batch, method, scale):
     data, inputs, targets, topo = feeder_batch
     state = _state(data, method)
     loss, metrics, internals = _loss(state, feeder_batch, method, scale)
-    denom = 1.0 if scale is None else scale + 1e-8
+    denom = 1.0 if scale is None else scale
     expected = np.mean(np.asarray(internals["cost"])) / denom
     if method == "direct":
         # Independently evaluate the complex Z-bus residual at predicted voltages.

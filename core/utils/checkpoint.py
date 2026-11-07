@@ -19,10 +19,15 @@ def resolve_checkpoint_path(checkpoint_path: Path) -> Path:
     """Resolve either a checkpoint directory or its latest ``checkpoint_epoch_*`` child."""
     if (checkpoint_path / "config.json").exists():
         return checkpoint_path
-    candidates = sorted(checkpoint_path.glob("checkpoint_epoch_*"))
+    candidates = [
+        p
+        for p in checkpoint_path.glob("checkpoint_epoch_*")
+        if p.name.removeprefix("checkpoint_epoch_").isdigit()
+    ]
     if not candidates:
         return checkpoint_path
-    return candidates[-1]
+    # Numeric, not lexical: checkpoint_epoch_10 is later than checkpoint_epoch_5.
+    return max(candidates, key=lambda p: int(p.name.removeprefix("checkpoint_epoch_")))
 
 
 def load_checkpoint_config(checkpoint_path: Path):
@@ -72,9 +77,9 @@ def save_checkpoint(state, epoch, checkpoint_dir, data, args):
         "n_total": data.net.n_total,
         "n_der_phase": data.net.n_der_phase,
     }
-    cost_norm_stats = getattr(args, "cost_norm_stats", None)
-    if cost_norm_stats is not None:
-        config["cost_norm"] = cost_norm_stats.to_dict()
+    cost_scale = getattr(args, "cost_scale", None)
+    if cost_scale is not None:
+        config["cost_scale"] = cost_scale
 
     nn_layout = getattr(data, "nn_layout", None)
     input_stat = getattr(args, "input_stat", None)
