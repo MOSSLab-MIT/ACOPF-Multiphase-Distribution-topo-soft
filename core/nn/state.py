@@ -6,20 +6,25 @@ import optax
 from flax import nnx
 from flax.training import train_state
 
+from core.nn.input import input_scale
 from core.nn.model import GCN_BASE_NODE_FEATURES, MLP, OPFGCN
 
-_NORM_EPS = 1e-8
-_INPUT_CLIP_MAX = 5.0
 _GRAD_CLIP_NORM = 1.0
 _MODEL_TYPES = ("mlp", "gcn", "modified_gcn")
 
 
 def _make_input_normalizer(input_stat):
+    """Z-score ``(x - mean) / scale`` with ``scale = std``, or 1 on constant columns.
+
+    No epsilon and no clipping: every scale is a real std (or 1), so outputs are finite.
+    The raw ``(mean, std)`` is what checkpoints store, so this also covers loaded stats.
+    """
     input_mean, input_std = input_stat
+    input_mean = jnp.asarray(input_mean)
+    scale = input_scale(input_mean, input_std)
 
     def normalize_input(x):
-        normalized = (x - input_mean) / (input_std + jnp.asarray(_NORM_EPS, dtype=input_std.dtype))
-        return jnp.clip(normalized, -_INPUT_CLIP_MAX, _INPUT_CLIP_MAX)
+        return (x - input_mean) / scale
 
     return normalize_input
 

@@ -12,7 +12,7 @@ set -euo pipefail
 METHOD=penalty_pf
 FAMILY=penalty_pf
 # GRIDS=(123 240 8500)   # submitted when no grid is given
-GRIDS=(8500)
+GRIDS=(906)
 
 # Repository root (sbatch is run from there, so inside a job it is the submit dir).
 if [ -n "${SLURM_ARRAY_TASK_ID:-}" ]; then cd "${SLURM_SUBMIT_DIR:-$PWD}"; else cd "$(dirname "${BASH_SOURCE[0]}")/../.."; fi

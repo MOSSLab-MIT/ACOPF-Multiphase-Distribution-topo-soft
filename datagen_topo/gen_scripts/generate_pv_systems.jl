@@ -1,19 +1,23 @@
 # Generate `pv_systems.dss` for a feeder: PVs spread evenly over load buses plus a few
-# three-phase PVs on no-load MV (primary) buses, sized to a target feeder penetration.
+# three-phase PVs on no-load buses (MV primary buses by default), sized to a target feeder penetration.
 #
 # Usage:
 #   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl \
-#       <master.dss> <n_pv> [--penetration 0.7] [--mv_frac 0.1] [--mv_share 0.3] [--out <path>]
+#       <master.dss> <n_pv> [--penetration 0.7] [--mv_frac 0.1] [--mv_share 0.3]
+#       [--mv_vln_min_kv 1.0] [--mv_vln_max_kv 20.0] [--out <path>]
 #
 #   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss 50
 #   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl datagen_topo/grid_data/240_bus/240bus_Master.dss 100
 #   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss 1000 --mv_frac 0.05
+#   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl datagen_topo/grid_data/906_bus/906bus_Master.dss 61 --mv_vln_min_kv 0.1
+#     (906 is all-LV with no MV buses, so its 6 "MV" units sit on no-load three-phase 240 V buses.)
 #
 # Method (deterministic):
 #   1. Order buses by iterative DFS from the slack bus over lines (open tie switches excluded),
 #      transformers and regulators. Feeder order = DFS discovery order.
-#   2. n_mv = round(mv_frac * n_pv) three-phase PVs on no-load MV buses
-#      (3 modeled phases, 1 kV <= V_LN <= 20 kV, not slack); n_lv = n_pv - n_mv on load buses
+#   2. n_mv = round(mv_frac * n_pv) three-phase PVs on no-load "MV" buses
+#      (3 modeled phases, mv_vln_min_kv <= V_LN <= mv_vln_max_kv, not slack; default band 1-20 kV);
+#      n_lv = n_pv - n_mv on load buses
 #      (buses with positive nominal load kW).
 #      Each group is picked at evenly spaced positions floor((k - 1/2) * N / M) + 1 in feeder order.
 #   3. Total pmpp = penetration * total nominal load kW. MV units share mv_share of it equally;
@@ -26,9 +30,6 @@
 
 using FeederFlow
 using Printf
-
-const VLN_MV_MIN = 1.0e3
-const VLN_MV_MAX = 20.0e3
 
 function parse_args(args)
     positional = String[]
@@ -44,8 +45,8 @@ function parse_args(args)
             i += 1
         end
     end
-    length(positional) == 2 || error("usage: generate_pv_systems.jl <master.dss> <n_pv> [--penetration p] [--mv_frac f] [--mv_share s] [--out path]")
-    unknown = setdiff(keys(flags), ["penetration", "mv_frac", "mv_share", "out"])
+    length(positional) == 2 || error("usage: generate_pv_systems.jl <master.dss> <n_pv> [--penetration p] [--mv_frac f] [--mv_share s] [--mv_vln_min_kv v] [--mv_vln_max_kv v] [--out path]")
+    unknown = setdiff(keys(flags), ["penetration", "mv_frac", "mv_share", "mv_vln_min_kv", "mv_vln_max_kv", "out"])
     isempty(unknown) || error("unknown flags: $(collect(unknown))")
     master = positional[1]
     return (
@@ -54,6 +55,8 @@ function parse_args(args)
         penetration = parse(Float64, get(flags, "penetration", "0.7")),
         mv_frac = parse(Float64, get(flags, "mv_frac", "0.1")),
         mv_share = parse(Float64, get(flags, "mv_share", "0.3")),
+        mv_vln_min_kv = parse(Float64, get(flags, "mv_vln_min_kv", "1.0")),
+        mv_vln_max_kv = parse(Float64, get(flags, "mv_vln_max_kv", "20.0")),
         out = get(flags, "out", joinpath(dirname(master), "pv_systems.dss")),
     )
 end
@@ -97,6 +100,7 @@ function main(args)
     opt = parse_args(args)
     opt.penetration > 0.0 || error("penetration must be positive")
     (0.0 <= opt.mv_frac <= 1.0 && 0.0 <= opt.mv_share <= 1.0) || error("mv_frac and mv_share must be in [0, 1]")
+    0.0 <= opt.mv_vln_min_kv <= opt.mv_vln_max_kv || error("need 0 <= mv_vln_min_kv <= mv_vln_max_kv")
 
     net = FeederFlow.parse_file(opt.master)
     sbase_kw = net.base.Sbase / 1e3
@@ -120,7 +124,7 @@ function main(args)
     load_buses = sort([b for (b, p) in load_kw if p > 0.0]; by = b -> order[b])
     mv_buses = sort([bus.name for bus in net.buses if haskey(order, bus.name) && bus.name != net.slack_bus &&
                      !haskey(load_kw, bus.name) && length(modeled(bus.phases)) == 3 &&
-                     VLN_MV_MIN <= bus.vbase <= VLN_MV_MAX]; by = b -> order[b])
+                     1e3 * opt.mv_vln_min_kv <= bus.vbase <= 1e3 * opt.mv_vln_max_kv]; by = b -> order[b])
 
     n_mv = round(Int, opt.mv_frac * opt.n_pv)
     n_lv = opt.n_pv - n_mv
@@ -138,7 +142,7 @@ function main(args)
     # (bus, phases, kV, pmpp kW, comment)
     entries = Tuple{String,Vector{Int},Float64,Float64,String}[]
     for b in mv_sel
-        push!(entries, (b, [1, 2, 3], net.buses[b].vbase * sqrt(3) / 1e3, mv_kw_total / n_mv, "MV no-load bus"))
+        push!(entries, (b, [1, 2, 3], net.buses[b].vbase * sqrt(3) / 1e3, mv_kw_total / n_mv, "3-phase no-load bus"))
     end
     for b in lv_sel
         pmpp = lv_kw_total * load_kw[b] / lv_sel_load
@@ -150,12 +154,12 @@ function main(args)
     open(opt.out, "w") do io
         println(io, "! PV Systems for $(splitext(basename(opt.master))[1])")
         println(io, "! Generated by datagen_topo/gen_scripts/generate_pv_systems.jl")
-        println(io, "!   args: $(basename(opt.master)) $(opt.n_pv) --penetration $(opt.penetration) --mv_frac $(opt.mv_frac) --mv_share $(opt.mv_share)")
-        @printf(io, "! %d PV units: %d on load buses (of %d), %d three-phase on no-load MV buses (of %d candidates)\n",
-                opt.n_pv, n_lv, length(load_buses), n_mv, length(mv_buses))
+        println(io, "!   args: $(basename(opt.master)) $(opt.n_pv) --penetration $(opt.penetration) --mv_frac $(opt.mv_frac) --mv_share $(opt.mv_share) --mv_vln_min_kv $(opt.mv_vln_min_kv) --mv_vln_max_kv $(opt.mv_vln_max_kv)")
+        @printf(io, "! %d PV units: %d on load buses (of %d), %d three-phase on no-load buses with %g kV <= V_LN <= %g kV (of %d candidates)\n",
+                opt.n_pv, n_lv, length(load_buses), n_mv, opt.mv_vln_min_kv, opt.mv_vln_max_kv, length(mv_buses))
         @printf(io, "! Total PV pmpp: %.1f kW on %.1f kW nominal load (%.1f%% penetration)\n",
                 written_kw, total_load_kw, 100 * written_kw / total_load_kw)
-        @printf(io, "!   MV units: %.1f kW total; load-bus units: %.1f kW total (%.2f x their local load)\n",
+        @printf(io, "!   3-phase no-load units: %.1f kW total; load-bus units: %.1f kW total (%.2f x their local load)\n",
                 mv_kw_total, lv_kw_total, lv_sel_load > 0 ? lv_kw_total / lv_sel_load : 0.0)
         println(io, "! Entries are listed in feeder (DFS-from-substation) order.")
         println(io)

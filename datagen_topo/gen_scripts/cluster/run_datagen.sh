@@ -22,7 +22,7 @@ JOBS=(
   # "testing 13 testing_low_load_high_der.json"
 
   # "training 123 training_defaults.json"
-  "training 123 training_w060_020_020.json"
+  # "training 123 training_w060_020_020.json"
   # "testing 123 testing_defaults.json"
   # "testing 123 val_defaults.json"
   # "testing 123 testing_high_load_low_der.json"
@@ -34,7 +34,7 @@ JOBS=(
   # "testing 123 testing_shifted_m05_std05.json"
 
   # "training 240 training_defaults.json"
-  "training 240 training_w060_020_020.json"
+  # "training 240 training_w060_020_020.json"
   # "testing 240 testing_defaults.json"
   # "testing 240 testing_high_load_low_der.json"
   # "testing 240  val_defaults.json"
@@ -47,13 +47,13 @@ JOBS=(
 
   # "training 8500 training_defaults.json"
   "training 8500 training_w060_020_020.json"
-  # "testing 8500 testing_defaults.json"
-  # "testing 8500  val_defaults.json"
-  # "testing 8500 testing_high_load_low_der.json"
-  # "testing 8500 testing_low_load_high_der.json"
-  # "testing 8500 testing_shifted_m01_std01.json"
-  # "testing 8500 testing_shifted_m02_std02.json"
-  # "testing 8500 testing_shifted_m03_std03.json"
+  "testing 8500 testing_defaults.json"
+  "testing 8500  val_defaults.json"
+  "testing 8500 testing_high_load_low_der.json"
+  "testing 8500 testing_low_load_high_der.json"
+  "testing 8500 testing_shifted_m01_std01.json"
+  "testing 8500 testing_shifted_m02_std02.json"
+  "testing 8500 testing_shifted_m03_std03.json"
   # "testing 8500 testing_shifted_m04_std04.json"
   # "testing 8500 testing_shifted_m05_std05.json"
 )

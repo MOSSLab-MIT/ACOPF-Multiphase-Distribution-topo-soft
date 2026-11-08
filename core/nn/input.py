@@ -10,6 +10,10 @@ if TYPE_CHECKING:
     from core.grids.data import OPFData
 
 LOAD_SUPPORT_TOL = 1e-12
+# A training column is constant when std <= CONST_STD_RTOL * max(|mean|, 1). Float64
+# round-off on a truly constant column is ~1e-16 * |mean|; the smallest real feature std
+# on the 123/240/8500 datasets is 1.55e-6 (240-bus qd), so the threshold separates the two.
+CONST_STD_RTOL = 1e-12
 
 
 class NNInputLayout(NamedTuple):
@@ -196,6 +200,25 @@ def validate_load_support(
 # --- Normalization statistics ---
 
 
+def constant_input_mask(input_mean, input_std):
+    """True for feature columns that are constant over the training set."""
+    mean = jnp.asarray(input_mean)
+    std = jnp.asarray(input_std)
+    tol = CONST_STD_RTOL * jnp.maximum(jnp.abs(mean), 1.0)
+    return std <= tol
+
+
+def input_scale(input_mean, input_std):
+    """Per-column divisor for z-scoring: training std, or 1 for constant columns.
+
+    With scale 1, a constant column maps its training value to 0 (exactly for values such
+    as 0/1 switch bits; otherwise up to the float64 round-off of the training mean) and any
+    other value ``x`` to the finite ``x - mean`` instead of dividing by ~0.
+    """
+    std = jnp.asarray(input_std)
+    return jnp.where(constant_input_mask(input_mean, std), jnp.ones_like(std), std)
+
+
 def compute_input_stats(
     train_dataset,
     session: "OPFData",
@@ -255,8 +278,14 @@ def _log_input_stats(
 ) -> None:
     mean = np.asarray(input_mean)
     std = np.asarray(input_std)
+    const_cols = np.flatnonzero(np.asarray(constant_input_mask(mean, std)))
     print(
-        f"  NN input stats (din_compact={layout.din_compact}): "
+        f"  NN input stats (din={mean.shape[0]}, din_compact={layout.din_compact}): "
         f"mean in [{mean.min():.4g}, {mean.max():.4g}], "
         f"std in [{std.min():.4g}, {std.max():.4g}]"
     )
+    if const_cols.size:
+        print(
+            f"  constant input columns (scale=1): {const_cols.size} "
+            f"(first: {const_cols[:10].tolist()})"
+        )
