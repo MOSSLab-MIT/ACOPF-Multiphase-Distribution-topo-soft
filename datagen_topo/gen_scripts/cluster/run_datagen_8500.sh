@@ -15,19 +15,19 @@
 # Grids: 13 | 123 | 240 | 906 | 8500. Julia flags override the config.
 
 JOBS=(
-  # "training 8500 training_defaults.json"
-  "training 8500 training_w060_020_020_8500.json"
-  "testing 8500 testing_defaults_8500.json"
-  # "testing 8500 testing_high_load_low_der.json"
-  # "testing 8500 testing_low_load_high_der.json"
-  "testing 8500  val_defaults_8500.json"
-  "testing 8500 testing_high_load_low_der_8500.json"
-  "testing 8500 testing_low_load_high_der_8500.json"
-  "testing 8500 testing_shifted_m01_std01_8500.json"
-  "testing 8500 testing_shifted_m02_std02_8500.json"
-  "testing 8500 testing_shifted_m03_std03_8500.json"
-  # "testing 8500 testing_shifted_m04_std04_8500.json"
-  # "testing 8500 testing_shifted_m05_std05_8500.json"
+  # "training 8500 training_defaults.yaml"
+  "training 8500 training_w060_020_020_8500.yaml"
+  "testing 8500 testing_defaults_8500.yaml"
+  # "testing 8500 testing_high_load_low_der.yaml"
+  # "testing 8500 testing_low_load_high_der.yaml"
+  "testing 8500  val_defaults_8500.yaml"
+  "testing 8500 testing_high_load_low_der_8500.yaml"
+  "testing 8500 testing_low_load_high_der_8500.yaml"
+  "testing 8500 testing_shifted_m01_std01_8500.yaml"
+  "testing 8500 testing_shifted_m02_std02_8500.yaml"
+  "testing 8500 testing_shifted_m03_std03_8500.yaml"
+  # "testing 8500 testing_shifted_m04_std04_8500.yaml"
+  # "testing 8500 testing_shifted_m05_std05_8500.yaml"
 )
 
 set -euo pipefail

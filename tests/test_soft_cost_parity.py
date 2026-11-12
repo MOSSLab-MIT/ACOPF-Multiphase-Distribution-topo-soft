@@ -123,7 +123,7 @@ def test_obj_weights_have_penalty_columns(feasible):
     _, batch, _, _, _ = feasible
     w = np.asarray(batch.obj_weights)
     assert w.shape == (N_SAMPLES, N_OBJ_WEIGHTS)
-    # gen_scripts/configs/testing_defaults.json: ρ_V, ρ_I, ρ_θ ~ logU[1, 100], ρ_sub ~ logU[100, 200].
+    # gen_scripts/configs/testing_defaults.yaml: ρ_V, ρ_I, ρ_θ ~ logU[1, 100], ρ_sub ~ logU[100, 200].
     assert np.all((w[:, 2:5] >= 1.0) & (w[:, 2:5] <= 100.0))
     assert np.all((w[:, 5] >= 100.0) & (w[:, 5] <= 200.0))
 

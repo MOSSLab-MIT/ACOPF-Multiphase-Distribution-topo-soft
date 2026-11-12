@@ -1,4 +1,4 @@
-# Substation / DER price lives in the JSON configs (`cost` block) and reaches the OPF objective.
+# Substation / DER price lives in the YAML configs (`cost` block) and reaches the OPF objective.
 # Run: julia --project=datagen_topo/FeederFlow.jl tests/test_config_cost.jl
 using Test
 using Random
@@ -24,9 +24,9 @@ const CASE_123 = joinpath(DATAGEN_DIR, "grid_data", "123_bus", "IEEE123Master.ds
 end
 
 @testset "all configs carry one shared, valid cost block" begin
-    paths = filter(p -> endswith(p, ".json"), readdir(CONFIG_DIR; join=true))
+    paths = filter(p -> endswith(p, ".yaml"), readdir(CONFIG_DIR; join=true))
     @test !isempty(paths)
-    costs = [require_cost_block(load_json_config(p)) for p in paths]
+    costs = [require_cost_block(load_config(p)) for p in paths]
     for (p, c) in zip(paths, costs)
         @test c == costs[1] || error("cost block in $p differs from $(paths[1])")
     end
@@ -53,7 +53,7 @@ end
 end
 
 @testset "--sub_cost / --der_cost CLI flags override the config" begin
-    _, flags = parse_cli_tokens(["grid.dss", "--config", "x.json", "--sub_cost", "2,200,0", "--der_cost", "0.2, 10"])
+    _, flags = parse_cli_tokens(["grid.dss", "--config", "x.yaml", "--sub_cost", "2,200,0", "--der_cost", "0.2, 10"])
     config = deep_merge_config(DEFAULT_TESTING_CONFIG, Dict("cost" => Dict("sub_cost" => [3.0, 4.0, 0.0])))
     apply_cost_cli_flags!(config, flags)
     c = require_cost_block(config)

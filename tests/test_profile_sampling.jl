@@ -191,10 +191,10 @@ end
 end
 
 @testset "configs and code defaults use the agreed sigmas" begin
-    paths = filter(p -> endswith(p, ".json"), readdir(CONFIG_DIR; join=true))
-    @test length(paths) == 15
+    paths = filter(p -> endswith(p, ".yaml"), readdir(CONFIG_DIR; join=true))
+    @test length(paths) == 14
     for path in paths
-        config = load_json_config(path)
+        config = load_config(path)
         if haskey(config, "training_regimes")
             @test config["regime_load_defaults"]["sigma"] == LOAD_SIGMA
             for regime in config["training_regimes"]

@@ -15,7 +15,7 @@ Grids live under `datagen_topo/grid_data/` (e.g. `13_bus/IEEE13Nodeckt.dss`, `12
 | [`create_training_dataset.jl`](create_training_dataset.jl) | Training inputs: loads, DER availability, topology switches, objectives (no OPF solve) |
 | [`create_testing_dataset.jl`](create_testing_dataset.jl) | Test data: scenario topologies + Ipopt OPF labels (feasible / infeasible); `--variant base` or `--variant shifted` |
 | [`../datagen_topo.jl`](../datagen_topo.jl) | Shared include aggregator for datagen code (not a Julia package) |
-| [`configs/`](configs/) | JSON defaults for training/testing generation |
+| [`configs/`](configs/) | YAML configs for training/testing generation (`--config <file>.yaml`; JSON configs are rejected). Needs `YAML.jl` in the Julia environment. |
 | [`cluster/run_datagen.sh`](cluster/run_datagen.sh) | Slurm launcher (array index = grid, parameters from config); see [`cluster/README.md`](cluster/README.md) |
 
 
@@ -44,9 +44,9 @@ Datasets generated before this sampler (independent uniform DER draws per unit, 
 ### What it does
 
 - Samples `smin:smax` seeds (one column per seed).
-- Mixes **load/DER regimes** defined by script defaults or `--config configs/training_defaults.json` (default mix: base `1.0`, high_load_low_der `0.0`, low_load_high_der `0.0`); schedule is round-robin by allocated counts.
+- Mixes **load/DER regimes** defined by script defaults or `--config configs/training_defaults.yaml` (default mix: base `1.0`, high_load_low_der `0.0`, low_load_high_der `0.0`); schedule is round-robin by allocated counts.
 - Per sample: random connected topology (`TopologySampler`), `changing_switch_status`, loads, DER availability, objective weights.
-- Writes **inputs only** to `<case>_training.h5`, or `<case>_training_<suffix>.h5` when `output_suffix` is set in the JSON config or CLI. Generate or reuse `network_config.json` separately for Python loaders.
+- Writes **inputs only** to `<case>_training.h5`, or `<case>_training_<suffix>.h5` when `output_suffix` is set in the YAML config or CLI. Generate or reuse `network_config.json` separately for Python loaders.
 
 ### CLI
 
@@ -57,8 +57,8 @@ Datasets generated before this sampler (independent uniform DER draws per unit, 
 | `--der_frac_l`, `--der_frac_u` | Override the feeder-wide DER factor bounds on **all** regimes |
 | `--flip_probability`, `--radial_ratio` | Topology sampler |
 | `--floating_point_type` | `float32` or `float64` (default `float64`) |
-| `--config` | Optional JSON config; see [`configs/training_defaults.json`](configs/training_defaults.json) |
-| `--output_suffix` | Append `_<suffix>` to the output filename; overrides config `output_suffix` (default `""`). `training_w060_020_020.json` sets `060_020_020`. |
+| `--config` | Optional YAML config; see [`configs/training_defaults.yaml`](configs/training_defaults.yaml) |
+| `--output_suffix` | Append `_<suffix>` to the output filename; overrides config `output_suffix` (default `""`). `training_w060_020_020.yaml` sets `060_020_020`. |
 
 Positional: `[grid.dss]` or legacy `[grid.dss smin smax]` (overridden by `--smin` / `--smax` when set).
 
@@ -111,9 +111,9 @@ The generator writes **combined HDF5 files** (`*_test_feasible*.h5`, `*_test_inf
 | `--floating_point_type` | `float64` | Export precision |
 | `--shift_mu`, `--shift_der_mu` | script `config` | Shifted variant only: shift magnitude on loads / DER (see `random_sign`) |
 | `--shift_random_sign` | `true` | When `true` (default), each load/DER element gets `±(mu + sigma·|Z|)` with independent random sign; when `false`, legacy signed Gaussian `mu + sigma·Z` |
-| `--config` | [`configs/testing_defaults.json`](configs/testing_defaults.json) | Optional JSON config merged before CLI overrides |
+| `--config` | [`configs/testing_defaults.yaml`](configs/testing_defaults.yaml) | Optional YAML config merged before CLI overrides |
 
-Config keys `shift/sigma_rel`, `shift/der_sigma`, `shift/random_sign`, etc. are represented in [`configs/testing_defaults.json`](configs/testing_defaults.json).
+Config keys `shift/sigma_rel`, `shift/der_sigma`, `shift/random_sign`, etc. are represented in [`configs/testing_defaults.yaml`](configs/testing_defaults.yaml).
 
 With the default `random_sign=true`, `--shift_mu` and `--shift_der_mu` set the **magnitude** of the relative shift (not a one-sided upward bias). Pass `--shift_random_sign false` to recover the previous signed-Gaussian behavior.
 
@@ -235,9 +235,9 @@ Prefer explicit `--num_scenarios` and `--feasible_samples_per_scenario` for new 
 
 ## Customizing behavior
 
-- **Training regimes:** default mix is all-base (`training_defaults.json`, weights `1.0/0.0/0.0`). Previous default mix (`0.6/0.05/0.35`) lives in `configs/training_w060_005_035.json` with output suffix `060_005_035`. Load-cap OOR training (all-base load `[0.2, 0.8]`) uses `configs/training_l02_u08.json` with output suffix `l02_u08` (launcher: `cluster/run_datagen.sh`, see `cluster/README.md`).
-- **Disjoint splits:** profile seed `s` gives the same load/DER draws in every split, so each split uses its own seed block: training `smin:smax` (`1:200000`), validation `1000001+` ([`configs/val_defaults.json`](configs/val_defaults.json)), test `2000001+` (all `testing_*.json`; test variants share the block so they are paired). A test run uses at most `num_scenarios × feasible_samples_per_scenario × max_attempts_multiplier + 1` seeds. Keep training `smax < 1000001`. `seed_base` does not separate splits: it only seeds topologies.
-- **Test sampling defaults:** use `--config datagen_topo/gen_scripts/configs/testing_defaults.json` as the editable template.
+- **Training regimes:** default mix is all-base (`training_defaults.yaml`, weights `1.0/0.0/0.0`). Previous default mix (`0.6/0.05/0.35`) lives in `configs/training_w060_005_035.yaml` with output suffix `060_005_035`. Load-cap OOR training (all-base load `[0.2, 0.8]`) uses `configs/training_l02_u08.yaml` with output suffix `l02_u08` (launcher: `cluster/run_datagen.sh`, see `cluster/README.md`).
+- **Disjoint splits:** profile seed `s` gives the same load/DER draws in every split, so each split uses its own seed block: training `smin:smax` (`1:200000`), validation `1000001+` ([`configs/val_defaults.yaml`](configs/val_defaults.yaml)), test `2000001+` (all `testing_*.yaml`; test variants share the block so they are paired). A test run uses at most `num_scenarios × feasible_samples_per_scenario × max_attempts_multiplier + 1` seeds. Keep training `smax < 1000001`. `seed_base` does not separate splits: it only seeds topologies.
+- **Test sampling defaults:** use `--config datagen_topo/gen_scripts/configs/testing_defaults.yaml` as the editable template.
 - **Soft V / I / θ / substation limits:** the OPF is soft-only. Voltage magnitude, branch current, angle-difference and per-phase substation apparent-power limits get nonnegative slacks with an L1 penalty `ρ_V·Σs_V + ρ_I·Σs_I + ρ_θ·Σs_θ + ρ_sub·Σs_sub` in raw pu² units (DER limits and power balance stay hard). The `penalty` config block (`rho_min`, `rho_max`, order `[ρ_V, ρ_I, ρ_θ, ρ_sub]`; configs use `[1, 1, 1, 100]` / `[100, 100, 100, 200]`, code default `[100, 100, 100, 100]` / `[1000, 1000, 1000, 200]`) sets the per-sample ρ, sampled log-uniformly; `obj` still samples `[w_cost, w_curtail]` uniformly. Legacy 3-entry penalty blocks are rejected. Infeasibility now only arises from power balance (loadability), so `*_test_infeasible.h5` is normally empty and not written. Julia tests: `tests/test_soft_constraints.jl`.
 - **Price:** the `cost` block (`sub_cost`, `der_cost`, each `[quad, lin, const]`, default `[1.0, 100.0, 0.0]` / `[0.1, 5.0, 0.0]`) sets the substation and DER cost `quad·p² + lin·p` on **per-unit** power, so the price per MW scales with each feeder's `Sbase`. `der_cost` applies to every DER; the constant term must be 0 (it is ignored). Labels and `network_config.json` both carry the price, so every config used for one case (training, validation, test, shifted) must share the same `cost` block. Each HDF5 records it in `metadata/{sub,der}_cost_{lin,quad}`, and the Python loader rejects a file whose price differs from `network_config.json`. Julia tests: `tests/test_config_cost.jl`.
 - **Topology / OPF:** shared code now loads through `datagen_topo/datagen_topo.jl`, with implementation files under `datagen_topo/src/`.

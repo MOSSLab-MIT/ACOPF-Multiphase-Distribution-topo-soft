@@ -19,19 +19,19 @@
 PRICE="--sub_cost 2,200,0 --der_cost 0.2,10,0"
 
 JOBS=(
-  # "training 240 training_defaults.json $PRICE"
-  # "training 240 training_w060_020_020.json $PRICE"
-  # "testing 240 testing_defaults.json $PRICE"
-  # "testing 240 testing_high_load_low_der.json $PRICE"
-  # "testing 240  val_defaults.json $PRICE"
-  # "testing 240 testing_low_load_high_der.json $PRICE"
-  # "testing 240 testing_shifted_m01_std01.json $PRICE"
-  # "testing 240 testing_shifted_m02_std02.json $PRICE"
-  # "testing 240 testing_shifted_m03_std03.json $PRICE"
-  # "testing 240 testing_shifted_m04_std04.json $PRICE"
-  # "testing 240 testing_shifted_m05_std05.json $PRICE"
-  "testing 240 testing_shifted_m005_std005.json $PRICE"
-  "testing 240 testing_shifted_m015_std015.json $PRICE"
+  # "training 240 training_defaults.yaml $PRICE"
+  # "training 240 training_w060_020_020.yaml $PRICE"
+  # "testing 240 testing_defaults.yaml $PRICE"
+  # "testing 240 testing_high_load_low_der.yaml $PRICE"
+  # "testing 240  val_defaults.yaml $PRICE"
+  # "testing 240 testing_low_load_high_der.yaml $PRICE"
+  # "testing 240 testing_shifted_m01_std01.yaml $PRICE"
+  # "testing 240 testing_shifted_m02_std02.yaml $PRICE"
+  # "testing 240 testing_shifted_m03_std03.yaml $PRICE"
+  # "testing 240 testing_shifted_m04_std04.yaml $PRICE"
+  # "testing 240 testing_shifted_m05_std05.yaml $PRICE"
+  "testing 240 testing_shifted_m005_std005.yaml $PRICE"
+  "testing 240 testing_shifted_m015_std015.yaml $PRICE"
 )
 
 set -euo pipefail

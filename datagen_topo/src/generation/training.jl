@@ -68,7 +68,7 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
     config = deepcopy(DEFAULT_TRAINING_CONFIG)
     positional, flags = parse_cli_tokens(String.(args))
 
-    config_raw = haskey(flags, "config") ? load_json_config(flags["config"]) : Dict{String, Any}()
+    config_raw = haskey(flags, "config") ? load_config(flags["config"]) : Dict{String, Any}()
     for key in ("obj", "penalty", "cost", "topology", "randomness")
         if haskey(config_raw, key)
             config[key] = deep_merge_config(config[key], config_raw[key])

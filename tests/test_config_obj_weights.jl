@@ -1,4 +1,4 @@
-# Economic objective weights live in the JSON configs, and config merge must keep floats.
+# Economic objective weights live in the YAML configs, and config merge must keep floats.
 # Run: julia --project=datagen_topo/FeederFlow.jl tests/test_config_obj_weights.jl
 using Test
 
@@ -14,10 +14,10 @@ const WMIN = [0.5, 0.5]
 const WMAX = [1.0, 10.0]
 
 @testset "config obj weight ranges" begin
-    paths = filter(p -> endswith(p, ".json"), readdir(CONFIG_DIR; join=true))
+    paths = filter(p -> endswith(p, ".yaml"), readdir(CONFIG_DIR; join=true))
     @test !isempty(paths)
     for path in paths
-        obj = require_obj_block(load_json_config(path))
+        obj = require_obj_block(load_config(path))
         @test Float64.(obj["wmin"]) == WMIN
         @test Float64.(obj["wmax"]) == WMAX
     end
@@ -48,10 +48,43 @@ end
     @test Float64.(merged["wmin"]) == WMIN
     @test Float64.(merged["wmax"]) == WMAX
 
-    for path in filter(p -> endswith(p, ".json"), readdir(CONFIG_DIR; join=true))
-        merged_cfg = deep_merge_config(DEFAULT_TESTING_CONFIG, load_json_config(path))
+    for path in filter(p -> endswith(p, ".yaml"), readdir(CONFIG_DIR; join=true))
+        merged_cfg = deep_merge_config(DEFAULT_TESTING_CONFIG, load_config(path))
         obj = require_obj_block(merged_cfg)
         @test Float64.(obj["wmin"]) == WMIN
         @test Float64.(obj["wmax"]) == WMAX
+    end
+end
+
+@testset "load_config reads YAML with JSON-equivalent types" begin
+    mktempdir() do dir
+        path = joinpath(dir, "cfg.yaml")
+        write(path, """
+        # comment
+        obj:
+          wmin: [0.5, 0.5]
+          wmax: [1.0, 10.0]
+        penalty: {rho_min: [1, 1, 1, 100]}
+        shift: {enabled: true}
+        floating_point_type: Float64
+        regimes:
+          - {name: base, weight: 1.0}
+        """)
+        cfg = load_config(path)
+        @test cfg isa Dict{String, Any}
+        @test cfg["obj"] isa Dict{String, Any}
+        @test cfg["obj"]["wmax"] == [1.0, 10.0] && all(x -> x isa Float64, cfg["obj"]["wmax"])
+        @test all(x -> x isa Int, cfg["penalty"]["rho_min"])
+        @test cfg["shift"]["enabled"] === true
+        @test cfg["floating_point_type"] == "Float64"
+        @test cfg["regimes"][1] isa Dict{String, Any} && cfg["regimes"][1]["weight"] === 1.0
+        # Containers are untyped, as with JSON: a float can replace an integer entry.
+        @test cfg["penalty"]["rho_min"] isa Vector{Any} && cfg["regimes"] isa Vector{Any}
+        cfg["penalty"]["rho_min"][1] = 0.5
+        @test cfg["penalty"]["rho_min"][1] === 0.5
+        @test_throws ErrorException load_config(joinpath(dir, "cfg.json"))
+        list_path = joinpath(dir, "list.yaml")
+        write(list_path, "- 1\n- 2\n")
+        @test_throws ErrorException load_config(list_path)
     end
 end

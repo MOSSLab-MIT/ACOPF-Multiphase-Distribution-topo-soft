@@ -18,25 +18,25 @@ Each `JOBS` line is `"<training|testing> <grid> <config> [julia flags...]"`:
 ```bash
 JOBS=(
   # Training
-  "training 906 training_defaults.json"
-  "training 13  training_w060_005_035.json --output_suffix 060_005_035"
-  "training 13  training_l02_u08.json      --output_suffix l02_u08"
+  "training 906 training_defaults.yaml"
+  "training 13  training_w060_005_035.yaml --output_suffix 060_005_035"
+  "training 13  training_l02_u08.yaml      --output_suffix l02_u08"
 
   # Testing: one config per case (variant and output_suffix are read from the config)
-  "testing 906 testing_defaults.json"            # base
-  "testing 906 testing_low_load_high_der.json"
-  "testing 906 testing_high_load_low_der.json"
-  "testing 906 testing_shifted_m01_std01.json"   # ... m02 ... m05
-  "testing 906 testing_oor_load.json"
+  "testing 906 testing_defaults.yaml"            # base
+  "testing 906 testing_low_load_high_der.yaml"
+  "testing 906 testing_high_load_low_der.yaml"
+  "testing 906 testing_shifted_m01_std01.yaml"   # ... m02 ... m05
+  "testing 906 testing_oor_load.yaml"
 )
 ```
 
 | Testing config | Load scale | DER frac | Shift (`mu_rel` = `der_mu`) | Output |
 |---|---|---|---|---|
-| `testing_defaults.json` | [0.2, 1.5] | [0.0, 1.0] | – | `<case>_test_feasible.h5` |
-| `testing_low_load_high_der.json` | [0.2, 0.5] | [0.6, 1.0] | – | `..._low_load_high_der.h5` |
-| `testing_high_load_low_der.json` | [0.6, 1.0] | [0.0, 0.4] | – | `..._high_load_low_der.h5` |
-| `testing_shifted_m0k_std0k.json` | [0.2, 1.5] | [0.0, 1.0] | 0.k | `..._shifted_m0k_std0k.h5` |
-| `testing_oor_load.json` | [0.5, 2.0] | [0.0, 1.0] | – | `..._oor_load.h5` |
+| `testing_defaults.yaml` | [0.2, 1.5] | [0.0, 1.0] | – | `<case>_test_feasible.h5` |
+| `testing_low_load_high_der.yaml` | [0.2, 0.5] | [0.6, 1.0] | – | `..._low_load_high_der.h5` |
+| `testing_high_load_low_der.yaml` | [0.6, 1.0] | [0.0, 0.4] | – | `..._high_load_low_der.h5` |
+| `testing_shifted_m0k_std0k.yaml` | [0.2, 1.5] | [0.0, 1.0] | 0.k | `..._shifted_m0k_std0k.h5` |
+| `testing_oor_load.yaml` | [0.5, 2.0] | [0.0, 1.0] | – | `..._oor_load.h5` |
 
 All tasks in one submission share the same Slurm resources. Submit large feeders (e.g. 8500) separately with more `--mem`.

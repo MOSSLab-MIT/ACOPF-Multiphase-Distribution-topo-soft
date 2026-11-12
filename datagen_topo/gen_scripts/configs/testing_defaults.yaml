@@ -1,0 +1,57 @@
+# Feeder-wide load factor ~ U[l, u]; per-element noise ±sigma.
+load:
+  noise_type: ScaledUniform
+  l: 0.2
+  u: 1.5
+  sigma: 0.3
+
+# Objective weights [w_cost, w_curtail], sampled uniformly in [wmin, wmax].
+obj:
+  wmin: [0.5, 0.5]
+  wmax: [1.0, 10.0]
+
+# Soft-limit penalties [rho_V, rho_I, rho_theta, rho_sub], sampled log-uniformly in [rho_min, rho_max].
+penalty:
+  rho_min: [1, 1, 1, 100]
+  rho_max: [100, 100, 100, 200]
+
+# Price [quad, lin, const] on per-unit power. Must be identical in every config of a case.
+cost:
+  sub_cost: [1.0, 100.0, 0.0]
+  der_cost: [0.1, 5.0, 0.0]
+
+# Feeder-wide DER availability factor ~ U[frac_l, frac_u]; per-DER noise ±sigma.
+der:
+  frac_l: 0.0
+  frac_u: 1.0
+  sigma: 0.5
+
+# Switch-topology sampler.
+topology:
+  flip_probability: 0.5
+  radial_ratio: 0.5
+
+# Profile seeds. Splits use disjoint blocks: train 1:200000, val 1000001+, test 2000001+.
+# seed_base seeds topologies only.
+randomness:
+  seed_base: 1234
+  smin: 2000001
+
+# Topology scenarios and feasible samples per scenario (attempts <= samples x multiplier).
+scenario:
+  num_scenarios: 20
+  feasible_samples_per_scenario: 100
+  max_attempts_multiplier: 5
+
+# Distribution shift: each element scaled by 1 ± (mu + sigma·|Z|) when random_sign is true.
+shift:
+  enabled: false
+  noise_type: gaussian
+  sigma_rel: 0.2
+  der_sigma: 0.2
+  mu_rel: 0.1
+  der_mu: 0.2
+  scale_factor: 1.0
+  random_sign: true
+save_config: true
+floating_point_type: Float64

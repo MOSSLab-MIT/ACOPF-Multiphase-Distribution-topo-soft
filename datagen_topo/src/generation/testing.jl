@@ -108,7 +108,7 @@ function generate_testing_dataset!(args::Vector{String}=String[]; datagen_dir::A
     config = deepcopy(DEFAULT_TESTING_CONFIG)
     positional, flags = parse_cli_tokens(String.(args))
     if haskey(flags, "config")
-        config = deep_merge_config(config, load_json_config(flags["config"]))
+        config = deep_merge_config(config, load_config(flags["config"]))
     end
     config["obj"] = require_obj_block(config)
     cost = resolve_cost_config!(config, flags)

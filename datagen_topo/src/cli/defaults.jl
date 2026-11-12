@@ -1,6 +1,6 @@
 # Shared CLI/config helpers for datagen_topo/gen_scripts/*.jl.
 
-using JSON
+using YAML
 
 const LOAD_DER_CLI_FLAGS = ("load_l", "load_u", "der_frac_l", "der_frac_u")
 
@@ -108,8 +108,26 @@ Price for a generator run: the config `cost` block, overridden by `--sub_cost` /
 resolve_cost_config!(config::AbstractDict, flags::Dict{String, String}) =
     require_cost_block(apply_cost_cli_flags!(config, flags))
 
-function load_json_config(path::AbstractString)
-    return JSON.parsefile(path; dicttype=Dict{String, Any})
+# YAML.jl narrows sequences to concrete element types (`[1, 1]` -> Vector{Int64}), so assigning a
+# float into one later throws InexactError. Widen every container to Any, as JSON parsing does.
+_untyped_config(x::AbstractDict) = Dict{String, Any}(String(k) => _untyped_config(v) for (k, v) in x)
+_untyped_config(x::AbstractVector) = Any[_untyped_config(v) for v in x]
+_untyped_config(x) = x
+
+"""
+    load_config(path) -> Dict{String, Any}
+
+Read a datagen YAML config (`.yaml` / `.yml`), e.g. `gen_scripts/configs/testing_defaults.yaml`.
+Mappings become `Dict{String, Any}` and sequences `Vector{Any}`; scalars keep their YAML type
+(`1` is Int64, `1.0` is Float64).
+"""
+function load_config(path::AbstractString)
+    ext = lowercase(splitext(path)[2])
+    ext in (".yaml", ".yml") ||
+        error("Datagen configs are YAML (.yaml/.yml); got '$path'. JSON configs were converted to YAML.")
+    raw = YAML.load_file(path)
+    raw isa AbstractDict || error("Config '$path' must be a mapping at top level; got $(typeof(raw)).")
+    return _untyped_config(raw)
 end
 
 """
