@@ -20,7 +20,6 @@ JOBS=(
   # Training
   "training 906 training_defaults.yaml"
   "training 13  training_w060_005_035.yaml --output_suffix 060_005_035"
-  "training 13  training_l02_u08.yaml      --output_suffix l02_u08"
 
   # Testing: one config per case (variant and output_suffix are read from the config)
   "testing 906 testing_defaults.yaml"            # base
