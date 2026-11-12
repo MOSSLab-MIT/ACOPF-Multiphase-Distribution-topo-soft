@@ -10,9 +10,9 @@ slurm:
 
 args:
   num_layers: 4
-  hidden_size: 2048
+  hidden_size: 4096 # old: 2048 but we have much more PVs now
   learning_rate: 5.0e-6
-  batch_size: 16
+  batch_size: 8
   power_flow_solver: fixed_point
   train_samples: 200000
   eval_samples: 2000

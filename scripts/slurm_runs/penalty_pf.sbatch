@@ -8,6 +8,8 @@
 #   No grid -> GRIDS below. Seeds: `seed` in configs/<grid>.yaml (SEEDS=1,4 overrides).
 #   DRY_RUN=1 only prints the commands.
 
+export PYTHONUNBUFFERED=1
+
 set -euo pipefail
 METHOD=penalty_pf
 FAMILY=penalty_pf

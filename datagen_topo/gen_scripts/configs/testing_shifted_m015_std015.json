@@ -13,6 +13,10 @@
     "rho_min": [1, 1, 1, 100],
     "rho_max": [100, 100, 100, 200]
   },
+  "cost": {
+    "sub_cost": [1.0, 100.0, 0.0],
+    "der_cost": [0.1, 5.0, 0.0]
+  },
   "der": {
     "frac_l": 0.0,
     "frac_u": 1.0,
@@ -33,14 +37,14 @@
   "shift": {
     "enabled": true,
     "noise_type": "gaussian",
-    "sigma_rel": 0.3,
-    "der_sigma": 0.3,
-    "mu_rel": 0.3,
-    "der_mu": 0.3,
+    "sigma_rel": 0.15,
+    "der_sigma": 0.15,
+    "mu_rel": 0.15,
+    "der_mu": 0.15,
     "scale_factor": 1.0,
     "random_sign": true
   },
   "save_config": false,
   "floating_point_type": "Float64",
-  "output_suffix": "m03_std03"
+  "output_suffix": "m015_std015"
 }
