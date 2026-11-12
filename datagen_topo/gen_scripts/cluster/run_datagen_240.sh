@@ -14,24 +14,22 @@
 # One job per line: "<training|testing> <grid> <config in configs/> [julia flags...]"
 # Grids: 13 | 123 | 240 | 906 | 8500. Julia flags override the config.
 
-# Price for this grid (pu, [quad, lin, const]): 2x the default sub [1,100,0] / DER [0.1,5,0]. Because base MVA of 240 is 2x that of 123, that make the substation cost per MVA the same. 
+# Price for this grid (pu, [quad, lin, const]): 2x the default sub [1,100,0] / DER [0.1,5,0]. Because base MVA of 240 is 2x that of 123, that make the substation cost per MVA the same.
 # Every job of one grid must use the same price (the Python loader checks it).
 PRICE="--sub_cost 2,200,0 --der_cost 0.2,10,0"
 
 JOBS=(
-  # "training 240 training_defaults.yaml $PRICE"
-  # "training 240 training_w060_020_020.yaml $PRICE"
-  # "testing 240 testing_defaults.yaml $PRICE"
-  # "testing 240 testing_high_load_low_der.yaml $PRICE"
-  # "testing 240  val_defaults.yaml $PRICE"
-  # "testing 240 testing_low_load_high_der.yaml $PRICE"
-  # "testing 240 testing_shifted_m01_std01.yaml $PRICE"
-  # "testing 240 testing_shifted_m02_std02.yaml $PRICE"
-  # "testing 240 testing_shifted_m03_std03.yaml $PRICE"
-  # "testing 240 testing_shifted_m04_std04.yaml $PRICE"
-  # "testing 240 testing_shifted_m05_std05.yaml $PRICE"
+  "training 240 training_defaults.yaml $PRICE"
+  "training 240 training_w060_020_020.yaml $PRICE"
+  "testing 240 testing_defaults.yaml $PRICE"
+  "testing 240 testing_high_load_low_der.yaml $PRICE"
+  "testing 240  val_defaults.yaml $PRICE"
+  "testing 240 testing_low_load_high_der.yaml $PRICE"
   "testing 240 testing_shifted_m005_std005.yaml $PRICE"
+  "testing 240 testing_shifted_m01_std01.yaml $PRICE"
   "testing 240 testing_shifted_m015_std015.yaml $PRICE"
+  "testing 240 testing_shifted_m02_std02.yaml $PRICE"
+
 )
 
 set -euo pipefail
