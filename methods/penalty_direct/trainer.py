@@ -5,6 +5,14 @@ Loss at the predicted ``(pder, qder, vr, vi)``:
 objective (economic + per-sample ``ρ_V, ρ_I, ρ_θ, ρ_sub`` L1 penalties on voltage / branch-current /
 angle / substation limits, matching the Julia labels). DER limits are enforced by projection;
 their violations are reported as diagnostics only.
+
+Testing reports two evaluations of the same projected prediction:
+
+- raw (``cost``, ``violation``, ``optimality_gap``, ...): metrics at the NN-predicted voltages, which
+  need not satisfy power flow;
+- PF-repaired (``*_pf`` keys): AC power flow solved at the projected ``(pder, qder)`` from the
+  no-load voltage ``topo.w`` (the Penalty PF deploy pipeline), then metrics at the PF voltages. The
+  predicted voltages are discarded; ``speedup_pf`` counts the PF solve in the prediction time.
 """
 
 import time
@@ -26,7 +34,9 @@ from core.grids.metrics import (
     calc_soft_penalties,
     compute_ac_metrics_from_voltage,
     compute_optimality_metrics,
+    weighted_soft_penalty_sums,
 )
+from core.grids.power_flow import get_power_flow_batch_fn
 from core.nn.state import update_model
 from core.topology.batch import precompute_topology
 from core.utils.batch import prepare_batch_data
@@ -63,6 +73,27 @@ def _project_predictions(net: NetworkParams, x_pred, pder_avai):
         net, p_der_raw, q_der_raw, pder_avai, eps
     )
     return jnp.concatenate([p_der, q_der, vr_raw, vi_raw], axis=1)
+
+
+@partial(jax.jit, static_argnums=(0,))
+def solve_pf_at_predicted_der(net: NetworkParams, s_load_batch, x_pred, topo: TopologyData):
+    """Non-slack PF voltages at the projected DER setpoints in ``x_pred``; predicted voltages unused.
+
+    Same solve as the Penalty PF deploy pipeline: initial guess ``topo.w``, network PF solver.
+    """
+    pder, qder, _, _ = split_vars(net, x_pred)
+    s_net = jax.vmap(net.compute_net_injection, in_axes=(0, 0))(s_load_batch, pder + 1j * qder)
+    pf_b = get_power_flow_batch_fn(getattr(net, "power_flow_solver", "fixed_point"))
+    return pf_b(s_net, topo.w, topo.Y_LL_inv, topo.w)
+
+
+@partial(jax.jit, static_argnums=(0,))
+def pf_repaired_metrics(net: NetworkParams, batch, x_pred, v_pf, topo: TopologyData):
+    """AC metrics (cost, violations, soft penalties) at the projected DERs and their PF voltages."""
+    pder, qder, _, _ = split_vars(net, x_pred)
+    return compute_ac_metrics_from_voltage(
+        net, batch.s_load, pder, qder, batch.pder_avai, v_pf, batch.obj_weights, topo
+    )
 
 
 def calc_batch_quantities(
@@ -346,11 +377,22 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
     wb_nn = nn_features_for_apply(wb_inputs_j, data, use_compact=data.use_compact_nn)
     wb_x = _project_predictions(net, inference_step(wb_nn), wb_batch.pder_avai)
     wb_x.block_until_ready()
-    del topo_wb, wb_batch, wb_x
+    wb_v_pf = solve_pf_at_predicted_der(net, wb_batch.s_load, wb_x, topo_wb)
+    pf_repaired_metrics(net, wb_batch, wb_x, wb_v_pf, topo_wb).cost.block_until_ready()
+    del topo_wb, wb_batch, wb_x, wb_v_pf
 
     batch_inverse_times = []
     batch_prediction_times = []
+    batch_pf_times = []
     metrics_sum = {
+        "cost_pf": 0.0,
+        "violation_pf": 0.0,
+        "max_violation_pf": 0.0,
+        "cost_error_pf": 0.0,
+        "abs_cost_error_pf": 0.0,
+        "max_abs_cost_error_pf": 0.0,
+        "optimality_gap_pf": 0.0,
+        "speedup_pf": 0.0,
         "cost": 0.0,
         "cost_target": 0.0,
         "distance": 0.0,
@@ -400,9 +442,16 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         batch_pred_time = time.perf_counter() - pred_start
         batch_prediction_times.append(batch_pred_time)
 
+        pf_start = time.perf_counter()
+        v_pf = solve_pf_at_predicted_der(net, batch.s_load, x_pred, topo)
+        v_pf.block_until_ready()
+        batch_pf_time = time.perf_counter() - pf_start
+        batch_pf_times.append(batch_pf_time)
+
         total_solve_time_batch = float(jnp.sum(solve_time_batch))
         avg_prediction_time_per_sample = batch_pred_time / batch_size_actual
         speedup_batch = solve_time_batch / avg_prediction_time_per_sample
+        speedup_pf_batch = solve_time_batch / ((batch_pred_time + batch_pf_time) / batch_size_actual)
 
         (
             v_final,
@@ -434,6 +483,14 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         cost_error, abs_cost_error, optimality_gap = compute_optimality_metrics(
             cost, cost_target
         )
+        pf_metrics = pf_repaired_metrics(net, batch, x_pred, v_pf, topo)
+        cost_error_pf, abs_cost_error_pf, optimality_gap_pf = compute_optimality_metrics(
+            pf_metrics.cost, cost_target
+        )
+        for key, value in weighted_soft_penalty_sums(
+            batch.obj_weights, pf_metrics.soft_penalty, "_pf"
+        ).items():
+            penalty_sums[key] = penalty_sums.get(key, 0.0) + value
         pder_pred = x_pred[:, : net.n_der_phase]
         qder_pred = x_pred[:, net.n_der_phase : 2 * net.n_der_phase]
         pder_norms = compute_norms(pder_pred, batch.pder_target)
@@ -452,6 +509,11 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
                 "abs_cost_error_mean": float(abs_cost_error.mean()),
                 "abs_cost_error_max": float(abs_cost_error.max()),
                 "optimality_gap_mean": float(optimality_gap.mean()),
+                "pf_time": batch_pf_time,
+                "cost_pf_mean": float(pf_metrics.cost.mean()),
+                "violation_pf_mean": float(pf_metrics.violation.mean()),
+                "violation_pf_max": float(pf_metrics.violation.max()),
+                "optimality_gap_pf_mean": float(optimality_gap_pf.mean()),
                 "pder_l1_norm": pder_norms["l1_norm"],
                 "pder_l2_norm": pder_norms["l2_norm"],
                 "pder_l_inf_norm": pder_norms["l_inf_norm"],
@@ -477,11 +539,24 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         metrics_sum["optimality_gap"] += float(optimality_gap.sum())
         metrics_sum["speedup"] += float(speedup_batch.sum())
         metrics_sum["solve_time"] += total_solve_time_batch
+        metrics_sum["cost_pf"] += float(pf_metrics.cost.sum())
+        metrics_sum["violation_pf"] += float(pf_metrics.violation.sum())
+        metrics_sum["max_violation_pf"] = max(
+            metrics_sum["max_violation_pf"], float(pf_metrics.violation.max())
+        )
+        metrics_sum["cost_error_pf"] += float(cost_error_pf.sum())
+        metrics_sum["abs_cost_error_pf"] += float(abs_cost_error_pf.sum())
+        metrics_sum["max_abs_cost_error_pf"] = max(
+            metrics_sum["max_abs_cost_error_pf"], float(abs_cost_error_pf.max())
+        )
+        metrics_sum["optimality_gap_pf"] += float(optimality_gap_pf.sum())
+        metrics_sum["speedup_pf"] += float(speedup_pf_batch.sum())
 
-        del topo, batch, x_pred
+        del topo, batch, x_pred, v_pf, pf_metrics
 
     total_inverse_time = sum(batch_inverse_times)
     total_prediction_time = sum(batch_prediction_times)
+    total_pf_time = sum(batch_pf_times)
     test_memory = get_gpu_memory_usage()
     nb = num_batches if num_batches > 0 else 1
     n = num_samples if num_samples > 0 else 1
@@ -506,6 +581,15 @@ def test_penalty_direct_fn(state, data, batch_size, test_samples):
         "max_abs_cost_error": metrics_sum["max_abs_cost_error"],
         "optimality_gap": metrics_sum["optimality_gap"] / num_samples,
         "speedup": metrics_sum["speedup"] / num_samples,
+        "total_pf_time": total_pf_time,
+        "cost_pf": metrics_sum["cost_pf"] / num_samples,
+        "violation_pf": metrics_sum["violation_pf"] / num_samples,
+        "max_violation_pf": metrics_sum["max_violation_pf"],
+        "cost_error_pf": metrics_sum["cost_error_pf"] / num_samples,
+        "abs_cost_error_pf": metrics_sum["abs_cost_error_pf"] / num_samples,
+        "max_abs_cost_error_pf": metrics_sum["max_abs_cost_error_pf"],
+        "optimality_gap_pf": metrics_sum["optimality_gap_pf"] / num_samples,
+        "speedup_pf": metrics_sum["speedup_pf"] / num_samples,
         "total_solve_time": metrics_sum["solve_time"],
         "avg_solve_time_per_sample": metrics_sum["solve_time"] / num_samples,
         "pder_l1_norm": float(
