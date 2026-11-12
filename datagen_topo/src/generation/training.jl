@@ -14,7 +14,6 @@ const DEFAULT_FLOAT_PRECISION = Float64
 # julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss --smin 1 --smax 50000
 # julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/240_bus/240bus_Master.dss --smin 1 --smax 50000 
 # julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/906_bus/906bus_Master.dss --smin 1 --smax 50000
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss --smin 1 --smax 50000
 # Legacy positional: julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl "datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss" 1 50000
 # Smoke (regime mix): julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 300
 # Regime variant: julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 300 --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der"

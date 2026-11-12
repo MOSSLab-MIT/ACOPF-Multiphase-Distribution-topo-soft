@@ -6,7 +6,7 @@ Julia scripts that build HDF5 datasets for Python training. Run from the **repos
 julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/<script>.jl [grid.dss] [flags...]
 ```
 
-Grids live under `datagen_topo/grid_data/` (e.g. `13_bus/IEEE13Nodeckt.dss`, `123_bus/IEEE123Master.dss`, `IEEE8500/8500_Master.dss`). Outputs go to `datagen_topo/datasets/<case_name>/`.
+Grids live under `datagen_topo/grid_data/` (e.g. `13_bus/IEEE13Nodeckt.dss`, `123_bus/IEEE123Master.dss`, `906_bus/906bus_Master.dss`). Outputs go to `datagen_topo/datasets/<case_name>/`.
 
 ## Scripts
 

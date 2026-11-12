@@ -215,7 +215,7 @@ def build_network_params(
     # ``NetworkParams``. For woodbury the inverse lives on
     # ``WoodburyStatic.Y_LL_base_inv``, so the caller opts out via
     # ``precompute_inverse=False`` to avoid materializing a second copy
-    # (saves ~1.16 GiB at 8500 nodes). ``w`` is computed via ``solve`` so
+    # of the dense inverse. ``w`` is computed via ``solve`` so
     # the opt-out path still avoids the explicit inverse.
     Y_LL_inv = (
         jnp.linalg.inv(Y_LL_base) if precompute_inverse else None

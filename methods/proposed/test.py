@@ -69,7 +69,7 @@ def parse_args():
     parser.add_argument("--woodbury_ir_steps", type=str, default="auto",
         choices=["auto", "0", "1", "2"],
         help="Woodbury SMW-IR correction steps: auto (probe at init), 0, 1, or 2. "
-             "Experiment defaults: 906/8500=0, 13/123=1, 240=2.")
+             "Experiment defaults: 906=0, 13/123=1, 240=2.")
     parser.add_argument("--woodbury_batch_mode", type=str, default="vmap",
         choices=["vmap", "map"],
         help="Batch computation mode for topology matrices: vmap (fast, higher VRAM) "

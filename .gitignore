@@ -10,7 +10,7 @@ logs/
 processing_results/
 datagen_topo/datasets/*
 # !datagen_topo/datasets/IEEE13Nodeckt/
-
+methods/linear_opf/
 experiments/
 plans/
 AGENTS.md

@@ -22,7 +22,7 @@ from core.topology.batch import precompute_topology
 from core.utils.batch import prepare_batch_data
 from methods.linear_opf.solver import solve_linear_opf_batch
 
-# Env-gated per-stage RSS logging for OOM diagnosis (e.g. 8500-bus SLURM runs).
+# Env-gated per-stage RSS logging for OOM diagnosis on large feeders.
 # Disabled by default; enable with LINEAR_OPF_RSS_LOG=1. Adds a /proc read +
 # print after each stage (topo/QP/PF/metrics/gc) and during warmup. Zero
 # overhead when disabled (a single bool check at each call site).

@@ -10,7 +10,7 @@ import pytest
 import yaml
 
 SLURM_DIR = Path(__file__).resolve().parents[1] / "scripts" / "slurm_runs"
-GRIDS = ("13", "123", "240", "906", "8500")
+GRIDS = ("13", "123", "240", "906")
 
 
 @pytest.fixture()

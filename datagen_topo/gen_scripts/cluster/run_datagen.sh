@@ -12,7 +12,7 @@
 #   bash datagen_topo/gen_scripts/cluster/run_datagen.sh [extra sbatch flags, e.g. --mem=200G]
 #
 # One job per line: "<training|testing> <grid> <config in configs/> [julia flags...]"
-# Grids: 13 | 123 | 240 | 906 | 8500. Julia flags override the config.
+# Grids: 13 | 123 | 240 | 906. Julia flags override the config.
 
 JOBS=(
   # "training 13 training_defaults.yaml"
@@ -50,7 +50,6 @@ declare -A GRIDS=(
   [123]="datagen_topo/grid_data/123_bus/IEEE123Master.dss"
   [240]="datagen_topo/grid_data/240_bus/240bus_Master.dss"
   [906]="datagen_topo/grid_data/906_bus/906bus_Master.dss"
-  [8500]="datagen_topo/grid_data/IEEE8500/8500_Master.dss"
 )
 
 # Outside Slurm: submit this script as an array with one task per JOBS entry.

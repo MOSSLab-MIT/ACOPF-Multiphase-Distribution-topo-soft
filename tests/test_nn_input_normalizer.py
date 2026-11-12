@@ -89,7 +89,7 @@ def test_constant_threshold_separates_roundoff_from_smallest_real_std():
         assert bool(constant_input_mask(mean, std)[0]), (value, float(std[0]))
         np.testing.assert_array_equal(np.asarray(input_scale(mean, std)), [1.0])
 
-    # Smallest real std on the 123/240/8500 datasets (240-bus qd) is kept as a real scale.
+    # Smallest real std on the 123/240 datasets (240-bus qd) is kept as a real scale.
     mean = jnp.array([3.0e-6])
     std = jnp.array([1.55e-6])
     assert not bool(constant_input_mask(mean, std)[0])

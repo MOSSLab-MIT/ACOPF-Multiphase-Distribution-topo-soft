@@ -13,7 +13,6 @@ export PYTHONUNBUFFERED=1
 set -euo pipefail
 METHOD=proposed
 FAMILY=proposed
-# GRIDS=(123 240 8500)   # submitted when no grid is given
 GRIDS=(906)
 
 # Repository root (sbatch is run from there, so inside a job it is the submit dir).

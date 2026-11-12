@@ -414,8 +414,8 @@ def _build_cvxpy_problem(
     problem = cp.Problem(objective, constraints)
     # Problem is DPP, but we solve with ignore_dpp=True: DPP canonicalization materializes
     # a parameter tensor of size ~(cone_rows × (n_vars+1)) × (n_params+1). With dense
-    # a_param (n_con × n_x) at 8500-bus scale (~7e4 × 240 ≈ 1.7e7 entries), cvxpy
-    # format_constraints can allocate ~4.8e9-row intermediates (~36 GiB) and OOM.
+    # a_param (n_con × n_x), CVXPY format_constraints can allocate intermediates
+    # much larger than the original matrix and exhaust memory on large feeders.
     solve_kwargs = {
         "solver": solver,
         "ignore_dpp": True,
@@ -503,7 +503,7 @@ def release_linear_opf_cache_state(
 
     The reusable problem graph is kept intact; only values and solver workspaces
     that are overwritten before the next solve are dropped. This prevents long
-    8500-bus sweeps from retaining one dense ``A`` value / solver state per
+    sweeps from retaining one dense ``A`` value / solver state per
     iteration through CVXPY or Clarabel internals.
     """
     if clear_linearization:

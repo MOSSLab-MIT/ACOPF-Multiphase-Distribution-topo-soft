@@ -24,7 +24,6 @@ CASE_ROOTS = {
     "IEEE123Master": DATASET_ROOT / "IEEE123Master",
     "240bus_Master": DATASET_ROOT / "240bus_Master",
     "906bus_Master": DATASET_ROOT / "906bus_Master",
-    # "8500_Master": DATASET_ROOT / "8500_Master",
 }
 
 

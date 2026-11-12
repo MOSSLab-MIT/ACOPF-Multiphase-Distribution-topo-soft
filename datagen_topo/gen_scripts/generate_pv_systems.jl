@@ -8,7 +8,6 @@
 #
 #   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss 50
 #   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl datagen_topo/grid_data/240_bus/240bus_Master.dss 100
-#   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss 1000 --mv_frac 0.05
 #   julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/generate_pv_systems.jl datagen_topo/grid_data/906_bus/906bus_Master.dss 61 --mv_vln_min_kv 0.1
 #     (906 is all-LV with no MV buses, so its 6 "MV" units sit on no-load three-phase 240 V buses.)
 #

@@ -10,9 +10,8 @@ scripts/slurm_runs/
 ├── proposed_regime_ablation.sbatch   # Proposed on <case>_training_<TRAIN_SUFFIX>.h5 (knob required)
 ├── common.sh                           # shared submit / job setup, sourced by every method script
 ├── grid_config.py                      # prints configs/<grid>.yaml as bash variables
-├── configs/
-│   └── 13.yaml  123.yaml  240.yaml  906.yaml  8500.yaml   # per-grid seeds, resources, args, test sets
-└── manual/                             # one-off hand-written sbatch scripts
+└── configs/
+    └── 13.yaml  123.yaml  240.yaml  906.yaml   # per-grid seeds, resources, args, test sets
 ```
 
 - **Grid config** (`configs/<grid>.yaml`):
@@ -27,7 +26,7 @@ scripts/slurm_runs/
   test_sets:    {core: [feasible, ...], full: [feasible, ...]}  # first = reference test set
   ```
 - **Method script** (`<method>.sbatch`): sets `METHOD`, `FAMILY`, the default `GRIDS`
-  (`123 240 8500`) and sources `common.sh`, then builds and runs `methods/<FAMILY>/train.py`.
+  (defined in each script) and sources `common.sh`, then builds and runs `methods/<FAMILY>/train.py`.
   - Run from a login node: `common.sh` submits the script for each grid with the grid's seeds
     and Slurm options, job name `<method>_<grid>`, and logs in `logs/training/<method>/`.
   - Inside the job: `common.sh` loads the grid config (`CASE_DIR`, `DATA`, `GRID_ARGS`,
@@ -39,7 +38,7 @@ method script to `sbatch` yourself; it refuses to run that way.
 ## Submit
 
 ```bash
-scripts/slurm_runs/proposed.sbatch                   # grids 123 240 8500, seeds from each config
+scripts/slurm_runs/proposed.sbatch                   # grid 906, seeds from its config
 scripts/slurm_runs/proposed.sbatch 13                # just grid 13
 DRY_RUN=1 scripts/slurm_runs/proposed.sbatch         # print sbatch + training commands only
 

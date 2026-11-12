@@ -240,7 +240,7 @@ class OPFData:
         config_view = dict(raw_config)
         # Woodbury backend stores its precomputed ``Y_LL_base_inv`` on
         # ``WoodburyStatic``; the dense ``NetworkParams.Y_LL_inv`` would be
-        # a duplicate 1.16 GiB on 8500-node networks. Only the stamp backend
+        # a duplicate dense inverse. Only the stamp backend
         # (and a couple of diagnostic scripts) needs it on the params.
         precompute_inverse = topology_backend != "woodbury"
         net = build_network_params(
@@ -250,7 +250,7 @@ class OPFData:
         # Drop the heavy admittance matrices already materialized on ``net`` /
         # ``WoodburyStatic`` as jnp arrays. ``json.load`` keeps them as nested
         # Python lists (~5x the on-disk JSON size in RAM); retaining them in
-        # ``self.config`` wastes ~35-50 GB on the 8500-bus network (11.8 GB JSON).
+        # ``self.config`` duplicates that memory for the lifetime of the session.
         # Only small scalar/index keys are ever read back via ``self.config``
         # (e.g. ``p_load_ref``/``q_load_ref`` in ``build_nn_input_layout``).
         for _heavy_key in ("Y_nn", "Y_ns", "Y_scaled", "Y_scaled_base"):

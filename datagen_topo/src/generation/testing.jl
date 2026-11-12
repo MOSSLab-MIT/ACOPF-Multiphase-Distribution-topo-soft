@@ -40,13 +40,6 @@ const DEFAULT_FLOAT_PRECISION = Float64
 # julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/906_bus/906bus_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 50 --max_attempts_multiplier 5 --output_layout scenario+flat --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der"
 
 
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss --num_scenarios 5 --feasible_samples_per_scenario 10 --max_attempts_multiplier 5 --output_layout flat_only
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 10 --max_attempts_multiplier 5 --output_layout flat_only --load_l 0.7 --load_u 1.0 --der_frac_l 0.0 --der_frac_u 0.3 --output_suffix "high_load_low_der" --save_config false
-
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss --num_scenarios 10 --feasible_samples_per_scenario 10 --max_attempts_multiplier 5 --output_layout flat_only --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der" --save_config false
-
-
 const DEFAULT_TESTING_CONFIG = Dict(
     "load" => Dict(
         "noise_type" => "ScaledUniform",

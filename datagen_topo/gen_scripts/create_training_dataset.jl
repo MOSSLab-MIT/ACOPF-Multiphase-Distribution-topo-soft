@@ -12,6 +12,5 @@ generate_training_dataset!(String.(ARGS))
 # julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss --smin 1 --smax 50000
 # julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/240_bus/240bus_Master.dss --smin 1 --smax 50000
 # julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/906_bus/906bus_Master.dss --smin 1 --smax 50000
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/IEEE8500/8500_Master.dss --smin 1 --smax 50000
 # Legacy positional: julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl "datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss" 1 50000
 # Smoke (regime mix): julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 300

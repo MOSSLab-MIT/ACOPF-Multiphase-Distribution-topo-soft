@@ -179,7 +179,7 @@ class WoodburyStatic:
 # --- PyTree registration: arrays = traced leaves, ints = static aux ----------
 # Binding a WoodburyStatic via functools.partial into jax.jit bakes its large
 # arrays (Y_scaled_base, Y_LL_base_inv ~ N^2 each) as HLO constants,
-# which XLA then constant-folds and OOMs on large feeders (8500-bus). Registering
+# which XLA then constant-folds and OOMs on large feeders. Registering
 # it as a PyTree lets callers pass it as a positional JIT arg so the arrays stay
 # traced (one device copy, no folding) while the int fields remain available at
 # trace time as Python ints for shapes / slicing / control flow.
@@ -715,9 +715,9 @@ def woodbury_topology_matrices_slim(
     -------
     Y_0row, Y_LL_inv, w, full_status
 
-    ``TopologyData`` only needs ``Y_0row`` (not full ``Y_scaled``). On 8500-node
-    feeders this avoids an extra ~1.16 GiB ``(n_total, n_total)`` buffer per batch
-    row that the uncached ``lax.map`` batch path used to stack on GPU.
+    ``TopologyData`` only needs ``Y_0row`` (not full ``Y_scaled``). This avoids
+    an extra dense ``(n_total, n_total)`` buffer per batch row that the uncached
+    ``lax.map`` batch path used to stack on GPU.
     """
     # Lazy: ``slim_topology`` imports this module (cycle if hoisted).
     from core.topology.slim import (
@@ -805,7 +805,7 @@ class WoodburyTopologyBackend:
 
     Batch dispatch is controlled by ``batch_mode``:
     - ``"vmap"`` (default): ``jax.vmap`` of the branchless slim fn — fast, higher
-      VRAM. Used for all grids including 8500.
+      VRAM. Used for all supported grids.
     - ``"map"``: ``jax.lax.map`` of the branchless slim fn — lower VRAM (sequential).
       Fallback when vmap causes GPU memory pressure.
 

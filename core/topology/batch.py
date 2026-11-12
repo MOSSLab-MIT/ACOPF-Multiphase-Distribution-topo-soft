@@ -71,7 +71,7 @@ def build_topology_batch_vmap(
     """JIT batch topology via vmap (Woodbury branchless backend only).
 
     Uses ``backend.batch_vmap_jit`` (``jax.vmap`` of the branchless slim fn) for
-    all grids including 8500. Faster than ``lax.map`` but higher VRAM; fall back
+    all supported grids. Faster than ``lax.map`` but higher VRAM; fall back
     to ``--woodbury_batch_mode map`` if GPU OOM occurs.
     """
     backend = session.topology_backend
@@ -91,7 +91,7 @@ def build_topology_batch(
     Dispatch order:
     1. ``batch_mode == "map"`` -> ``lax.map`` of branchless fn (lower VRAM).
     2. ``batch_mode == "vmap"`` (default) and ``batch_vmap_jit`` exists -> vmap
-       of branchless fn (fast, all grids including 8500).
+       of branchless fn (fast, all supported grids).
     3. Unresolved ``"auto"`` fallback -> ``lax.map`` with adaptive fn.
     """
     compact_host = _host_int32_matrix(branch_status_compact)

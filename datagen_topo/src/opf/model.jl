@@ -49,7 +49,7 @@ function _build_opf_cache(
     set_optimizer_attribute(model, "bound_relax_factor", 0.0)
     # set_optimizer_attribute(model, "linear_solver", "mumps")
     set_attribute(model, "hsllib", HSL_PATH) # Remove this if you don't have HSL
-    set_attribute(model, "linear_solver", "ma97") #ma97 might be better for IEEE8500; ma57 is good for smaller networks
+    set_attribute(model, "linear_solver", "ma97")
     #ma97 is best for 240 bus
 
     # Sample-varying profile data as JuMP parameters (updated via sync_params!).

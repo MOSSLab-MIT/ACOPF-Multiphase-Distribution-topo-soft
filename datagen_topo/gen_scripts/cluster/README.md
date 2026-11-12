@@ -9,7 +9,7 @@ bash datagen_topo/gen_scripts/cluster/run_datagen.sh --mem=200G   # extra flags 
 
 Each `JOBS` line is `"<training|testing> <grid> <config> [julia flags...]"`:
 
-- grid: `13 | 123 | 240 | 906 | 8500`
+- grid: `13 | 123 | 240 | 906`
 - config: a file name in `datagen_topo/gen_scripts/configs/`; sampling parameters live there
 - julia flags: forwarded to `create_<mode>_dataset.jl`, override the config
 
@@ -39,4 +39,4 @@ JOBS=(
 | `testing_shifted_m0k_std0k.yaml` | [0.2, 1.5] | [0.0, 1.0] | 0.k | `..._shifted_m0k_std0k.h5` |
 | `testing_oor_load.yaml` | [0.5, 2.0] | [0.0, 1.0] | – | `..._oor_load.h5` |
 
-All tasks in one submission share the same Slurm resources. Submit large feeders (e.g. 8500) separately with more `--mem`.
+All tasks in one submission share the same Slurm resources. Submit feeders with different memory requirements separately using `--mem`.

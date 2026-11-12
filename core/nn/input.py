@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 LOAD_SUPPORT_TOL = 1e-12
 # A training column is constant when std <= CONST_STD_RTOL * max(|mean|, 1). Float64
 # round-off on a truly constant column is ~1e-16 * |mean|; the smallest real feature std
-# on the 123/240/8500 datasets is 1.55e-6 (240-bus qd), so the threshold separates the two.
+# on the 123/240 datasets is 1.55e-6 (240-bus qd), so the threshold separates the two.
 CONST_STD_RTOL = 1e-12
 
 
