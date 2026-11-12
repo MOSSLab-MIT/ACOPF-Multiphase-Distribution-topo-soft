@@ -51,6 +51,7 @@ const DEFAULT_TRAINING_CONFIG = Dict{String, Any}(
         "wmax" => [1.0, 10.0],
     ),
     "penalty" => deepcopy(DEFAULT_PENALTY_SAMPLING),
+    "cost" => deepcopy(DEFAULT_COST_CONFIG),
     "topology" => Dict{String, Any}(
         "flip_probability" => 0.5,
         "radial_ratio" => 0.5,
@@ -68,12 +69,13 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
     positional, flags = parse_cli_tokens(String.(args))
 
     config_raw = haskey(flags, "config") ? load_json_config(flags["config"]) : Dict{String, Any}()
-    for key in ("obj", "penalty", "topology", "randomness")
+    for key in ("obj", "penalty", "cost", "topology", "randomness")
         if haskey(config_raw, key)
             config[key] = deep_merge_config(config[key], config_raw[key])
         end
     end
     config["obj"] = require_obj_block(config)
+    cost = resolve_cost_config!(config, flags)
     if haskey(config_raw, "floating_point_type")
         config["floating_point_type"] = config_raw["floating_point_type"]
     end
@@ -96,6 +98,7 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
     apply_regime_cli_overrides!(regimes, flags)
 
     network = create_network_data(grid_dir)
+    apply_cost_config!(network, cost)
 
     float_type = resolve_float_type(config, DEFAULT_FLOAT_PRECISION)
     @info "Floating-point data will be exported in `$(float_type)`"

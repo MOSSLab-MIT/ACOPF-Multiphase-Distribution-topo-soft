@@ -59,6 +59,7 @@ const DEFAULT_TESTING_CONFIG = Dict(
         "wmax" => [1.0, 10.0],
     ),
     "penalty" => deepcopy(DEFAULT_PENALTY_SAMPLING),
+    "cost" => deepcopy(DEFAULT_COST_CONFIG),
     "der" => Dict(
         "frac_l" => 0.0,
         "frac_u" => 1.0,
@@ -110,6 +111,7 @@ function generate_testing_dataset!(args::Vector{String}=String[]; datagen_dir::A
         config = deep_merge_config(config, load_json_config(flags["config"]))
     end
     config["obj"] = require_obj_block(config)
+    cost = resolve_cost_config!(config, flags)
 
     grid_dir = length(positional) >= 1 ? positional[1] : joinpath(root_dir, "grid_data", "13_bus", "IEEE13Nodeckt.dss")
 
@@ -162,6 +164,7 @@ function generate_testing_dataset!(args::Vector{String}=String[]; datagen_dir::A
     config["topology"]["case_path"] = grid_dir
 
     network = create_network_data(grid_dir)
+    apply_cost_config!(network, cost)
 
     base_branch_status = copy(network.branch_status)
 

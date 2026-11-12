@@ -32,6 +32,39 @@ def _check_obj_weights_width(path: str) -> None:
         )
 
 
+# HDF5 ``metadata/<key>`` -> ``NetworkParams`` attribute holding the same price term (pu).
+_COST_METADATA_ATTRS = MappingProxyType({
+    "sub_cost_lin": "sub_lin", "sub_cost_quad": "sub_quad",
+    "der_cost_lin": "der_lin", "der_cost_quad": "der_quad",
+})
+_COST_METADATA_KEYS = tuple(_COST_METADATA_ATTRS)
+
+
+def _check_cost_metadata(path: str, net: NetworkParams) -> None:
+    """Reject an HDF5 whose recorded price differs from the price in ``network_config.json``.
+
+    Datagen writes ``metadata/{sub,der}_cost_{lin,quad}`` (pu) from the price its config used; labels
+    in that file were solved with it. Files without these keys predate the ``cost`` config block (all
+    were generated with the FeederFlow defaults) and are accepted.
+    """
+    with h5py.File(path, "r") as f:
+        meta = f.get("metadata")
+        present = [k for k in _COST_METADATA_KEYS if meta is not None and k in meta]
+        if not present:
+            return
+        if len(present) != len(_COST_METADATA_KEYS):
+            raise ValueError(f"{path}: incomplete price metadata, has {present}, expected {list(_COST_METADATA_KEYS)}.")
+        for key, attr in _COST_METADATA_ATTRS.items():
+            got = np.asarray(meta[key][()], dtype=np.float64).reshape(-1)
+            want = np.asarray(getattr(net, attr), dtype=np.float64).reshape(-1)
+            if not np.array_equal(got, want):
+                raise ValueError(
+                    f"{path}: metadata/{key} = {np.unique(got)} differs from network_config.json "
+                    f"({np.unique(want)}). The dataset was generated with a different `cost` config; "
+                    "regenerate it or use the matching network_config.json."
+                )
+
+
 @runtime_checkable
 class TopologyBackend(Protocol):
     """Switch-topology backend: stamping (reference) or Woodbury (default)."""
@@ -213,6 +246,7 @@ class OPFData:
         net = build_network_params(
             raw_config, precompute_inverse=precompute_inverse
         )
+        _check_cost_metadata(train_h5_path, net)
         # Drop the heavy admittance matrices already materialized on ``net`` /
         # ``WoodburyStatic`` as jnp arrays. ``json.load`` keeps them as nested
         # Python lists (~5x the on-disk JSON size in RAM); retaining them in
@@ -308,6 +342,7 @@ class OPFData:
     def _bind_test_h5(self, test_h5_path: str) -> None:
         """Attach test HDF5 path and rebuild input/target slice indexing."""
         _check_obj_weights_width(test_h5_path)
+        _check_cost_metadata(test_h5_path, self.net)
         self.test_h5_path = test_h5_path
         self.input_keys = self._input_keys_from_h5(test_h5_path)
         self._set_slices()

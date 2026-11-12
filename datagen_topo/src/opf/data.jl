@@ -161,6 +161,30 @@ function _linear_quadratic_terms(cost_coeff::AbstractVector{<:Real})
     return c_lin, c_quad
 end
 
+"""
+    _cost_terms(data) -> (sub_lin, sub_quad, der_lin, der_quad)
+
+Objective coefficients of `data.sub_cost` / `data.der_cost` (per DER phase), as the OPF uses them.
+"""
+function _cost_terms(data)
+    sub_lin, sub_quad = _linear_quadratic_terms(data.sub_cost)
+    der_lq = [_linear_quadratic_terms(c) for c in data.der_cost]
+    return sub_lin, sub_quad, Float64[lq[1] for lq in der_lq], Float64[lq[2] for lq in der_lq]
+end
+
+"""
+    apply_cost_config!(data, cost)
+
+Set `data.sub_cost` and every per-DER-phase entry of `data.der_cost` from a validated
+`require_cost_block` result (`[quad, lin(, const)]`, pu).
+"""
+function apply_cost_config!(data, cost::AbstractDict)
+    data.sub_cost = copy(cost["sub_cost"])
+    data.der_cost = [copy(cost["der_cost"]) for _ in eachindex(data.der_cost)]
+    @info "Price (pu, [quad, lin, const]): sub_cost=$(cost["sub_cost"]), der_cost=$(cost["der_cost"])"
+    return data
+end
+
 _line_status_vector(network) = [line.is_closed for line in network.lines]
 
 bus_phase_key(bus, phase) = (String(bus), Int(phase))

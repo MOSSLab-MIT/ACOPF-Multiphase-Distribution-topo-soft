@@ -153,6 +153,12 @@ function _write_common_metadata!(file, network, ts::TopologySampler)
     write(file, "metadata/topology_status_is_compact", true)
     write(file, "metadata/topology_perturb_sw", ts.policy.perturb_sw)
     write(file, "metadata/topology_repair_nc", ts.policy.repair_nc)
+    # Price provenance (pu, as used by the OPF): Python checks it against network_config.json.
+    sub_lin, sub_quad, der_lin, der_quad = _cost_terms(network)
+    write(file, "metadata/sub_cost_lin", sub_lin)
+    write(file, "metadata/sub_cost_quad", sub_quad)
+    write(file, "metadata/der_cost_lin", der_lin)
+    write(file, "metadata/der_cost_quad", der_quad)
     return nothing
 end
 

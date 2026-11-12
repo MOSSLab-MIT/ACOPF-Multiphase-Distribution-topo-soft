@@ -7,6 +7,10 @@
     "rho_min": [1, 1, 1, 100],
     "rho_max": [100, 100, 100, 200]
   },
+  "cost": {
+    "sub_cost": [1.0, 100.0, 0.0],
+    "der_cost": [0.1, 5.0, 0.0]
+  },
   "topology": {
     "flip_probability": 0.5,
     "radial_ratio": 0.5

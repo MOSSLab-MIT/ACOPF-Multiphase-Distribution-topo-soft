@@ -42,6 +42,72 @@ function require_obj_block(config::AbstractDict)
     return obj
 end
 
+"""
+Default `cost` block: FeederFlow's substation / PV cost coefficients, `[quad, lin, const]` on pu power.
+"""
+const DEFAULT_COST_CONFIG = Dict{String, Any}(
+    "sub_cost" => copy(FeederFlow.DEFAULT_SOURCE_COST_COEFF),
+    "der_cost" => copy(FeederFlow.DEFAULT_PV_COST_COEFF),
+)
+
+function _validate_cost_vector(name::AbstractString, raw)
+    raw isa AbstractVector || error("Config cost.$name must be a vector [quad, lin(, const)]; got $(repr(raw)).")
+    length(raw) in (2, 3) ||
+        error("Config cost.$name must have length 2 or 3 ([quad, lin(, const)]); got $(length(raw)).")
+    all(x -> x isa Real, raw) || error("Config cost.$name must contain numbers; got $(repr(raw)).")
+    coeff = Float64.(raw)
+    all(isfinite, coeff) || error("Config cost.$name must be finite; got $coeff.")
+    coeff[1] >= 0.0 || error("Config cost.$name quadratic term must be >= 0 (convex OPF); got $(coeff[1]).")
+    # The constant term is dropped by both the Julia OPF and the JAX cost: reject it rather than ignore it.
+    (length(coeff) < 3 || coeff[3] == 0.0) ||
+        error("Config cost.$name constant term is ignored by the OPF; it must be 0, got $(coeff[3]).")
+    return coeff
+end
+
+"""
+    require_cost_block(config) -> Dict{String, Vector{Float64}}
+
+Substation / DER price `cost.sub_cost`, `cost.der_cost`, each `[quad, lin(, const)]` applied to per-unit
+power (the price per MW therefore depends on the feeder's `Sbase`). `der_cost` applies to every DER.
+"""
+function require_cost_block(config::AbstractDict)
+    haskey(config, "cost") || error("Config must include \"cost\" with \"sub_cost\" and \"der_cost\".")
+    cost = config["cost"]
+    cost isa AbstractDict || error("Config \"cost\" must be an object.")
+    unknown = setdiff(String.(collect(keys(cost))), ("sub_cost", "der_cost"))
+    isempty(unknown) || error("Config cost has unknown keys $unknown; expected \"sub_cost\", \"der_cost\".")
+    out = Dict{String, Vector{Float64}}()
+    for name in ("sub_cost", "der_cost")
+        haskey(cost, name) || error("Config cost is missing \"$name\".")
+        out[name] = _validate_cost_vector(name, cost[name])
+    end
+    return out
+end
+
+"""
+    apply_cost_cli_flags!(config, flags)
+
+`--sub_cost q,l[,c]` / `--der_cost q,l[,c]` (comma-separated, `[quad, lin, const]`, pu) override
+`config["cost"]`. Validation is left to `require_cost_block`.
+"""
+function apply_cost_cli_flags!(config::AbstractDict, flags::Dict{String, String})
+    for name in ("sub_cost", "der_cost")
+        haskey(flags, name) || continue
+        vals = tryparse.(Float64, strip.(split(flags[name], ",")))
+        any(isnothing, vals) && error("--$name expects comma-separated numbers like 1,100,0; got '$(flags[name])'.")
+        get!(config, "cost", Dict{String, Any}())[name] = Float64.(vals)
+    end
+    return config
+end
+
+"""
+    resolve_cost_config!(config, flags) -> Dict{String, Vector{Float64}}
+
+Price for a generator run: the config `cost` block, overridden by `--sub_cost` / `--der_cost`, validated.
+"""
+resolve_cost_config!(config::AbstractDict, flags::Dict{String, String}) =
+    require_cost_block(apply_cost_cli_flags!(config, flags))
+
 function load_json_config(path::AbstractString)
     return JSON.parsefile(path; dicttype=Dict{String, Any})
 end

@@ -196,6 +196,8 @@ julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testi
 
 **`network_config.json`:** `sub_smax_phase` — per-phase substation apparent-power limits (p.u.), length `n_slk` (soft: `|S_k|² ≤ smax_k² + s_sub,k`).
 
+**`metadata/`:** sizes, topology sampler settings, and the price used (`sub_cost_lin`, `sub_cost_quad`, `der_cost_lin`, `der_cost_quad`, pu).
+
 **`meta/`:** Ipopt termination, timings, objectives (`primal_objective_value` is the soft objective, penalties included)  
 
 Python loaders expand compact `changing_switch_status` to full `branch_status` via `network_config.json` ([`core/grids/data.py`](../../core/grids/data.py)).
@@ -237,6 +239,7 @@ Prefer explicit `--num_scenarios` and `--feasible_samples_per_scenario` for new 
 - **Disjoint splits:** profile seed `s` gives the same load/DER draws in every split, so each split uses its own seed block: training `smin:smax` (`1:200000`), validation `1000001+` ([`configs/val_defaults.json`](configs/val_defaults.json)), test `2000001+` (all `testing_*.json`; test variants share the block so they are paired). A test run uses at most `num_scenarios × feasible_samples_per_scenario × max_attempts_multiplier + 1` seeds. Keep training `smax < 1000001`. `seed_base` does not separate splits: it only seeds topologies.
 - **Test sampling defaults:** use `--config datagen_topo/gen_scripts/configs/testing_defaults.json` as the editable template.
 - **Soft V / I / θ / substation limits:** the OPF is soft-only. Voltage magnitude, branch current, angle-difference and per-phase substation apparent-power limits get nonnegative slacks with an L1 penalty `ρ_V·Σs_V + ρ_I·Σs_I + ρ_θ·Σs_θ + ρ_sub·Σs_sub` in raw pu² units (DER limits and power balance stay hard). The `penalty` config block (`rho_min`, `rho_max`, order `[ρ_V, ρ_I, ρ_θ, ρ_sub]`; configs use `[1, 1, 1, 100]` / `[100, 100, 100, 200]`, code default `[100, 100, 100, 100]` / `[1000, 1000, 1000, 200]`) sets the per-sample ρ, sampled log-uniformly; `obj` still samples `[w_cost, w_curtail]` uniformly. Legacy 3-entry penalty blocks are rejected. Infeasibility now only arises from power balance (loadability), so `*_test_infeasible.h5` is normally empty and not written. Julia tests: `tests/test_soft_constraints.jl`.
+- **Price:** the `cost` block (`sub_cost`, `der_cost`, each `[quad, lin, const]`, default `[1.0, 100.0, 0.0]` / `[0.1, 5.0, 0.0]`) sets the substation and DER cost `quad·p² + lin·p` on **per-unit** power, so the price per MW scales with each feeder's `Sbase`. `der_cost` applies to every DER; the constant term must be 0 (it is ignored). Labels and `network_config.json` both carry the price, so every config used for one case (training, validation, test, shifted) must share the same `cost` block. Each HDF5 records it in `metadata/{sub,der}_cost_{lin,quad}`, and the Python loader rejects a file whose price differs from `network_config.json`. Julia tests: `tests/test_config_cost.jl`.
 - **Topology / OPF:** shared code now loads through `datagen_topo/datagen_topo.jl`, with implementation files under `datagen_topo/src/`.
 
 See also the repository [README](../../README.md) and [AGENTS.md](../../AGENTS.md).

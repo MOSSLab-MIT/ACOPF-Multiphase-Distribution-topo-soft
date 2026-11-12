@@ -228,9 +228,7 @@ function _build_opf_cache(
     model[:c_ang_neg] = c_ang_neg
 
     length(data.obj_weights) == N_OBJ_WEIGHTS || throw(DimensionMismatch("obj_weights must have length $N_OBJ_WEIGHTS"))
-    sub_lin, sub_quad = _linear_quadratic_terms(data.sub_cost)
-    der_lin = [(_linear_quadratic_terms(c))[1] for c in data.der_cost]
-    der_quad = [(_linear_quadratic_terms(c))[2] for c in data.der_cost]
+    sub_lin, sub_quad, der_lin, der_quad = _cost_terms(data)
 
     @expression(model, obj_cost,
         sum(der_lin[k] * pder[k] + der_quad[k] * pder[k]^2 for k in 1:n_der_phase) +
