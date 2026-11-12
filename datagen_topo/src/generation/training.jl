@@ -1,4 +1,6 @@
-# Generation entrypoint extracted from gen_scripts/create_training_dataset.jl.
+# Training dataset generation: callable API and direct CLI entrypoint.
+
+include(joinpath(@__DIR__, "..", "..", "datagen_topo.jl"))
 
 using JSON
 using Random
@@ -7,16 +9,16 @@ const DEFAULT_FLOAT_PRECISION = Float64
 
 # Training load/DER regimes: edit weights and bounds below.
 
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 50000
+# julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 50000
 
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/13_bus_test/IEEE13_test.dss --smin 1 --smax 50000
+# julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl datagen_topo/grid_data/13_bus_test/IEEE13_test.dss --smin 1 --smax 50000
 
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss --smin 1 --smax 50000
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/240_bus/240bus_Master.dss --smin 1 --smax 50000 
-# julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/906_bus/906bus_Master.dss --smin 1 --smax 50000
-# Legacy positional: julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl "datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss" 1 50000
-# Smoke (regime mix): julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 300
-# Regime variant: julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 300 --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der"
+# julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl datagen_topo/grid_data/123_bus/IEEE123Master.dss --smin 1 --smax 50000
+# julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl datagen_topo/grid_data/240_bus/240bus_Master.dss --smin 1 --smax 50000
+# julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl datagen_topo/grid_data/906_bus/906bus_Master.dss --smin 1 --smax 50000
+# Legacy positional: julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl "datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss" 1 50000
+# Smoke (regime mix): julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 300
+# Regime variant: julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 300 --load_l 0.2 --load_u 0.5 --der_frac_l 0.6 --der_frac_u 1.0 --output_suffix "low_load_high_der"
 
 const REGIME_LOAD_DEFAULTS = Dict(
     "noise_type" => "ScaledUniform",
@@ -199,4 +201,8 @@ function generate_training_dataset!(args::Vector{String}=String[]; datagen_dir::
     @info "All data saved successfully. Done!"
 
     return nothing
+end
+
+if abspath(PROGRAM_FILE) == abspath(@__FILE__)
+    generate_training_dataset!(String.(ARGS))
 end

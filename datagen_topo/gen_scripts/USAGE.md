@@ -1,10 +1,12 @@
 # Dataset generation (`datagen_topo/gen_scripts`)
 
-Julia scripts that build HDF5 datasets for Python training. Run from the **repository root** with the FeederFlow project:
+Generation entrypoints under `datagen_topo/src/generation/` build HDF5 datasets for Python training; configs and Slurm launchers live here. Run from the **repository root** with the FeederFlow project:
 
 ```bash
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/<script>.jl [grid.dss] [flags...]
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl [grid.dss] [flags...]
 ```
+
+Use `testing.jl` in the same directory to generate OPF labels.
 
 Grids live under `datagen_topo/grid_data/` (e.g. `13_bus/IEEE13Nodeckt.dss`, `123_bus/IEEE123Master.dss`, `906_bus/906bus_Master.dss`). Outputs go to `datagen_topo/datasets/<case_name>/`.
 
@@ -12,8 +14,8 @@ Grids live under `datagen_topo/grid_data/` (e.g. `13_bus/IEEE13Nodeckt.dss`, `12
 
 | Script | Purpose |
 |--------|---------|
-| [`create_training_dataset.jl`](create_training_dataset.jl) | Training inputs: loads, DER availability, topology switches, objectives (no OPF solve) |
-| [`create_testing_dataset.jl`](create_testing_dataset.jl) | Test data: scenario topologies + Ipopt OPF labels (feasible / infeasible); `--variant base` or `--variant shifted` |
+| [`training.jl`](../src/generation/training.jl) | Training inputs: loads, DER availability, topology switches, objectives (no OPF solve) |
+| [`testing.jl`](../src/generation/testing.jl) | Test data: scenario topologies + Ipopt OPF labels (feasible / infeasible); `--variant base` or `--variant shifted` |
 | [`../datagen_topo.jl`](../datagen_topo.jl) | Shared include aggregator for datagen code (not a Julia package) |
 | [`configs/`](configs/) | YAML configs for training/testing generation (`--config <file>.yaml`; JSON configs are rejected). Needs `YAML.jl` in the Julia environment. |
 | [`cluster/run_datagen.sh`](cluster/run_datagen.sh) | Slurm launcher (array index = grid, parameters from config); see [`cluster/README.md`](cluster/README.md) |
@@ -66,11 +68,11 @@ Positional: `[grid.dss]` or legacy `[grid.dss smin smax]` (overridden by `--smin
 
 ```bash
 # Smoke
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl \
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl \
   datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 300
 
 # Full (200k samples)
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_training_dataset.jl \
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/training.jl \
   datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss --smin 1 --smax 200000
 ```
 
@@ -144,7 +146,7 @@ Under `datagen_topo/datasets/<case_name>/`:
 **Base feasible test set** (matches [README](../../README.md) quick start):
 
 ```bash
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl \
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/testing.jl \
   datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss \
   --num_scenarios 10 --feasible_samples_per_scenario 100 \
   --max_attempts_multiplier 5
@@ -153,13 +155,13 @@ julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testi
 **Load/DER regime variants** (for multi-split eval in training scripts):
 
 ```bash
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl \
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/testing.jl \
   datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss \
   --num_scenarios 10 --feasible_samples_per_scenario 100 --max_attempts_multiplier 5 \
   --load_l 0.2 --load_u 0.4 --der_frac_l 0.7 --der_frac_u 1.0 \
   --output_suffix low_load_high_der --save_config false
 
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl \
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/testing.jl \
   datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss \
   --num_scenarios 10 --feasible_samples_per_scenario 100 --max_attempts_multiplier 5 \
   --load_l 0.7 --load_u 1.0 --der_frac_l 0.0 --der_frac_u 0.3 \
@@ -169,7 +171,7 @@ julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testi
 **Shifted test** (default `random_sign=true` → `1 ± (mu + sigma·|Z|)` per element):
 
 ```bash
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl \
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/testing.jl \
   datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss \
   --variant shifted --num_scenarios 10 --feasible_samples_per_scenario 100 \
   --max_attempts_multiplier 5 --shift_mu 0.1 --shift_der_mu 0.2
@@ -180,7 +182,7 @@ After the shift, each load is clamped between `0` and `u·(1+σ)` times its refe
 **Legacy signed-Gaussian shift** (no forced random sign):
 
 ```bash
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl \
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/testing.jl \
   datagen_topo/grid_data/13_bus/IEEE13Nodeckt.dss \
   --variant shifted --num_scenarios 10 --feasible_samples_per_scenario 100 \
   --max_attempts_multiplier 5 --shift_mu 0.1 --shift_der_mu 0.2 --shift_random_sign false
@@ -221,7 +223,7 @@ Training / test entrypoints expect HDF5 paths, for example:
 Still accepted for test scripts:
 
 ```bash
-julia --project=datagen_topo/FeederFlow.jl datagen_topo/gen_scripts/create_testing_dataset.jl \
+julia --project=datagen_topo/FeederFlow.jl datagen_topo/src/generation/testing.jl \
   <grid.dss> <smin> <smax>
 ```
 

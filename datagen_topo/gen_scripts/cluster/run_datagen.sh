@@ -73,7 +73,7 @@ export ACOPF_HSL_PATH="${ACOPF_HSL_PATH:-$HOME/Packages/HSL_jll.jl.v2025.7.21/ov
 
 CMD=(
   julia --project=datagen_topo/FeederFlow.jl
-  "datagen_topo/gen_scripts/create_${MODE}_dataset.jl" "$GRID"
+  "datagen_topo/src/generation/${MODE}.jl" "$GRID"
   --config "$CONFIG"
   "${JOB[@]:3}"
 )

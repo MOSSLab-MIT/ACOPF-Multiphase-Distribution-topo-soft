@@ -11,7 +11,7 @@ Each `JOBS` line is `"<training|testing> <grid> <config> [julia flags...]"`:
 
 - grid: `13 | 123 | 240 | 906`
 - config: a file name in `datagen_topo/gen_scripts/configs/`; sampling parameters live there
-- julia flags: forwarded to `create_<mode>_dataset.jl`, override the config
+- julia flags: forwarded to `src/generation/<mode>.jl`, override the config
 
 ## Example JOBS lines
 
