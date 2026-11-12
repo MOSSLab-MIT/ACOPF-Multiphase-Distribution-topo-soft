@@ -21,9 +21,9 @@ args:
   # cost_scale: 13.0449 (p95 of feasible_validation objective, first 2000 samples)
 
 method_args:
-  penalty_pf:
+  proposed:
     epochs: 5
-  penalty_direct:
+  direct_prediction:
     epochs: 20
     batch_size: 64
 

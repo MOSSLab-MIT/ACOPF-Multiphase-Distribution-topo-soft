@@ -5,10 +5,9 @@ One script per method, one YAML config per grid. Run a method script directly: i
 
 ```
 scripts/slurm_runs/
-├── penalty_pf.sbatch                   # Penalty PF
-├── penalty_direct.sbatch               # Penalty Direct        (knob: RHO=<rho_eq_init>, default 100)
-├── penalty_pf_gcn.sbatch               # Penalty PF, GCN backbone
-├── penalty_pf_regime_ablation.sbatch   # Penalty PF on <case>_training_<TRAIN_SUFFIX>.h5 (knob required)
+├── proposed.sbatch                   # Proposed
+├── direct_prediction.sbatch               # Direct Prediction        (knob: RHO=<rho_eq_init>, default 100)
+├── proposed_regime_ablation.sbatch   # Proposed on <case>_training_<TRAIN_SUFFIX>.h5 (knob required)
 ├── common.sh                           # shared submit / job setup, sourced by every method script
 ├── grid_config.py                      # prints configs/<grid>.yaml as bash variables
 ├── configs/
@@ -22,7 +21,7 @@ scripts/slurm_runs/
   seed:         [1, 2, 3]                                       # one array task per seed
   slurm:        {time: "12:00:00", mem: 32G, partition: ...}   # -> --time=... --mem=...
   args:         {num_layers: 4, hidden_size: 512, ...}          # all methods
-  method_args:  {penalty_pf: {epochs: 10}, penalty_direct: {epochs: 20}}  # per family, overrides args
+  method_args:  {proposed: {epochs: 10}, direct_prediction: {epochs: 20}}  # per family, overrides args
   train_set:    training                                        # -> <case_dir>_<train_set>.h5 (--train_h5)
   val_set:      feasible_validation                             # -> <case_dir>_test_<val_set>.h5 (--val_h5)
   test_sets:    {core: [feasible, ...], full: [feasible, ...]}  # first = reference test set
@@ -40,38 +39,30 @@ method script to `sbatch` yourself; it refuses to run that way.
 ## Submit
 
 ```bash
-scripts/slurm_runs/penalty_pf.sbatch                   # grids 123 240 8500, seeds from each config
-scripts/slurm_runs/penalty_pf.sbatch 13                # just grid 13
-DRY_RUN=1 scripts/slurm_runs/penalty_pf.sbatch         # print sbatch + training commands only
+scripts/slurm_runs/proposed.sbatch                   # grids 123 240 8500, seeds from each config
+scripts/slurm_runs/proposed.sbatch 13                # just grid 13
+DRY_RUN=1 scripts/slurm_runs/proposed.sbatch         # print sbatch + training commands only
 
-# Penalty Direct rho sweep
-for rho in 10 100 500 1000; do RHO=$rho scripts/slurm_runs/penalty_direct.sbatch; done
+# Direct Prediction rho sweep
+for rho in 10 100 500 1000; do RHO=$rho scripts/slurm_runs/direct_prediction.sbatch; done
 
-# GCN
-scripts/slurm_runs/penalty_pf_gcn.sbatch
-
-# Regime-weight ablation (seed 1 by default)
-for s in 060_005_035 060_035_005 060_020_020 l02_u08; do
-  TRAIN_SUFFIX=$s scripts/slurm_runs/penalty_pf_regime_ablation.sbatch
-done
-```
 
 Options:
 
-- Leading arguments are grids (`penalty_pf.sbatch 13 906`); they replace the script's `GRIDS`.
+- Leading arguments are grids (`proposed.sbatch 13 906`); they replace the script's `GRIDS`.
 - Change the default grids: edit `GRIDS=(...)` near the top of the method script.
 - Change the seeds: edit `seed:` in `configs/<grid>.yaml`. For a one-off run,
   `SEEDS=1,4` or `SEEDS=1-5` overrides it for every grid. The regime ablation defaults to `SEEDS=1`.
 - Options after the grids go to `sbatch` and override the grid defaults, e.g.
-  `penalty_direct.sbatch 240 --time=24:00:00 --partition=pi_donti_gpu`.
+  `direct_prediction.sbatch 240 --time=24:00:00 --partition=pi_donti_gpu`.
 - `--test-only` (as an sbatch option) asks Slurm to validate each job without submitting.
 
 ## Results and logs
 
 - Checkpoints: `results/<method dir>/<CASE_DIR>_<suffix>/seed_<seed>/`, e.g.
-  `results/penalty_pf/IEEE13Nodeckt_penalty_pf/seed_1/`,
-  `results/penalty_direct/IEEE123Master_penalty_direct_rho500/seed_2/`,
-  `results/penalty_pf_regime_ablation/IEEE13Nodeckt_penalty_pf_060_035_005/seed_1/`.
+  `results/proposed/IEEE13Nodeckt_proposed/seed_1/`,
+  `results/direct_prediction/IEEE123Master_direct_prediction_rho500/seed_2/`,
+  `results/proposed_regime_ablation/IEEE13Nodeckt_proposed_060_035_005/seed_1/`.
 - Slurm logs: `logs/training/<method>/<method>_<grid>_seed<seed>_<jobid>.{out,err}`.
   The first line of each log is the results directory, the second the full command.
 
@@ -83,9 +74,9 @@ Options:
   need distinct `CASE_NAME`s so checkpoints never collide.
 - **Change a grid's training set**: set `train_set: training_<suffix>` in `configs/<grid>.yaml`
   to use `<case_dir>_training_<suffix>.h5`. `_<suffix>` is appended to `CASE_NAME`, so results
-  go to e.g. `results/penalty_pf/IEEE123Master_penalty_pf_l02_u08/` and the `training`
-  checkpoints stay intact. `penalty_pf_test.sbatch` follows the same key, so keep `train_set`
-  as it was at training time when testing. `penalty_pf_regime_ablation.sbatch` ignores this
+  go to e.g. `results/proposed/IEEE123Master_proposed_l02_u08/` and the `training`
+  checkpoints stay intact. `proposed_test.sbatch` follows the same key, so keep `train_set`
+  as it was at training time when testing. `proposed_regime_ablation.sbatch` ignores this
   key and uses `TRAIN_SUFFIX`.
 - **Change a grid's hyperparameter**: edit `args` in `configs/<grid>.yaml` (every method)
   or `method_args.<family>` (one method family only).

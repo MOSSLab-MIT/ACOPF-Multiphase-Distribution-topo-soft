@@ -1,4 +1,4 @@
-"""NN input layout, checkpoint artifacts, and train-state factories on the IEEE13 feeder."""
+"""NN input layout, checkpoint artifacts, and train-state factories on small feeders."""
 
 import jax.numpy as jnp
 import numpy as np
@@ -14,12 +14,18 @@ from core.nn.input import compute_input_stats, gather_nn_features_from_session, 
 from core.nn.state import create_train_state, create_train_state_full, update_model
 
 
-@pytest.fixture(scope="module")
-def feeder():
-    paths = case_paths("IEEE13Nodeckt")
+@pytest.fixture(scope="module", params=["IEEE13Nodeckt", "IEEE123Master"])
+def feeder(request):
+    paths = case_paths(request.param)
     if not paths["test_feasible"].exists():
-        pytest.skip("IEEE13 feasible dataset is unavailable")
-    data = OPFData(str(paths["train"]), str(paths["test_feasible"]),
+        pytest.skip(f"{request.param} feasible dataset is unavailable")
+    train_path = paths["train"]
+    if not train_path.exists():
+        candidates = sorted(paths["root"].glob(f"{request.param}_training*.h5"))
+        if not candidates:
+            pytest.skip(f"{request.param} training dataset is unavailable")
+        train_path = candidates[0]
+    data = OPFData(str(train_path), str(paths["test_feasible"]),
                    str(paths["json"]), woodbury_ir_steps="0")
     x = np.asarray(data._load_inputs(paths["test_feasible"], samples=8))
     return data, x, tf.data.Dataset.from_tensor_slices(x)
@@ -71,14 +77,16 @@ def test_artifacts_round_trip_and_legacy_fallback(feeder, tmp_path):
     assert not use_compact and got is full_stat and layout is data.nn_layout
 
 
-def test_train_state_outputs_respect_der_and_voltage_bounds(feeder):
+@pytest.mark.parametrize("use_compact", [True, False])
+def test_train_state_outputs_respect_der_and_voltage_bounds(feeder, use_compact):
     data, x, ds = feeder
     net, layout = data.net, data.nn_layout
-    stat = compute_input_stats(ds, data, use_compact=True)
-    feats = gather_nn_features_from_session(x, data)
+    stat = compute_input_stats(ds, data, use_compact=use_compact)
+    feats = nn_features_for_apply(x, data, use_compact=use_compact)
+    din = layout.din_compact if use_compact else layout.din_full
     kw = dict(dhid=16, num_layers=3, scheduler=1e-3, input_stat=stat, data=data, rng=nnx.Rngs(0))
 
-    state = create_train_state(din=layout.din_compact, dout=2 * net.n_der_phase, **kw)
+    state = create_train_state(din=din, dout=2 * net.n_der_phase, **kw)
     y = np.asarray(state.apply_fn(state.params, feats))
     assert y.shape == (x.shape[0], 2 * net.n_der_phase)
     n = net.n_der_phase
@@ -86,7 +94,7 @@ def test_train_state_outputs_respect_der_and_voltage_bounds(feeder):
     assert np.all(y[:, n:] >= np.asarray(net.qdermin)) and np.all(y[:, n:] <= np.asarray(net.qdermax))
 
     dout_full = 2 * n + 2 * net.n_net
-    state_f = create_train_state_full(din=layout.din_compact, dout=dout_full, **kw)
+    state_f = create_train_state_full(din=din, dout=dout_full, **kw)
     yf = np.asarray(state_f.apply_fn(state_f.params, feats))
     assert yf.shape == (x.shape[0], dout_full)
     vr, vi = yf[:, 2 * n:2 * n + net.n_net], yf[:, 2 * n + net.n_net:]
@@ -99,14 +107,3 @@ def test_train_state_outputs_respect_der_and_voltage_bounds(feeder):
         grads = jax.tree_util.tree_map(jnp.ones_like, state.params)
     stepped = update_model(state, grads)
     assert int(stepped.step) == 1
-
-
-def test_graph_models_require_full_inputs_and_unknown_type_rejected(feeder):
-    data, _, ds = feeder
-    stat = compute_input_stats(ds, data, use_compact=False)
-    kw = dict(dhid=8, num_layers=3, scheduler=1e-3, input_stat=stat, data=data, rng=nnx.Rngs(0))
-    data.use_compact_nn = True
-    with pytest.raises(ValueError, match="full NN inputs"):
-        create_train_state(din=data.nn_layout.din_full, dout=2, model_type="gcn", **kw)
-    with pytest.raises(ValueError, match="model_type must be one of"):
-        create_train_state(din=data.nn_layout.din_full, dout=2, model_type="transformer", **kw)

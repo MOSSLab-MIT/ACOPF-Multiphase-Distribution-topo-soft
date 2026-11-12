@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Training script for OPF Neural Network with the penalty_pf method.
+Training script for OPF Neural Network with the proposed method.
 
 NN predicts DER setpoints, which are projected to the DER feasible set and fed
 to an AC power-flow solve; training minimizes the soft-OPF objective divided by ``--cost_scale``.
@@ -50,18 +50,18 @@ from core.utils.workflow import (
     create_train_results_layout,
     run_variant_batch_tests,
 )
-from methods.penalty_pf.reporting import print_penalty_pf_test_metrics
-from methods.penalty_pf.trainer import (
-    eval_epoch_penalty_pf,
-    test_penalty_pf_fn,
-    train_epoch_penalty_pf,
+from methods.proposed.reporting import print_proposed_test_metrics
+from methods.proposed.trainer import (
+    eval_epoch_proposed,
+    test_proposed_fn,
+    train_epoch_proposed,
 )
 
 
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Train OPF neural network with penalty_pf method"
+        description="Train OPF neural network with proposed method"
     )
 
     # Data
@@ -72,14 +72,6 @@ def parse_args():
     parser.add_argument("--eval_samples", type=int, default=None, help="Number of eval samples")
 
     # Model
-    parser.add_argument(
-        "--model_type",
-        type=str,
-        choices=["mlp", "gcn", "modified_gcn"],
-        default="mlp",
-        help="NN architecture predicting DER setpoints (default: mlp). "
-        "gcn/modified_gcn use full (non-compact) NN inputs.",
-    )
     parser.add_argument("--hidden_size", type=int, default=512, help="Hidden layer size")
     parser.add_argument("--num_layers", type=int, default=4, help="Number of layers")
 
@@ -102,7 +94,7 @@ def parse_args():
     parser.add_argument("--test_samples", type=int, default=None, help="Number of testing samples")
 
     # Logging / checkpointing
-    parser.add_argument("--case_name", type=str, default="penalty_pf", help="Case name")
+    parser.add_argument("--case_name", type=str, default="proposed", help="Case name")
     parser.add_argument("--results_dir", type=str, default="results", help="Results directory")
     parser.add_argument("--save_every", type=int, default=100, help="Save every N epochs")
     parser.add_argument("--log_every", type=int, default=1, help="Log every N epochs")
@@ -130,7 +122,7 @@ def parse_args():
 def main():
     """Main training function."""
     args = parse_args()
-    print_banner("OPF Neural Network - penalty_pf Training", args)
+    print_banner("OPF Neural Network - proposed Training", args)
 
     clear_gpu_memory()
     set_random_seeds(args.seed)
@@ -168,10 +160,6 @@ def main():
         batch_size=args.batch_size,
         val_h5_path=val_h5_path,
     )
-
-    # GCN initializers read per-node topology/loads from the full input row.
-    if args.model_type != "mlp":
-        data.use_compact_nn = False
 
     input_stat = compute_training_normalization(train_dataset, data)
     args.input_stat = input_stat
@@ -215,9 +203,8 @@ def main():
         input_stat=input_stat,
         data=data,
         rng=rng,
-        model_type=args.model_type,
     )
-    print(f"  Model: {args.model_type}, {args.num_layers} layers, {args.hidden_size} hidden units\n")
+    print(f"  Model: MLP, {args.num_layers} layers, {args.hidden_size} hidden units\n")
 
     results_root = create_train_results_layout(args.results_dir, args.case_name, args.seed)
     checkpoint_dir = results_root / "models"
@@ -248,7 +235,7 @@ def main():
             .as_numpy_iterator()
         )
 
-        state, train_metrics = train_epoch_penalty_pf(
+        state, train_metrics = train_epoch_proposed(
             state, train_loader, data, cost_scale=cost_scale
         )
         epoch_time = time.time() - epoch_start
@@ -267,7 +254,7 @@ def main():
                 .prefetch(tf.data.AUTOTUNE)
                 .as_numpy_iterator()
             )
-            eval_metrics = eval_epoch_penalty_pf(
+            eval_metrics = eval_epoch_proposed(
                 state, eval_loader, data, cost_scale=cost_scale
             )
             last_eval_results = eval_metrics.copy()
@@ -349,8 +336,8 @@ def main():
             batch_sizes=args.test_batch_sizes,
             test_samples=args.test_samples,
         ),
-        test_penalty_pf_fn,
-        print_metrics=print_penalty_pf_test_metrics,
+        test_proposed_fn,
+        print_metrics=print_proposed_test_metrics,
     )
 
 

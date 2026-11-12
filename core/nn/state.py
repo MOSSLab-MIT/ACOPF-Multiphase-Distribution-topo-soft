@@ -7,10 +7,9 @@ from flax import nnx
 from flax.training import train_state
 
 from core.nn.input import input_scale
-from core.nn.model import GCN_BASE_NODE_FEATURES, MLP, OPFGCN
+from core.nn.model import MLP
 
 _GRAD_CLIP_NORM = 1.0
-_MODEL_TYPES = ("mlp", "gcn", "modified_gcn")
 
 
 def _make_input_normalizer(input_stat):
@@ -41,31 +40,9 @@ def _make_optimizer(scheduler):
     )
 
 
-def create_train_state(din, dhid, dout, num_layers, scheduler, input_stat, data, rng, model_type="mlp"):
-    """TrainState predicting DER setpoints ``[pder, qder]`` (``dout = 2 * n_der_phase``).
-
-    ``model_type`` is ``mlp`` or a graph variant (``gcn`` / ``modified_gcn``); the graph
-    variants need full, non-compact inputs.
-    """
-    model_type = model_type.lower()
-    if model_type == "mlp":
-        model = MLP(din=din, dhid=dhid, dout=dout, num_layers=num_layers, rngs=rng)
-    elif model_type in ("gcn", "modified_gcn"):
-        if getattr(data, "use_compact_nn", False):
-            raise ValueError(
-                "model_type gcn/modified_gcn requires full NN inputs; "
-                "set data.use_compact_nn = False before create_train_state."
-            )
-        obj_sl = data.slices["input"]["obj_weights"]
-        model = OPFGCN(
-            node_features=GCN_BASE_NODE_FEATURES + (obj_sl.stop - obj_sl.start),
-            dhid=dhid,
-            num_layers=num_layers,
-            improved=model_type == "modified_gcn",
-            rngs=rng,
-        )
-    else:
-        raise ValueError(f"model_type must be one of: {', '.join(_MODEL_TYPES)}")
+def create_train_state(din, dhid, dout, num_layers, scheduler, input_stat, data, rng):
+    """MLP TrainState predicting DER setpoints ``[pder, qder]`` (``dout = 2 * n_der_phase``)."""
+    model = MLP(din=din, dhid=dhid, dout=dout, num_layers=num_layers, rngs=rng)
     graphdef, params, others = nnx.split(model, nnx.Param, ...)
 
     normalize_input = _make_input_normalizer(input_stat)
@@ -81,12 +58,7 @@ def create_train_state(din, dhid, dout, num_layers, scheduler, input_stat, data,
     @jax.jit
     def apply_fn(params, x):
         model_with_params = nnx.merge(graphdef, params, others)
-        normalized_x = normalize_input(x)
-        if model_type == "mlp":
-            y_pred = model_with_params(normalized_x)
-        else:
-            y_pred = model_with_params(normalized_x, x, data)
-        return normalize_output(y_pred)
+        return normalize_output(model_with_params(normalize_input(x)))
 
     return train_state.TrainState.create(
         apply_fn=apply_fn, params=params, tx=_make_optimizer(scheduler)

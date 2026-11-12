@@ -1,4 +1,4 @@
-"""Penalty direct: NN predicts DER setpoints and voltages jointly.
+"""Direct Prediction: NN predicts DER setpoints and voltages jointly.
 
 Loss at the predicted ``(pder, qder, vr, vi)``:
 ``mean(normalized_cost) + rho_eq * mean(eq_violation_sq)`` where ``cost`` is the soft-OPF
@@ -11,7 +11,7 @@ Testing reports two evaluations of the same projected prediction:
 - raw (``cost``, ``violation``, ``optimality_gap``, ...): metrics at the NN-predicted voltages, which
   need not satisfy power flow;
 - PF-repaired (``*_pf`` keys): AC power flow solved at the projected ``(pder, qder)`` from the
-  no-load voltage ``topo.w`` (the Penalty PF deploy pipeline), then metrics at the PF voltages. The
+  no-load voltage ``topo.w`` (the Proposed method's deploy pipeline), then metrics at the PF voltages. The
   predicted voltages are discarded; ``speedup_pf`` counts the PF solve in the prediction time.
 """
 
@@ -79,7 +79,7 @@ def _project_predictions(net: NetworkParams, x_pred, pder_avai):
 def solve_pf_at_predicted_der(net: NetworkParams, s_load_batch, x_pred, topo: TopologyData):
     """Non-slack PF voltages at the projected DER setpoints in ``x_pred``; predicted voltages unused.
 
-    Same solve as the Penalty PF deploy pipeline: initial guess ``topo.w``, network PF solver.
+    Same solve as the Proposed method's deploy pipeline: initial guess ``topo.w``, network PF solver.
     """
     pder, qder, _, _ = split_vars(net, x_pred)
     s_net = jax.vmap(net.compute_net_injection, in_axes=(0, 0))(s_load_batch, pder + 1j * qder)
@@ -131,7 +131,7 @@ def calc_batch_quantities(
 
 
 @partial(jax.jit, static_argnums=(4,))
-def compute_penalty_direct_loss(
+def compute_direct_prediction_loss(
     params, state, inputs_batch, targets_batch, session: OPFData, rho_eq, topo: TopologyData,
     cost_scale=None,
 ):
@@ -184,10 +184,10 @@ def compute_penalty_direct_loss(
 
 
 @partial(jax.jit, static_argnums=(3,))
-def train_step_penalty_direct(state, inputs_batch, targets_batch, session: OPFData, rho_eq, topo: TopologyData,
+def train_step_direct_prediction(state, inputs_batch, targets_batch, session: OPFData, rho_eq, topo: TopologyData,
                           cost_scale=None):
     def loss_fn(params):
-        loss, metrics, _ = compute_penalty_direct_loss(
+        loss, metrics, _ = compute_direct_prediction_loss(
             params, state, inputs_batch, targets_batch, session, rho_eq, topo,
             cost_scale=cost_scale,
         )
@@ -204,7 +204,7 @@ def train_step_penalty_direct(state, inputs_batch, targets_batch, session: OPFDa
     return state, loss, metrics
 
 
-def train_epoch_penalty_direct(
+def train_epoch_direct_prediction(
     state, train_loader, data, rho_eq, rho_rate, violation_threshold, decay_rate, rho_max,
     cost_scale=None,
 ):
@@ -218,7 +218,7 @@ def train_epoch_penalty_direct(
         inputs_batch = jnp.array(inputs_batch)
         targets_batch = jnp.zeros((inputs_batch.shape[0], 1))
 
-        state, _, metrics = train_step_penalty_direct(
+        state, _, metrics = train_step_direct_prediction(
             state, inputs_batch, targets_batch, data, rho_eq, topo,
             cost_scale=cost_scale,
         )
@@ -244,7 +244,7 @@ def train_epoch_penalty_direct(
     return state, avg_metrics, rho_eq
 
 
-def eval_epoch_penalty_direct(state, eval_loader, data, rho_eq, cost_scale=None):
+def eval_epoch_direct_prediction(state, eval_loader, data, rho_eq, cost_scale=None):
     net = data.net
     metrics_sum = {
         "loss": 0.0,
@@ -277,7 +277,7 @@ def eval_epoch_penalty_direct(state, eval_loader, data, rho_eq, cost_scale=None)
         inputs_batch = jnp.asarray(inputs_np)
         targets_batch = jnp.asarray(targets_np)
 
-        loss, metrics, internals = compute_penalty_direct_loss(
+        loss, metrics, internals = compute_direct_prediction_loss(
             state.params, state, inputs_batch, targets_batch, data, rho_eq, topo,
             cost_scale=cost_scale,
         )
@@ -355,7 +355,7 @@ def compute_norms(predicted, target):
     }
 
 
-def test_penalty_direct_fn(state, data, batch_size, test_samples):
+def test_direct_prediction_fn(state, data, batch_size, test_samples):
     test_batched = (
         data.make_test_dataset(samples=test_samples)
         .batch(batch_size, drop_remainder=True)

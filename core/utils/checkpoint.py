@@ -63,7 +63,6 @@ def save_checkpoint(state, epoch, checkpoint_dir, data, args):
 
     config = {
         "epoch": epoch,
-        "model_type": getattr(args, "model_type", "mlp"),
         "hidden_size": args.hidden_size,
         "num_layers": args.num_layers,
         "learning_rate": args.learning_rate,

@@ -1,6 +1,6 @@
-"""PF-repaired Penalty Direct metrics: PF at the predicted DERs, predicted voltages discarded.
+"""PF-repaired Direct Prediction metrics: PF at the predicted DERs, predicted voltages discarded.
 
-Checks on real feeder data that the repaired evaluation (1) is the Penalty PF deploy pipeline,
+Checks on real feeder data that the repaired evaluation (1) is the Proposed method's deploy pipeline,
 (2) does not depend on the predicted voltages, (3) lands on a power-flow solution, and (4) gives
 zero optimality gap for a perfect DER prediction.
 """
@@ -22,8 +22,8 @@ from core.grids.metrics import calc_ac_metrics_pf, compute_optimality_metrics
 from core.topology.batch import precompute_topology
 from core.utils.batch import prepare_batch_data
 from core.utils.datasets import apply_power_flow_solver_override
-from methods.penalty_direct.trainer import pf_repaired_metrics, solve_pf_at_predicted_der
-from methods.penalty_pf.trainer import _prediction_metrics, compute_voltage
+from methods.direct_prediction.trainer import pf_repaired_metrics, solve_pf_at_predicted_der
+from methods.proposed.trainer import _prediction_metrics, compute_voltage
 
 TRAIN_TAG = "_060_020_020"
 N_SAMPLES = 8
@@ -68,8 +68,8 @@ def _garbage_voltages(net, batch, seed):
     )
 
 
-def test_matches_penalty_pf_pipeline(case):
-    """Same voltages, cost and violation as Penalty PF's deploy path at the same DER setpoints."""
+def test_matches_proposed_pipeline(case):
+    """Same voltages, cost and violation as the Proposed method's deploy path at the same DER setpoints."""
     data, batch, topo = case
     net = data.net
     x_direct = _direct_x(batch, *_garbage_voltages(net, batch, 0))

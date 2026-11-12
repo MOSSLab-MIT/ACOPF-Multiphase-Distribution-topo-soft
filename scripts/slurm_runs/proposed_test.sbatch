@@ -3,16 +3,16 @@
 #SBATCH --cpus-per-task=16
 #SBATCH -G h200:1
 #
-# Test-only rerun of trained Penalty PF checkpoints. Array index = seed.
-# Submit:  scripts/slurm_runs/penalty_pf_test.sbatch [grid ...] [extra sbatch options...]
+# Test-only rerun of trained Proposed checkpoints. Array index = seed.
+# Submit:  scripts/slurm_runs/proposed_test.sbatch [grid ...] [extra sbatch options...]
 #   No grid -> GRIDS below. Seeds: `seed` in configs/<grid>.yaml (SEEDS=1,4 overrides).
 #   TEST_SETS="name ..." -> test sets to run (default: the five shifted sets).
 #   Results go to testing/<set>/ next to the training results; a set that is rerun is overwritten.
 #   DRY_RUN=1 only prints the commands.
 
 set -euo pipefail
-METHOD=penalty_pf_test
-FAMILY=penalty_pf
+METHOD=proposed_test
+FAMILY=proposed
 GRIDS=(123 240)   # grids with trained checkpoints
 
 # Repository root (sbatch is run from there, so inside a job it is the submit dir).
@@ -33,8 +33,8 @@ SOLVER="$(arg power_flow_solver)"   # not stored in the checkpoint; must match t
 TRAIN_SAMPLES="$(arg train_samples)"
 TEST_SAMPLES="$(arg test_samples)"
 
-CASE_NAME="${CASE_DIR}_penalty_pf${TRAIN_TAG}"
-RESULTS_DIR=results/penalty_pf
+CASE_NAME="${CASE_DIR}_proposed${TRAIN_TAG}"
+RESULTS_DIR=results/proposed
 CKPT="$RESULTS_DIR/$CASE_NAME/seed_$SEED/models/checkpoint_epoch_$EPOCHS"
 
 DEFAULT_SETS="feasible_shifted_m01_std01 feasible_shifted_m02_std02 feasible_shifted_m03_std03 feasible_shifted_m04_std04 feasible_shifted_m05_std05"
@@ -44,7 +44,7 @@ for name in ${TEST_SETS:-$DEFAULT_SETS}; do
 done
 
 CMD=(
-  python methods/penalty_pf/test.py
+  python methods/proposed/test.py
   --train_h5 "$TRAIN_H5"
   --data_json "$DATA/network_config.json"
   --checkpoint_path "$CKPT"

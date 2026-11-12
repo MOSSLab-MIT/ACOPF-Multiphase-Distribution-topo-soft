@@ -1,5 +1,5 @@
 #!/bin/bash
-# Example training script for Penalty PF method on IEEE 123-bus case
+# Example training script for Proposed method on IEEE 123-bus case
 
 TRAIN_H5="datagen_topo/datasets/IEEE123Master/IEEE123Master_training.h5"
 VAL_H5="datagen_topo/datasets/IEEE123Master/IEEE123Master_test_feasible_validation.h5"
@@ -10,7 +10,7 @@ TEST_H5_VARIANTS=(
 )
 
 DATA_JSON="datagen_topo/datasets/IEEE123Master/network_config.json"
-CASE_NAME="IEEE123Master_penalty_pf"
+CASE_NAME="IEEE123Master_proposed"
 
 RESULTS_DIR="results_draft"
 
@@ -35,7 +35,7 @@ echo "Results dir: $RESULTS_DIR/$CASE_NAME"
 
 module load cuda/12.9.1
 
-python methods/penalty_pf/train.py \
+python methods/proposed/train.py \
     --train_h5 "$TRAIN_H5" \
     --val_h5 "$VAL_H5" \
     --test_h5_variants "${TEST_H5_VARIANTS[@]}" \

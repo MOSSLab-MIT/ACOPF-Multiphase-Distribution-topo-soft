@@ -22,10 +22,10 @@ args:
 
 
 method_args:
-  penalty_pf:
+  proposed:
     epochs: 10
     warmup_epochs: 0
-  penalty_direct:
+  direct_prediction:
     epochs: 10
 
 train_set: training_060_020_020

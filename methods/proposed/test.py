@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test-only script for OPF Neural Network using penalty_direct checkpoint."""
+"""Test-only script for a proposed checkpoint (NN → DER projection → power flow → metrics)."""
 import os
 import sys
 
@@ -19,22 +19,26 @@ import argparse
 import jax
 
 configure_tensorflow_for_data_loading()
+jax.config.update("jax_enable_x64", True)
 
 from core.utils.cli import add_test_dataset_cli_args, print_banner
 from core.grids.power_flow import PowerFlowSolver
-from core.nn.state import create_train_state_full
-from core.utils.checkpoint import resolve_checkpoint_model_spec, restore_checkpoint_state
+from core.nn.state import create_train_state
+from core.utils.checkpoint import (
+    resolve_checkpoint_model_spec,
+    restore_checkpoint_state,
+)
 from core.utils.datasets import prepare_checkpoint_test_data, resolve_and_validate_test_paths
 from core.utils.types import OPFDataBuildOptions, VariantTestSpec
 from core.utils.workflow import create_test_results_layout, run_variant_batch_tests
-from methods.penalty_direct.reporting import print_penalty_direct_test_metrics
-from methods.penalty_direct.trainer import test_penalty_direct_fn
+from methods.proposed.reporting import print_proposed_test_metrics
+from methods.proposed.trainer import test_proposed_fn
 
 
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Test OPF neural network with penalty_direct checkpoint"
+        description="Test OPF neural network from a proposed checkpoint"
     )
 
     # Data
@@ -56,7 +60,7 @@ def parse_args():
     parser.add_argument("--test_batch_sizes", type=int, nargs="+", default=[1], help="Batch sizes for testing")
 
     # Logging / results
-    parser.add_argument("--case_name", type=str, default="penalty_direct", help="Case name")
+    parser.add_argument("--case_name", type=str, default="proposed", help="Case name")
     parser.add_argument("--results_dir", type=str, default="results", help="Results directory")
     parser.add_argument("--seed", type=int, default=1, help="Random seed")
     parser.add_argument("--power_flow_solver", type=str, default=PowerFlowSolver.FIXED_POINT.value, choices=[m.value for m in PowerFlowSolver], help="Power flow: fixed_point | newton_dense | newton_gmres | newton_gmres_explicit. Default fixed_point.")
@@ -76,7 +80,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    print_banner("OPF Neural Network - penalty_direct Test", args)
+    print_banner("OPF Neural Network - proposed Test", args)
 
     clear_gpu_memory()
     set_random_seeds(args.seed)
@@ -112,9 +116,9 @@ def main():
         train_dataset=train_dataset,
         checkpoint_path=checkpoint_path,
         seed=args.seed,
-        create_state_fn=create_train_state_full,
+        create_state_fn=create_train_state,
         model_spec=model_spec,
-        dout=2 * data.net.n_der_phase + 2 * data.net.n_net,
+        dout=2 * data.net.n_der_phase,
     )
 
     results_root = create_test_results_layout(args.results_dir, args.case_name, args.seed)
@@ -129,8 +133,8 @@ def main():
             batch_sizes=args.test_batch_sizes,
             test_samples=args.test_samples,
         ),
-        test_penalty_direct_fn,
-        print_metrics=print_penalty_direct_test_metrics,
+        test_proposed_fn,
+        print_metrics=print_proposed_test_metrics,
     )
 
 

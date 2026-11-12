@@ -1,5 +1,5 @@
 """
-Penalty + power-flow (penalty_pf) training utilities for multiphase distribution OPF.
+Penalty + power-flow (proposed) training utilities for multiphase distribution OPF.
 
 Pipeline (identical at train, eval, and test time):
 NN → project DER controls to their device-feasible set → AC power flow →
@@ -127,7 +127,7 @@ def calc_batch_quantities(
 
 
 @partial(jax.jit, static_argnums=(4,))
-def compute_penalty_pf_loss(
+def compute_proposed_loss(
     params, state, inputs_batch, targets_batch, session, topo: TopologyData,
     cost_scale=None,
 ):
@@ -180,14 +180,14 @@ def compute_penalty_pf_loss(
 
 
 @partial(jax.jit, static_argnums=(3,))
-def train_step_penalty_pf(state, inputs_batch, targets_batch, session, topo: TopologyData,
+def train_step_proposed(state, inputs_batch, targets_batch, session, topo: TopologyData,
                           cost_scale=None):
-    """One Optax step: ``value_and_grad`` on ``compute_penalty_pf_loss``.
+    """One Optax step: ``value_and_grad`` on ``compute_proposed_loss``.
 
     Skips the update when the global gradient norm is non-finite.
     """
     def loss_fn(params):
-        loss, metrics, _ = compute_penalty_pf_loss(
+        loss, metrics, _ = compute_proposed_loss(
             params, state, inputs_batch, targets_batch, session, topo,
             cost_scale=cost_scale,
         )
@@ -213,7 +213,7 @@ def train_step_penalty_pf(state, inputs_batch, targets_batch, session, topo: Top
     return state, loss, metrics
 
 
-def train_epoch_penalty_pf(state, train_loader, data, cost_scale=None):
+def train_epoch_proposed(state, train_loader, data, cost_scale=None):
     """Run one training epoch; sync metrics once at epoch end."""
     metrics_sum = {k: jnp.asarray(0.0) for k in _TRAIN_METRIC_SUM_KEYS}
     metrics_sum["max_violation"] = jnp.asarray(0.0)
@@ -224,7 +224,7 @@ def train_epoch_penalty_pf(state, train_loader, data, cost_scale=None):
         inputs_batch = jnp.array(inputs_batch)
         targets_batch = jnp.zeros((inputs_batch.shape[0], 1))
 
-        state, _, metrics = train_step_penalty_pf(
+        state, _, metrics = train_step_proposed(
             state, inputs_batch, targets_batch, data, topo, cost_scale=cost_scale
         )
 
@@ -241,7 +241,7 @@ def train_epoch_penalty_pf(state, train_loader, data, cost_scale=None):
     return state, avg_metrics
 
 
-def eval_epoch_penalty_pf(state, eval_loader, data, cost_scale=None):
+def eval_epoch_proposed(state, eval_loader, data, cost_scale=None):
     """Run evaluation epoch."""
     # Use full data object, not just data.net
     metrics_sum = {
@@ -269,7 +269,7 @@ def eval_epoch_penalty_pf(state, eval_loader, data, cost_scale=None):
     
     for inputs_batch, targets_batch in eval_loader:
         topo = precompute_topology(data, inputs_batch)
-        loss, metrics, internals = compute_penalty_pf_loss(
+        loss, metrics, internals = compute_proposed_loss(
             state.params, state, inputs_batch, targets_batch, data, topo,
             cost_scale=cost_scale,
         )
@@ -390,8 +390,8 @@ def _prediction_metrics(net: NetworkParams, batch, x_pred, v_pred, topo: Topolog
     return cost, violation
 
 
-def test_penalty_pf_fn(state, data, batch_size, test_samples):
-    """Test the penalty_pf pipeline (NN → projection → PF) against solver targets.
+def test_proposed_fn(state, data, batch_size, test_samples):
+    """Test the proposed pipeline (NN → projection → PF) against solver targets.
 
     Timing:
       - ``total_inverse_time``: ``precompute_topology`` (host dedup + ``Y_LL_inv``).

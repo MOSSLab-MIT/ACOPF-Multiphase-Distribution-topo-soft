@@ -21,9 +21,9 @@ args:
   # cost_scale: n/a (no 906 datasets on disk yet)
 
 method_args:
-  penalty_pf:
+  proposed:
     epochs: 10
-  penalty_direct:
+  direct_prediction:
     epochs: 20
 
 train_set: training_060_020_020

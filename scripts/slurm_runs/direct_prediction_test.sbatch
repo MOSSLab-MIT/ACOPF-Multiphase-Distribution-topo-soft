@@ -3,17 +3,17 @@
 #SBATCH --cpus-per-task=16
 #SBATCH -G h200:1
 #
-# Test-only rerun of trained Penalty Direct checkpoints (raw + PF-repaired metrics). Array index = seed.
-# Submit:  scripts/slurm_runs/penalty_direct_test.sbatch [grid ...] [extra sbatch options...]
+# Test-only rerun of trained Direct Prediction checkpoints (raw + PF-repaired metrics). Array index = seed.
+# Submit:  scripts/slurm_runs/direct_prediction_test.sbatch [grid ...] [extra sbatch options...]
 #   No grid -> GRIDS below. Seeds: `seed` in configs/<grid>.yaml (SEEDS=1,4 overrides).
 #   TEST_SETS="name ..." -> test sets to run (default: the grid config's full test_sets).
-#   RHO -> run name rho_eq_init (default 100), as in penalty_direct.sbatch.
+#   RHO -> run name rho_eq_init (default 100), as in direct_prediction.sbatch.
 #   Results go to testing/<set>/ next to the training results; a set that is rerun is overwritten.
 #   DRY_RUN=1 only prints the commands.
 
 set -euo pipefail
-METHOD=penalty_direct_test
-FAMILY=penalty_direct
+METHOD=direct_prediction_test
+FAMILY=direct_prediction
 GRIDS=(123 240 906)   # grids with trained checkpoints
 
 # Repository root (sbatch is run from there, so inside a job it is the submit dir).
@@ -35,8 +35,8 @@ TRAIN_SAMPLES="$(arg train_samples)"
 TEST_SAMPLES="$(arg test_samples)"
 
 RHO="${RHO:-100}"
-CASE_NAME="${CASE_DIR}_penalty_direct_rho${RHO}${TRAIN_TAG}"
-RESULTS_DIR=results/penalty_direct
+CASE_NAME="${CASE_DIR}_direct_prediction_rho${RHO}${TRAIN_TAG}"
+RESULTS_DIR=results/direct_prediction
 CKPT="$RESULTS_DIR/$CASE_NAME/seed_$SEED/models/checkpoint_epoch_$EPOCHS"
 
 if [ -n "${TEST_SETS:-}" ]; then
@@ -49,7 +49,7 @@ else
 fi
 
 CMD=(
-  python methods/penalty_direct/test.py
+  python methods/direct_prediction/test.py
   --train_h5 "$TRAIN_H5"
   --data_json "$DATA/network_config.json"
   --checkpoint_path "$CKPT"

@@ -7,7 +7,7 @@ TEST_H5_VARIANTS=(
 )
 
 DATA_JSON="datagen_topo/datasets/8500_Master/network_config.json"
-CASE_NAME="8500_penalty_pf"
+CASE_NAME="8500_proposed"
 
 RESULTS_DIR="results_draft"
 
@@ -24,7 +24,7 @@ TRAIN_SAMPLES=200000
 EVAL_SAMPLES=100
 TEST_SAMPLES=2000
 
-# Logging / eval (eval_every defaults to log_every in penalty_pf/train.py)
+# Logging / eval (eval_every defaults to log_every in proposed/train.py)
 LOG_EVERY=1
 EVAL_EVERY=1
 
@@ -39,7 +39,7 @@ PROJECT_DIR="/home/hoangh/Projects/ACOPF-Multiphase-Distribution-topo"
 cd $PROJECT_DIR
 conda activate new_opt
 
-python methods/penalty_pf/train.py \
+python methods/proposed/train.py \
     --train_h5 "$TRAIN_H5" \
     --val_h5 "$VAL_H5" \
     --test_h5_variants "${TEST_H5_VARIANTS[@]}" \

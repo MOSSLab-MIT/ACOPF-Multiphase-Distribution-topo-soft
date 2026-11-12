@@ -21,9 +21,9 @@ args:
   # cost_scale: 67.4724 (p95 of feasible_validation objective, first 2000 samples)
 
 method_args:
-  penalty_pf:
+  proposed:
     epochs: 10
-  penalty_direct:
+  direct_prediction:
     epochs: 20
 
 train_set: training_060_020_020

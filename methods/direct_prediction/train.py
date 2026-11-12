@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Training script for OPF Neural Network with penalty_direct method.
+Training script for OPF Neural Network with direct_prediction method.
 
 NN predicts DER setpoints and voltages jointly. DER controls are projected;
 training minimizes the soft-OPF objective divided by ``--cost_scale`` plus a
@@ -48,18 +48,18 @@ from core.utils.workflow import (
     create_train_results_layout,
     run_variant_batch_tests,
 )
-from methods.penalty_direct.reporting import print_penalty_direct_test_metrics
-from methods.penalty_direct.trainer import (
-    eval_epoch_penalty_direct,
-    test_penalty_direct_fn,
-    train_epoch_penalty_direct,
+from methods.direct_prediction.reporting import print_direct_prediction_test_metrics
+from methods.direct_prediction.trainer import (
+    eval_epoch_direct_prediction,
+    test_direct_prediction_fn,
+    train_epoch_direct_prediction,
 )
 
 
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Train OPF neural network with penalty_direct method"
+        description="Train OPF neural network with direct_prediction method"
     )
 
     # Data
@@ -99,7 +99,7 @@ def parse_args():
     parser.add_argument("--rho_max", type=float, default=1e10, help="Maximum penalty weight")
 
     # Logging / checkpointing
-    parser.add_argument("--case_name", type=str, default="penalty_direct", help="Case name")
+    parser.add_argument("--case_name", type=str, default="direct_prediction", help="Case name")
     parser.add_argument("--results_dir", type=str, default="results", help="Results directory")
     parser.add_argument("--save_every", type=int, default=100, help="Save every N epochs")
     parser.add_argument("--log_every", type=int, default=1, help="Log every N epochs")
@@ -126,7 +126,7 @@ def parse_args():
 def main():
     """Main training function."""
     args = parse_args()
-    print_banner("OPF Neural Network - penalty_direct Training", args)
+    print_banner("OPF Neural Network - direct_prediction Training", args)
 
     clear_gpu_memory()
     set_random_seeds(args.seed)
@@ -234,7 +234,7 @@ def main():
                 .as_numpy_iterator()
             )
 
-        state, train_metrics, rho_eq = train_epoch_penalty_direct(
+        state, train_metrics, rho_eq = train_epoch_direct_prediction(
             state,
             train_loader,
             data,
@@ -261,7 +261,7 @@ def main():
             )
 
             if eval_loader is not None:
-                eval_metrics = eval_epoch_penalty_direct(
+                eval_metrics = eval_epoch_direct_prediction(
                     state, eval_loader, data, rho_eq, cost_scale=cost_scale
                 )
                 last_eval_results = eval_metrics.copy()
@@ -341,8 +341,8 @@ def main():
             batch_sizes=args.test_batch_sizes,
             test_samples=args.test_samples,
         ),
-        test_penalty_direct_fn,
-        print_metrics=print_penalty_direct_test_metrics,
+        test_direct_prediction_fn,
+        print_metrics=print_direct_prediction_test_metrics,
     )
 
 

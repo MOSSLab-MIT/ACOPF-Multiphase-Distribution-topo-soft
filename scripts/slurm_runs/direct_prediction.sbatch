@@ -3,35 +3,40 @@
 #SBATCH --cpus-per-task=16
 #SBATCH -G h200:1
 #
-# Penalty PF with a GCN backbone. Array index = seed.
-# Submit:  scripts/slurm_runs/penalty_pf_gcn.sbatch [grid ...] [extra sbatch options...]
+# Direct Prediction with a fixed equality weight. Array index = seed.
+# Submit:  RHO=500 scripts/slurm_runs/direct_prediction.sbatch [grid ...] [extra sbatch options...]
 #   No grid -> GRIDS below. Seeds: `seed` in configs/<grid>.yaml (SEEDS=1,4 overrides).
 #   DRY_RUN=1 only prints the commands.
+# Knob: RHO = rho_eq_init (default 100); rho_rate=0, rho_decay_rate=1 keep it fixed.
 
 set -euo pipefail
-METHOD=penalty_pf_gcn
-FAMILY=penalty_pf
-GRIDS=(123 240 8500)   # submitted when no grid is given
+METHOD=direct_prediction
+FAMILY=direct_prediction
+GRIDS=(123 240 906)   # submitted when no grid is given
 
 # Repository root (sbatch is run from there, so inside a job it is the submit dir).
 if [ -n "${SLURM_ARRAY_TASK_ID:-}" ]; then cd "${SLURM_SUBMIT_DIR:-$PWD}"; else cd "$(dirname "${BASH_SOURCE[0]}")/../.."; fi
 source scripts/slurm_runs/common.sh   # outside a job: submits one array job per grid, exits
 
-CASE_NAME="${CASE_DIR}_penalty_pf_gcn${TRAIN_TAG}"
-RESULTS_DIR=results/penalty_pf_gcn
+RHO="${RHO:-100}"
+CASE_NAME="${CASE_DIR}_direct_prediction_rho${RHO}${TRAIN_TAG}"
+RESULTS_DIR=results/direct_prediction
 
 CMD=(
-  python methods/penalty_pf/train.py
+  python methods/direct_prediction/train.py
   --train_h5 "$TRAIN_H5"
   --data_json "$DATA/network_config.json"
   --case_name "$CASE_NAME"
   --results_dir "$RESULTS_DIR"
   --seed "$SEED"
   "${GRID_ARGS[@]}"
-  --model_type gcn
+  --rho_eq_init "$RHO"
+  --rho_rate 0
+  --rho_decay_rate 1
+  --rho_max 1.0e10
+  --violation_threshold 1.0e-6
   --save_every 5
   --log_every 1
-  --eval_every 1
   --woodbury_ir_steps auto
   --woodbury_batch_mode vmap
   --val_h5 "$VAL_H5"

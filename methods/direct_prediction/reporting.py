@@ -1,11 +1,11 @@
-"""Console reporting for penalty-direct test metrics."""
+"""Console reporting for direct-prediction test metrics."""
 
 from typing import Any, Dict
 
 from core.grids.metrics import SOFT_PENALTY_KEYS, format_soft_penalty_summary
 
 
-def print_penalty_direct_test_metrics(batch_size: int, test_metrics: Dict[str, Any]) -> None:
+def print_direct_prediction_test_metrics(batch_size: int, test_metrics: Dict[str, Any]) -> None:
     print(f"    Batch size: {batch_size}")
     print(
         f"    Cost: {test_metrics['cost']:.6f} | Vio: {test_metrics['violation']:.6e} | "

@@ -3,8 +3,8 @@ import jax.numpy as jnp
 import pytest
 
 from core.grids.metrics import ac_constraint_violation_vector
-from methods.penalty_pf import trainer as penalty_pf_trainer
-from methods.penalty_direct import trainer as penalty_direct_trainer
+from methods.proposed import trainer as proposed_trainer
+from methods.direct_prediction import trainer as direct_prediction_trainer
 
 
 class _DummyData:
@@ -30,12 +30,12 @@ def _unit_phase_sum(p_phase: np.ndarray, data: _DummyData) -> np.ndarray:
     return np.sum(gathered, axis=2)
 
 
-def test_penalty_pf_projection_applies_common_per_unit_scaling():
+def test_proposed_projection_applies_common_per_unit_scaling():
     data = _DummyData()
     x_pred_raw = jnp.asarray([[1.0, 3.0, 4.0, 0.1, -0.2, 0.3]], dtype=jnp.float64)
     pder_avai = jnp.asarray([[2.0, 3.0]], dtype=jnp.float64)
 
-    x_proj = penalty_pf_trainer._project_predictions(x_pred_raw, pder_avai, data)
+    x_proj = proposed_trainer._project_predictions(x_pred_raw, pder_avai, data)
     p_proj = np.asarray(x_proj[:, : data.n_der_phase])
 
     expected = np.asarray([[0.5, 1.5, 3.0]], dtype=np.float64)
@@ -46,7 +46,7 @@ def test_penalty_pf_projection_applies_common_per_unit_scaling():
     np.testing.assert_allclose(ratio_u0, np.asarray([0.5, 0.5]), atol=1e-12, rtol=1e-12)
 
 
-def test_penalty_direct_projection_scales_p_and_preserves_voltage_parts():
+def test_direct_prediction_projection_scales_p_and_preserves_voltage_parts():
     data = _DummyData()
     p_raw = [1.0, 3.0, 4.0]
     q_raw = [0.2, -0.4, 0.6]
@@ -55,7 +55,7 @@ def test_penalty_direct_projection_scales_p_and_preserves_voltage_parts():
     x_pred_raw = jnp.asarray([p_raw + q_raw + vr_raw + vi_raw], dtype=jnp.float64)
     pder_avai = jnp.asarray([[2.0, 3.0]], dtype=jnp.float64)
 
-    x_proj = penalty_direct_trainer._project_predictions(data, x_pred_raw, pder_avai)
+    x_proj = direct_prediction_trainer._project_predictions(data, x_pred_raw, pder_avai)
     p_proj = np.asarray(x_proj[:, : data.n_der_phase])
     tail_proj = np.asarray(x_proj[:, 2 * data.n_der_phase :])
     tail_raw = np.asarray(x_pred_raw[:, 2 * data.n_der_phase :])
@@ -73,7 +73,7 @@ def test_both_penalty_projections_enforce_unit_availability_with_even_scaling():
     q_raw = rng.uniform(-2.0, 2.0, size=(batch_size, data.n_der_phase))
     pder_avai = rng.uniform(0.2, 6.0, size=(batch_size, 2))
 
-    x_penalty_pf = jnp.asarray(np.concatenate([p_raw, q_raw], axis=1), dtype=jnp.float64)
+    x_proposed = jnp.asarray(np.concatenate([p_raw, q_raw], axis=1), dtype=jnp.float64)
     x_direct = jnp.asarray(
         np.concatenate(
             [
@@ -88,15 +88,15 @@ def test_both_penalty_projections_enforce_unit_availability_with_even_scaling():
     )
     pder_avai_jnp = jnp.asarray(pder_avai, dtype=jnp.float64)
 
-    p_penalty_pf = np.asarray(
-        penalty_pf_trainer._project_predictions(x_penalty_pf, pder_avai_jnp, data)[:, : data.n_der_phase]
+    p_proposed = np.asarray(
+        proposed_trainer._project_predictions(x_proposed, pder_avai_jnp, data)[:, : data.n_der_phase]
     )
     p_direct = np.asarray(
-        penalty_direct_trainer._project_predictions(data, x_direct, pder_avai_jnp)[:, : data.n_der_phase]
+        direct_prediction_trainer._project_predictions(data, x_direct, pder_avai_jnp)[:, : data.n_der_phase]
     )
-    np.testing.assert_allclose(p_penalty_pf, p_direct, atol=1e-12, rtol=1e-12)
+    np.testing.assert_allclose(p_proposed, p_direct, atol=1e-12, rtol=1e-12)
 
-    unit_sum = _unit_phase_sum(p_penalty_pf, data)
+    unit_sum = _unit_phase_sum(p_proposed, data)
     assert np.all(unit_sum <= pder_avai + 1e-12)
 
     groups = np.asarray(data.der_unit_to_phase)
@@ -108,7 +108,7 @@ def test_both_penalty_projections_enforce_unit_availability_with_even_scaling():
                 continue
             # Common scaling preserves ratios after enforcing per-phase bounds.
             raw = np.clip(p_raw[b, phase_ids], 0.0, np.asarray(data.pdermax)[phase_ids])
-            out = p_penalty_pf[b, phase_ids]
+            out = p_proposed[b, phase_ids]
             active = raw > 1e-10
             if np.count_nonzero(active) <= 1:
                 continue
@@ -116,7 +116,7 @@ def test_both_penalty_projections_enforce_unit_availability_with_even_scaling():
             assert np.max(ratios) - np.min(ratios) <= 1e-12
 
 
-@pytest.mark.parametrize("method", ["penalty_pf", "penalty_direct"])
+@pytest.mark.parametrize("method", ["proposed", "direct_prediction"])
 def test_training_projection_enforces_all_der_constraints(method):
     data = _DummyData()
     data.pdermax = jnp.asarray([0.8, 2.5, 3.0])
@@ -125,11 +125,11 @@ def test_training_projection_enforces_all_der_constraints(method):
     data.qdermax = jnp.asarray([0.2, 0.6, 0.7])
     x = jnp.asarray([[100.0, 0.0, -1.0, 20.0, -20.0, 20.0]])
     caps = jnp.asarray([[2.0, 3.0]])
-    if method == "penalty_pf":
-        x_out = penalty_pf_trainer._project_predictions(x, caps, data)
+    if method == "proposed":
+        x_out = proposed_trainer._project_predictions(x, caps, data)
     else:
         voltages = jnp.asarray([[1.0, 0.98, 1.02, 0.0, 0.01, -0.01]])
-        full_out = penalty_direct_trainer._project_predictions(
+        full_out = direct_prediction_trainer._project_predictions(
             data, jnp.concatenate([x, voltages], axis=1), caps
         )
         np.testing.assert_array_equal(full_out[:, 6:], voltages)
