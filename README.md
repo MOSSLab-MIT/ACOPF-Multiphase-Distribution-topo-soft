@@ -1,44 +1,8 @@
-# ACOPF Distribution (topology-aware)
+# 
 
 AC Optimal Power Flow (ACOPF) for **distribution networks with changing topology**. Training data and OPF labels are generated in Julia via [FeederFlow.jl](datagen_topo/FeederFlow.jl/); learning and inference run in JAX.
 
 Supported feeder scales include IEEE **13**, **123**, **240**, **906**, and **8500** buses (see `datagen_topo/grid_data/`).
-
-**Core library:** for notation, data containers, linearization math, and topology backends, see [`docs/architecture.md`](docs/architecture.md). For Python file layout and naming, see [`docs/coding_style.md`](docs/coding_style.md). Contributor conventions and parameter defaults: [`AGENTS.md`](AGENTS.md).
-
-## Methods
-
-
-| Method             | Entry script                      | Idea                                                                                                                 |
-| ------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Penalty PF**     | `methods/penalty_pf/train.py`     | NN → DER projection → AC power flow; soft-OPF cost (V/I/θ/substation penalties). Test = same pipeline                |
-| **Penalty Direct** | `methods/penalty_direct/train.py` | Projected DER controls and predicted voltages; soft-OPF objective plus an adaptive or fixed power-flow equality penalty |
-| **Linear OPF**     | `methods/linear_opf/test.py`      | Fixed-reference linear OPF baseline (CVXPY + Clarabel); test-only, optional sharding                                 |
-
-
-Corresponding test drivers: `methods/penalty_pf/test.py`, `methods/penalty_direct/test.py`. Linear OPF is test-only.
-
-**NN architectures** (`--model_type`, Penalty PF): `mlp` (default; compact load features), `gcn`, `modified_gcn` (full non-compact inputs).
-
-**Penalty PF pipeline** (identical at train, eval, and test time)
-
-1. NN predicts DER controls `(pder, qder)`.
-2. Closed-form projection onto the DER device limits (`core/grids/der_projection.py`): active/reactive power bounds, per-unit availability cap, and apparent-power disk.
-3. AC power flow at the projected controls gives the voltages; the soft-OPF cost (economic + `ρ_V, ρ_I, ρ_θ, ρ_sub` penalties on voltage / current / angle / substation limits, as in the Julia labels) is evaluated there and is the loss.
-
-Topology changes use compact `changing_switch_status` in HDF5 (expanded to full branch status via `network_config.json`). `core/topology/` provides Woodbury updates (default) and a stamp reference backend, with batch precompute for training/eval.
-
-## Technology stack
-
-
-| Layer            | Tools                                                                              |
-| ---------------- | ---------------------------------------------------------------------------------- |
-| Compute          | **JAX** (JIT, `vmap`, `lax.scan`; 64-bit enabled in trainers)                      |
-| Models           | **Flax NNX** MLP / GCN (`core/nn/model.py`)                                        |
-| Data I/O         | **TensorFlow** datasets (CPU only; GPU hidden from TF)                             |
-| Numerics         | **NumPy**, **SciPy**, **Optax**                                                    |
-| Linear OPF       | **CVXPY** + **Clarabel**                                                           |
-| Datagen / labels | **Julia** + **FeederFlow.jl** (`datagen_topo/FeederFlow.jl/`, `gen_scripts/`)      |
 
 
 ## Environment setup
